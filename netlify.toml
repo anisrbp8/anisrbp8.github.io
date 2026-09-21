@@ -1,0 +1,6 @@
+[build]
+  command = "python configure_site.py --url \"$URL\""
+  publish = "."
+
+[build.processing]
+  skip_processing = false

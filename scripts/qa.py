@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""Validate the deployed site's local navigation and asset graph."""
+from pathlib import Path
+from html.parser import HTMLParser
+from urllib.parse import urlsplit, unquote
+import json,re,xml.etree.ElementTree as ET
+ROOT=Path(__file__).resolve().parents[1]
+ORIGIN='anisrbp8.github.io'
+class Page(HTMLParser):
+ def __init__(self,text):
+  super().__init__(convert_charrefs=True);self.ids=[];self.refs=[];self.h1=0;self.lang=None;self.issues=[];self.feed(text)
+ def handle_starttag(self,tag,attrs):
+  a=dict(attrs)
+  if tag=='html': self.lang=a.get('lang')
+  if tag=='h1': self.h1+=1
+  if 'id' in a:self.ids.append(a['id'])
+  if tag=='img' and 'alt' not in a:self.issues.append('Missing image alternative')
+  if tag=='form':self.issues.append('Form without configured message service')
+  for key in ['href','src','action']:
+   if a.get(key):self.refs.append(a[key])
+  if a.get('srcset'):
+   self.refs.extend(x.strip().split()[0] for x in a['srcset'].split(','))
+files=sorted(ROOT.rglob('*.html'));parsed={p:Page(p.read_text()) for p in files};issues=[];checks=0
+for p,page in parsed.items():
+ rel=str(p.relative_to(ROOT));text=p.read_text()
+ for issue in page.issues:issues.append([rel,issue])
+ if not page.lang:issues.append([rel,'Missing language'])
+ if page.h1!=1:issues.append([rel,'Expected one h1'])
+ if len(set(page.ids))!=len(page.ids):issues.append([rel,'Duplicate IDs'])
+ if '.example' in text or 'data-netlify' in text:issues.append([rel,'Stale deployment configuration'])
+ if not re.search(r'<title>[^<]+</title>',text):issues.append([rel,'Missing title'])
+ if re.search(r'[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}',text):issues.append([rel,'Public receiving email in HTML'])
+ for ref in page.refs:
+  u=urlsplit(ref)
+  if u.scheme and u.scheme not in ('http','https'):continue
+  if u.netloc and u.netloc!=ORIGIN:continue
+  path=unquote(u.path)
+  target=(ROOT/path.lstrip('/') if path.startswith('/') or u.netloc else p.parent/path).resolve() if path else p
+  if target.is_dir():target=target/'index.html'
+  checks+=1
+  if not target.is_file():issues.append([rel,'Missing resource: '+ref]);continue
+  if u.fragment and target.suffix=='.html' and unquote(u.fragment) not in parsed[target].ids:issues.append([rel,'Missing anchor: '+ref])
+for p in (ROOT/'assets/css').glob('*.css'):
+ for ref in re.findall(r'url\([\'\"]?([^\)\'\"]+)',p.read_text()):
+  if ref.startswith(('data:','http','#')):continue
+  if not (p.parent/ref).is_file():issues.append([str(p.relative_to(ROOT)),'Missing CSS asset: '+ref])
+for loc in ET.parse(ROOT/'sitemap.xml').findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc'):
+ u=urlsplit(loc.text);p=ROOT/u.path.lstrip('/')
+ if p.is_dir():p=p/'index.html'
+ if u.netloc!=ORIGIN or not p.is_file():issues.append(['sitemap.xml','Invalid URL: '+loc.text])
+json.loads((ROOT/'site.webmanifest').read_text())
+result={'pages':len(files),'local_references_checked':checks,'images':len(list((ROOT/'assets/img').glob('*'))),'pdf_documents':len(list((ROOT/'assets/docs').glob('*.pdf'))),'issues':issues,'passed':not issues}
+(ROOT/'VALIDATION-REPORT.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps(result,ensure_ascii=False,indent=2))
+raise SystemExit(bool(issues))
