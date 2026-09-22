@@ -20,7 +20,7 @@ class Page(HTMLParser):
    if a.get(key):self.refs.append(a[key])
   if a.get('srcset'):
    self.refs.extend(x.strip().split()[0] for x in a['srcset'].split(','))
-files=sorted(ROOT.rglob('*.html'));parsed={p:Page(p.read_text()) for p in files};issues=[];checks=0
+files=sorted(p for p in ROOT.rglob('*.html') if not any(x in {'node_modules','test-output','.git'} for x in p.parts));parsed={p:Page(p.read_text()) for p in files};issues=[];checks=0
 for p,page in parsed.items():
  rel=str(p.relative_to(ROOT));text=p.read_text()
  for issue in page.issues:issues.append([rel,issue])

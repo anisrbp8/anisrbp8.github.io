@@ -1,0 +1,69 @@
+{
+  "checks": [
+    {
+      "test": "index.html images decode",
+      "passed": true
+    },
+    {
+      "test": "index.html mobile navigation links receive focus",
+      "passed": true
+    },
+    {
+      "test": "index.html menu closes and focus returns",
+      "passed": true
+    },
+    {
+      "test": "index.html reading controls reachable with keyboard",
+      "passed": true
+    },
+    {
+      "test": "index.html reading preference survives reload",
+      "passed": true
+    },
+    {
+      "test": "index.html live status after reset",
+      "passed": true
+    },
+    {
+      "test": "index.html forced colours focus is outlined",
+      "passed": true
+    },
+    {
+      "test": "en/index.html images decode",
+      "passed": true
+    },
+    {
+      "test": "en/index.html mobile navigation links receive focus",
+      "passed": true
+    },
+    {
+      "test": "en/index.html menu closes and focus returns",
+      "passed": true
+    },
+    {
+      "test": "en/index.html reading controls reachable with keyboard",
+      "passed": true
+    },
+    {
+      "test": "en/index.html reading preference survives reload",
+      "passed": true
+    },
+    {
+      "test": "en/index.html live status after reset",
+      "passed": true
+    },
+    {
+      "test": "en/index.html forced colours focus is outlined",
+      "passed": true
+    },
+    {
+      "test": "Native mobile navigation works without JavaScript",
+      "passed": true
+    },
+    {
+      "test": "No-JavaScript reading control explanation is visible",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

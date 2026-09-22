@@ -6,9 +6,9 @@ Site bilingue français / anglais : https://anisrbp8.github.io/
 Site statique HTML/CSS/JavaScript. GitHub Pages : branche `main`, dossier racine. Aucune compilation nécessaire.
 
 ## Organisation
-- Pages françaises à la racine et dix pages anglaises dans `en/`.
-- `assets/css/styles.css` : styles de base ; `assets/css/editorial.css` : harmonisation responsive.
-- `assets/js/site.js` : fermeture du menu mobile, gestion du clavier et du focus.
+- Pages françaises à la racine et quinze pages anglaises dans `en/`.
+- `assets/css/styles.css` : styles de base ; `assets/css/editorial.css` : harmonisation responsive ; `assets/css/accessibility.css` : contrastes, focus, reflow et préférences de lecture.
+- `assets/js/site.js` : fermeture du menu mobile, gestion du clavier et du focus, préférences locales de lecture.
 - `assets/img/` : quatre images ; `assets/docs/` : quatre documents PDF.
 
 ## Contact
@@ -19,3 +19,7 @@ Exécuter `python scripts/qa.py` (Python standard, sans dépendance), puis ouvri
 Les vérifications automatiques ne constituent pas un audit complet de conformité RGAA.
 
 Les fichiers `netlify.toml`, `_headers` et `configure_site.py` issus de l’archive sont conservés pour une éventuelle migration. Ils ne sont pas utilisés par GitHub Pages.
+
+## Audit du 22 septembre 2026
+
+Voir [le rapport technique](audit/RAPPORT-ACCESSIBILITE.md), les résultats JSON et la matrice RGAA dans `audit/`. Ces documents ne constituent pas une certification. Le workflow axe/Playwright vérifie les pages et les interactions à chaque modification. Les quatre PDF disposent de versions HTML intégrales accessibles depuis leurs liens de téléchargement.

@@ -1,0 +1,1698 @@
+{
+  "date": "2026-09-22T05:14:47.938Z",
+  "tools": {
+    "axe": "4.13.0",
+    "playwright": "1.63.0"
+  },
+  "scope": [
+    "404.html",
+    "accessibilite.html",
+    "biographie.html",
+    "confidentialite.html",
+    "contact.html",
+    "cv.html",
+    "en/accessibility.html",
+    "en/biography.html",
+    "en/contact.html",
+    "en/cv.html",
+    "en/glossary.html",
+    "en/index.html",
+    "en/plain-language.html",
+    "en/privacy.html",
+    "en/profile.html",
+    "en/projects.html",
+    "en/publications.html",
+    "en/research.html",
+    "en/site-map.html",
+    "en/teaching.html",
+    "en/thank-you.html",
+    "enseignement.html",
+    "glossaire.html",
+    "index.html",
+    "merci.html",
+    "parcours.html",
+    "plan-du-site.html",
+    "presentation-simple.html",
+    "projets.html",
+    "publications.html",
+    "recherche.html"
+  ],
+  "checks": [
+    {
+      "file": "404.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 32,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "accessibilite.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "biographie.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "confidentialite.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "contact.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "cv.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/accessibility.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/biography.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/contact.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/cv.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/glossary.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/index.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast-enhanced",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AAA enhanced contrast ratio thresholds",
+          "help": "Elements must meet enhanced color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast-enhanced?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"research.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"research.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "passes": 46,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/plain-language.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/privacy.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/profile.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/projects.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 44,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/publications.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/research.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/site-map.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/teaching.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 50,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/thank-you.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "enseignement.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 50,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "glossaire.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "index.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast-enhanced",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AAA enhanced contrast ratio thresholds",
+          "help": "Elements must meet enhanced color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast-enhanced?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"recherche.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"recherche.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "passes": 46,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "merci.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "parcours.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "plan-du-site.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "presentation-simple.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "projets.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 44,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "publications.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "recherche.html",
+      "width": 1280,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "404.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 32,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "accessibilite.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "biographie.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "confidentialite.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "contact.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "cv.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/accessibility.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/biography.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/contact.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/cv.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/glossary.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/index.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast-enhanced",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AAA enhanced contrast ratio thresholds",
+          "help": "Elements must meet enhanced color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast-enhanced?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"research.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"research.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "passes": 46,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/plain-language.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/privacy.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 40,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/profile.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/projects.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 44,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/publications.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/research.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/site-map.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/teaching.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 51,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "en/thank-you.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "enseignement.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 51,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "glossaire.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "index.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast-enhanced",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AAA enhanced contrast ratio thresholds",
+          "help": "Elements must meet enhanced color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast-enhanced?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"recherche.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast-enhanced",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".button[href$=\"recherche.html\"] > span[aria-hidden=\"true\"]"
+              ],
+              "html": "<span aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(1) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(2) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            },
+            {
+              "target": [
+                ".research-card:nth-child(3) > .mini-flow[role=\"group\"] > .mini-arrow[aria-hidden=\"true\"]"
+              ],
+              "html": "<span class=\"mini-arrow\" aria-hidden=\"true\">→</span>",
+              "summary": "Fix any of the following:\n  Element content contains only non-text characters",
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "message": "Element content contains only non-text characters"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "passes": 46,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "merci.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "parcours.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "plan-du-site.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "presentation-simple.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 39,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "projets.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 44,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "publications.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 41,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    },
+    {
+      "file": "recherche.html",
+      "width": 320,
+      "violations": [],
+      "incomplete": [],
+      "passes": 43,
+      "overflow": {
+        "page": false,
+        "elements": []
+      },
+      "textSpacingOverflow": false,
+      "errors": []
+    }
+  ],
+  "keyboard": [
+    {
+      "width": 1280,
+      "test": "Skip link reaches main",
+      "passed": true
+    },
+    {
+      "width": 320,
+      "test": "Skip link reaches main",
+      "passed": true
+    },
+    {
+      "width": 320,
+      "test": "Mobile menu opens and Escape restores focus",
+      "passed": true
+    },
+    {
+      "file": "404.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "accessibilite.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "biographie.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "confidentialite.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "contact.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "cv.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/accessibility.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/biography.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/contact.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/cv.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/glossary.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/index.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/plain-language.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/privacy.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/profile.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/projects.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/publications.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/research.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/site-map.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/teaching.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "en/thank-you.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "enseignement.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "glossaire.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "index.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "merci.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "parcours.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "plan-du-site.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "presentation-simple.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "projets.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "publications.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "file": "recherche.html",
+      "test": "Text enlarged 200 percent without page overflow",
+      "passed": true
+    },
+    {
+      "test": "Reading theme default",
+      "width": 1280,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "Reading theme light",
+      "width": 1280,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "Reading theme dark",
+      "width": 1280,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "Reading theme cream",
+      "width": 1280,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "User spacing control",
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "test": "User size control at 200 percent",
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "test": "Reading controls reset",
+      "width": 1280,
+      "passed": true
+    },
+    {
+      "test": "Reading theme default",
+      "width": 320,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "Reading theme light",
+      "width": 320,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "Reading theme dark",
+      "width": 320,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "Reading theme cream",
+      "width": 320,
+      "passed": true,
+      "violations": []
+    },
+    {
+      "test": "User spacing control",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "test": "User size control at 200 percent",
+      "width": 320,
+      "passed": true
+    },
+    {
+      "test": "Reading controls reset",
+      "width": 320,
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Automated checks cannot establish full RGAA or WCAG AAA conformance.",
+    "Screen-reader testing, scientific content readability, PDF reading order and third-party destinations require human review."
+  ],
+  "summary": {
+    "pages": 31,
+    "renderedChecks": 62,
+    "violations": 0,
+    "reviewItems": 8,
+    "layoutFailures": 0,
+    "keyboardFailures": 0
+  }
+}
