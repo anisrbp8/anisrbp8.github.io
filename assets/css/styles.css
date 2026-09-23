@@ -30,3 +30,7 @@ html{scroll-padding-bottom:80px}
 .site-footer{padding-bottom:80px}
 @media(forced-colors:active){.back-to-top{background:ButtonFace;color:ButtonText;border:2px solid ButtonText}}
 @media print{.back-to-top{display:none!important}}
+
+
+/* Accessible contact form */
+.contact-form{margin-top:1.5rem;max-width:42rem}.form-field{margin-bottom:1.25rem}.form-field label{display:block;font-weight:700;margin-bottom:.4rem}.form-field textarea{resize:vertical;min-height:10rem}.required-note,.form-optional{font-weight:400;color:var(--muted);font-size:.9rem}.contact-submit{cursor:pointer;background:var(--ink);color:#fff;border-color:var(--ink);text-decoration:none}.contact-submit:hover{background:var(--navy-2);color:#fff}.contact-submit:disabled{cursor:wait;opacity:.7}.form-status{margin-top:1rem;min-height:1.7em;font-weight:650}.form-status:empty{min-height:0;margin-top:0}.form-status.is-error{color:var(--danger)}.form-status.is-success{color:#205c3b}.form-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}.contact-form input:invalid:not(:placeholder-shown),.contact-form textarea:invalid:not(:placeholder-shown){border-color:var(--danger)}@media(forced-colors:active){.contact-submit{border:2px solid ButtonText}.form-status.is-error,.form-status.is-success{color:CanvasText}}
