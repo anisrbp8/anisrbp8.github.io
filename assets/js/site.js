@@ -1,24 +1,80 @@
-
 (() => {
   'use strict';
-  const menus = document.querySelectorAll('.mobile-menu');
-  const closeMenu = (menu, restoreFocus = false) => {
-    const hadFocus = menu.contains(document.activeElement);
-    menu.removeAttribute('open');
-    if (restoreFocus && hadFocus) menu.querySelector('summary')?.focus();
-  };
-  document.addEventListener('click', (event) => {
-    menus.forEach((menu) => {
-      if (menu.open && (!menu.contains(event.target) || event.target.closest('a'))) closeMenu(menu);
+
+  const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
+  const labels = isEnglish
+    ? {open: 'Open menu', close: 'Close menu'}
+    : {open: 'Ouvrir le menu', close: 'Fermer le menu'};
+
+  document.querySelectorAll('details.mobile-menu').forEach((details, index) => {
+    const summary = details.querySelector(':scope > summary');
+    const panel = details.querySelector(':scope > .mobile-panel');
+    if (!summary || !panel) return;
+
+    const container = document.createElement('div');
+    container.className = details.className + ' is-enhanced';
+    if (details.id) container.id = details.id;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'mobile-menu-toggle';
+
+    const panelId = panel.id || 'mobile-navigation-' + (index + 1);
+    panel.id = panelId;
+    button.setAttribute('aria-controls', panelId);
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-label', labels.open);
+
+    const icon = document.createElement('span');
+    icon.className = 'menu-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '☰';
+
+    const text = document.createElement('span');
+    text.className = 'menu-text';
+    text.textContent = (summary.textContent || 'Menu').trim();
+
+    button.append(icon, text);
+    panel.hidden = true;
+    container.append(button, panel);
+    details.replaceWith(container);
+
+    const setOpen = (open, restoreFocus = false) => {
+      button.setAttribute('aria-expanded', String(open));
+      button.setAttribute('aria-label', open ? labels.close : labels.open);
+      icon.textContent = open ? '×' : '☰';
+      panel.hidden = !open;
+      container.classList.toggle('is-open', open);
+      if (restoreFocus) button.focus();
+    };
+
+    button.addEventListener('click', () => {
+      setOpen(button.getAttribute('aria-expanded') !== 'true');
     });
-  });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') menus.forEach((menu) => closeMenu(menu, true));
-  });
-  document.addEventListener('focusin', (event) => {
-    menus.forEach((menu) => {
-      if (menu.open && !menu.contains(event.target)) closeMenu(menu);
+
+    panel.addEventListener('click', (event) => {
+      if (event.target.closest('a')) setOpen(false);
     });
+
+    document.addEventListener('click', (event) => {
+      if (button.getAttribute('aria-expanded') === 'true' && !container.contains(event.target)) {
+        setOpen(false);
+      }
+    });
+
+    container.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+        event.preventDefault();
+        setOpen(false, true);
+      }
+    });
+
+    const desktop = window.matchMedia('(min-width: 70.01rem)');
+    const closeOnDesktop = (event) => {
+      if (event.matches) setOpen(false);
+    };
+    if (desktop.addEventListener) desktop.addEventListener('change', closeOnDesktop);
+    else if (desktop.addListener) desktop.addListener(closeOnDesktop);
   });
 })();
 
