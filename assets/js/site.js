@@ -113,3 +113,66 @@
     status.textContent = root.lang === 'en' ? 'Default reading preferences restored.' : 'Réglages de lecture par défaut rétablis.';
   });
 })();
+
+
+(() => {
+  'use strict';
+
+  document.querySelectorAll('form[data-contact-form]').forEach((form) => {
+    const status = form.querySelector('[data-form-status]');
+    const submit = form.querySelector('button[type="submit"]');
+    if (!status || !submit || !window.fetch) return;
+
+    const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
+    const messages = isEnglish
+      ? {
+          sending: 'Sending your message…',
+          success: 'Thank you. Your message has been sent.',
+          error: 'The message could not be sent. Please try again.',
+          serverError: 'The message could not be sent. Please check the fields and try again.'
+        }
+      : {
+          sending: 'Envoi de votre message…',
+          success: 'Merci. Votre message a bien été envoyé.',
+          error: 'Le message n’a pas pu être envoyé. Merci de réessayer.',
+          serverError: 'Le message n’a pas pu être envoyé. Vérifiez les champs puis réessayez.'
+        };
+
+    form.addEventListener('submit', async (event) => {
+      if (!form.checkValidity()) return;
+
+      event.preventDefault();
+      status.classList.remove('is-error', 'is-success');
+      status.textContent = messages.sending;
+      submit.disabled = true;
+      submit.setAttribute('aria-disabled', 'true');
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: {Accept: 'application/json'}
+        });
+
+        if (!response.ok) {
+          status.classList.add('is-error');
+          status.textContent = messages.serverError;
+          status.focus();
+          return;
+        }
+
+        form.reset();
+        status.classList.add('is-success');
+        status.textContent = messages.success;
+        status.focus();
+      } catch {
+        status.classList.add('is-error');
+        status.textContent = messages.error;
+        status.focus();
+      } finally {
+        submit.disabled = false;
+        submit.removeAttribute('aria-disabled');
+      }
+    });
+  });
+})();
