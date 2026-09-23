@@ -127,13 +127,13 @@
     const messages = isEnglish
       ? {
           sending: 'Sending your message…',
-          success: 'Thank you. Your message has been sent.',
+          success: 'Message sent successfully. Thank you — your message has been delivered.',
           error: 'The message could not be sent. Please try again.',
           serverError: 'The message could not be sent. Please check the fields and try again.'
         }
       : {
           sending: 'Envoi de votre message…',
-          success: 'Merci. Votre message a bien été envoyé.',
+          success: 'Message envoyé avec succès. Merci, votre message a bien été transmis.',
           error: 'Le message n’a pas pu être envoyé. Merci de réessayer.',
           serverError: 'Le message n’a pas pu être envoyé. Vérifiez les champs puis réessayez.'
         };
