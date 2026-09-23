@@ -74,6 +74,7 @@ const report={date:new Date().toISOString(),tools:{axe:require('axe-core').versi
     report.keyboard.push({test:'User spacing control',width,passed:spaced});
     await modePage.locator('#reading-size').selectOption('200');
     const enlarged=await modePage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);
+    if (!enlarged) console.log('ENLARGED_OVERFLOW '+JSON.stringify(await modePage.evaluate(()=>[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width && r.right>innerWidth+1 && !e.closest('.table-wrap')}).map(e=>({tag:e.tagName,class:e.className,text:e.textContent.slice(0,70),width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right})))));
     report.keyboard.push({test:'User size control at 200 percent',width,passed:enlarged});
     await modePage.locator('#reading-reset').click();
     report.keyboard.push({test:'Reading controls reset',width,passed:await modePage.evaluate(()=>!document.documentElement.hasAttribute('data-reading-theme')&&!document.documentElement.hasAttribute('data-reading-size')&&!document.documentElement.hasAttribute('data-reading-space'))});
