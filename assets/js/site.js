@@ -30,11 +30,7 @@
     icon.setAttribute('aria-hidden', 'true');
     icon.textContent = '☰';
 
-    const text = document.createElement('span');
-    text.className = 'menu-text';
-    text.textContent = (summary.textContent || 'Menu').trim();
-
-    button.append(icon, text);
+    button.append(icon);
     panel.hidden = true;
     container.append(button, panel);
     details.replaceWith(container);
