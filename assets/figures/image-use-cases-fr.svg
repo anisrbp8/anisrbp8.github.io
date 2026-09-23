@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650" role="img" aria-labelledby="title description" xml:lang="fr" lang="fr">
+<title id="title">Exploration personnalisée d’une image</title><desc id="description">Les personnes voyantes et aveugles peuvent explorer l’image sur écran tactile. Deux extensions permettent de personnaliser la granularité graphique et la granularité haptique.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#315b60"/></marker></defs>
+<rect width="100%" height="100%" fill="#faf9f6"/>
+<g font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#172b3a">
+<text x="32" y="38" text-anchor="start" font-size="18" font-weight="bold" fill="#172b3a">
+<tspan x="32" dy="0">02 / EXPLORATION ET PERSONNALISATION</tspan>
+</text>
+<path d="M 242 151 L 470 216" fill="none" stroke="#315b60" stroke-width="2.5"/>
+<path d="M 242 329 L 470 271" fill="none" stroke="#315b60" stroke-width="2.5"/>
+<path d="M 447 476 L 620 327" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)" stroke-dasharray="7 6"/>
+<path d="M 844 476 L 795 328" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)" stroke-dasharray="7 6"/>
+<rect x="30" y="113" width="212" height="80" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="136.0" y="145.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="136.0" dy="0">Personne</tspan>
+<tspan x="136.0" dy="29.700000000000003">voyante</tspan>
+</text>
+<rect x="30" y="289" width="212" height="80" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="136.0" y="321.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="136.0" dy="0">Personne</tspan>
+<tspan x="136.0" dy="29.700000000000003">aveugle</tspan>
+</text>
+<ellipse cx="760.0" cy="245.0" rx="290.0" ry="101.0" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="760.0" y="236.29" text-anchor="middle" font-size="26" font-weight="normal" fill="#ffffff">
+<tspan x="760.0" dy="0">Explorer l’image</tspan>
+<tspan x="760.0" dy="35.1">sur un écran tactile</tspan>
+</text>
+<ellipse cx="407.5" cy="544.5" rx="217.5" ry="67.5" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="407.5" y="537.13" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="407.5" dy="0">Personnaliser la</tspan>
+<tspan x="407.5" dy="29.700000000000003">granularité graphique</tspan>
+</text>
+<ellipse cx="862.5" cy="544.5" rx="212.5" ry="67.5" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="862.5" y="537.13" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="862.5" dy="0">Personnaliser la</tspan>
+<tspan x="862.5" dy="29.700000000000003">granularité haptique</tspan>
+</text>
+<text x="438" y="411" text-anchor="middle" font-size="18" font-weight="normal" fill="#172b3a">
+<tspan x="438" dy="0">«extend»</tspan>
+</text>
+<text x="902" y="411" text-anchor="middle" font-size="18" font-weight="normal" fill="#172b3a">
+<tspan x="902" dy="0">«extend»</tspan>
+</text>
+<text x="32" y="635" text-anchor="start" font-size="18" font-weight="normal" fill="#172b3a">
+<tspan x="32" dy="0">Les flèches en pointillés désignent les extensions du cas d’utilisation.</tspan>
+</text>
+</g></svg>
