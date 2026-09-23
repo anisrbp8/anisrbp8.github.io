@@ -16,10 +16,15 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    await page.goto('http://127.0.0.1:8880/'+file);
    const images=await page.evaluate(async()=>Promise.all([...document.images].map(async i=>{try{await i.decode();return i.naturalWidth>0;}catch{return false;}})));
    record(file+' images decode',images.every(Boolean));
-   await page.locator('.mobile-menu summary').focus();await page.keyboard.press('Enter');await page.keyboard.press('Tab');
+   const menuToggle=page.locator('.mobile-menu-toggle');
+   await menuToggle.focus();await page.keyboard.press('Enter');await page.keyboard.press('Tab');
    record(file+' mobile navigation links receive focus',await page.evaluate(()=>document.activeElement.matches('.mobile-panel a')));
    await page.keyboard.press('Escape');
-   record(file+' menu closes and focus returns',await page.evaluate(()=>!document.querySelector('.mobile-menu').open&&document.activeElement.matches('.mobile-menu summary')));
+   record(file+' menu closes and focus returns',await page.evaluate(()=>{
+    const button=document.querySelector('.mobile-menu-toggle');
+    const panel=document.querySelector('.mobile-panel');
+    return button?.getAttribute('aria-expanded')==='false' && panel?.hidden===true && document.activeElement===button;
+   }));
    await page.locator('.reading-tools summary').focus();await page.keyboard.press('Enter');await page.keyboard.press('Tab');
    record(file+' reading controls reachable with keyboard',await page.evaluate(()=>document.activeElement.id==='reading-theme'));
    await page.locator('#reading-theme').selectOption('dark');await page.reload();
@@ -28,7 +33,7 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    record(file+' live status after reset',await page.locator('#reading-status').innerText()!=='');
    await page.emulateMedia({forcedColors:'active',reducedMotion:'reduce'});
    await page.keyboard.press('Tab');
-   await page.locator('.mobile-menu summary').focus();
+   await page.locator('.mobile-menu-toggle').focus();
    record(file+' forced colours focus is outlined',await page.evaluate(()=>{const s=getComputedStyle(document.activeElement);return s.outlineStyle!=='none'&&parseFloat(s.outlineWidth)>=3;}));
    await page.emulateMedia({forcedColors:'none'});
   }
