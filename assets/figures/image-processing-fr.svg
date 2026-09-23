@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="770" viewBox="0 0 1120 770" role="img" aria-labelledby="title description" xml:lang="fr" lang="fr">
+<title id="title">Adaptation granulaire des images</title><desc id="description">Une image couleur alimente la granulation variable et l’interpolation. La décomposition produit deux granules, utilisés pour interpoler les couleurs et sélectionner le premier plan. Le granule de premier plan et un facteur de réduction alimentent la construction du SVG tactile.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#315b60"/></marker></defs>
+<rect width="100%" height="100%" fill="#faf9f6"/>
+<g font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#172b3a">
+<text x="32" y="38" text-anchor="start" font-size="18" font-weight="bold" fill="#172b3a">
+<tspan x="32" dy="0">01 / IMAGE, GRANULES ET RESTITUTION</tspan>
+</text>
+<path d="M 175 140 L 250 140" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 100 105 L 100 72 L 620 72 L 620 106" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 395 192 L 395 242" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 395 296 L 395 340" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 540 388 L 635 388" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 702 352 L 702 192" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 835 148 L 880 148 L 880 117 L 910 117" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 880 148 L 880 207 L 910 207" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 702 425 L 702 489" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 795 540 L 852 540" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 925 578 L 925 610 L 860 610 L 860 645 L 815 645" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 205 668 L 575 668" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 815 698 L 905 698" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="25" y="105" width="150" height="90" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="100.0" y="142.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="100.0" dy="0">Image couleur</tspan>
+<tspan x="100.0" dy="29.700000000000003">(RVB)</tspan>
+</text>
+<rect x="250" y="105" width="290" height="87" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="395.0" y="141.13" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
+<tspan x="395.0" dy="0">1. Granulation</tspan>
+<tspan x="395.0" dy="29.700000000000003">variable</tspan>
+</text>
+<rect x="340" y="242" width="110" height="54" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="395.0" y="276.48" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="395.0" dy="0">Y</tspan>
+</text>
+<rect x="250" y="340" width="290" height="96" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="395.0" y="380.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
+<tspan x="395.0" dy="0">2. Décomposition</tspan>
+<tspan x="395.0" dy="29.700000000000003">des granules</tspan>
+</text>
+<rect x="635" y="352" width="135" height="73" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="702.5" y="381.13" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="702.5" dy="0">Deux</tspan>
+<tspan x="702.5" dy="29.700000000000003">granules</tspan>
+</text>
+<rect x="560" y="106" width="275" height="86" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="697.5" y="156.48" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
+<tspan x="697.5" dy="0">3. Interpolation</tspan>
+</text>
+<rect x="910" y="82" width="185" height="72" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="1002.5" y="111.3" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
+<tspan x="1002.5" dy="0">Couleur du</tspan>
+<tspan x="1002.5" dy="27.0">premier plan</tspan>
+</text>
+<rect x="910" y="172" width="185" height="72" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="1002.5" y="201.3" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
+<tspan x="1002.5" dy="0">Couleur de</tspan>
+<tspan x="1002.5" dy="27.0">l’arrière-plan</tspan>
+</text>
+<rect x="335" y="489" width="460" height="105" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="565.0" y="534.13" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
+<tspan x="565.0" dy="0">4. Sélection du premier plan</tspan>
+<tspan x="565.0" dy="29.700000000000003">selon les relations entre granules</tspan>
+</text>
+<rect x="852" y="499" width="220" height="79" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="962.0" y="531.8" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
+<tspan x="962.0" dy="0">Granule de</tspan>
+<tspan x="962.0" dy="27.0">premier plan</tspan>
+</text>
+<rect x="25" y="627" width="180" height="86" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="115.0" y="662.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="115.0" dy="0">Facteur de</tspan>
+<tspan x="115.0" dy="29.700000000000003">réduction</tspan>
+</text>
+<rect x="575" y="625" width="240" height="113" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="695.0" y="674.13" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
+<tspan x="695.0" dy="0">5. Construction</tspan>
+<tspan x="695.0" dy="29.700000000000003">des granules</tspan>
+</text>
+<rect x="905" y="660" width="190" height="76" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="1000.0" y="705.48" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="1000.0" dy="0">SVG tactile</tspan>
+</text>
+</g></svg>

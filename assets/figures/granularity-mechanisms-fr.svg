@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620" role="img" aria-labelledby="title description" xml:lang="fr" lang="fr">
+<title id="title">Mécanismes multi-granulaires</title><desc id="description">La représentation multi-granulaire permet l’optimisation du niveau, la conversion entre niveaux et la résolution conjointe mobilisant tous les niveaux.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#315b60"/></marker></defs>
+<rect width="100%" height="100%" fill="#faf9f6"/>
+<g font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#172b3a">
+<text x="32" y="38" text-anchor="start" font-size="18" font-weight="bold" fill="#172b3a">
+<tspan x="32" dy="0">03 / MÉCANISMES DE GRANULARITÉ</tspan>
+</text>
+<path d="M 295 305 L 337 305 L 337 147 L 380 147" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 337 305 L 380 305" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<path d="M 337 305 L 337 477 L 380 477" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="25" y="247" width="270" height="116" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="160.0" y="297.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
+<tspan x="160.0" dy="0">Représentation</tspan>
+<tspan x="160.0" dy="29.700000000000003">multi-granulaire</tspan>
+</text>
+<rect x="380" y="93" width="300" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="530.0" y="141.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="530.0" dy="0">Optimisation</tspan>
+<tspan x="530.0" dy="29.700000000000003">de la granularité</tspan>
+</text>
+<path d="M 680 149 L 725 149" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="725" y="93" width="350" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="900.0" y="142.3" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
+<tspan x="900.0" dy="0">Choisir le niveau</tspan>
+<tspan x="900.0" dy="27.0">le plus adapté</tspan>
+</text>
+<rect x="380" y="247" width="300" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="530.0" y="295.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="530.0" dy="0">Conversion</tspan>
+<tspan x="530.0" dy="29.700000000000003">de granularité</tspan>
+</text>
+<path d="M 680 303 L 725 303" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="725" y="247" width="350" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="900.0" y="282.8" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
+<tspan x="900.0" dy="0">Passer entre niveaux voisins</tspan>
+<tspan x="900.0" dy="27.0">ou à un niveau supérieur</tspan>
+<tspan x="900.0" dy="27.0">ou inférieur</tspan>
+</text>
+<rect x="380" y="421" width="300" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="530.0" y="469.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="530.0" dy="0">Résolution conjointe</tspan>
+<tspan x="530.0" dy="29.700000000000003">multi-granulaire</tspan>
+</text>
+<path d="M 680 477 L 725 477" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="725" y="421" width="350" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="900.0" y="470.3" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
+<tspan x="900.0" dy="0">Mobiliser tous</tspan>
+<tspan x="900.0" dy="27.0">les niveaux</tspan>
+</text>
+</g></svg>

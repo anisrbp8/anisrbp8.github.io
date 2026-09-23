@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="550" viewBox="0 0 1000 550" role="img" aria-labelledby="title description" xml:lang="fr" lang="fr">
+<title id="title">Dimensions du calcul granulaire</title><desc id="description">Le calcul granulaire associe pensée structurée, traitement structuré de l’information et résolution structurée des problèmes.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#315b60"/></marker></defs>
+<rect width="100%" height="100%" fill="#faf9f6"/>
+<g font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#172b3a">
+<text x="32" y="38" text-anchor="start" font-size="18" font-weight="bold" fill="#172b3a">
+<tspan x="32" dy="0">04 / CALCUL GRANULAIRE</tspan>
+</text>
+<path d="M 500 198 L 500 254" fill="none" stroke="#315b60" stroke-width="2.5"/>
+<path d="M 400 349 L 271 418" fill="none" stroke="#315b60" stroke-width="2.5"/>
+<path d="M 600 349 L 729 418" fill="none" stroke="#315b60" stroke-width="2.5"/>
+<rect x="350" y="85" width="300" height="113" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="500.0" y="134.13" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="500.0" dy="0">Pensée</tspan>
+<tspan x="500.0" dy="29.700000000000003">structurée</tspan>
+</text>
+<rect x="350" y="254" width="300" height="100" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
+<text x="500.0" y="296.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
+<tspan x="500.0" dy="0">Calcul</tspan>
+<tspan x="500.0" dy="29.700000000000003">granulaire</tspan>
+</text>
+<rect x="35" y="418" width="435" height="104" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="252.5" y="462.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="252.5" dy="0">Traitement structuré</tspan>
+<tspan x="252.5" dy="29.700000000000003">de l’information</tspan>
+</text>
+<rect x="530" y="418" width="435" height="104" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
+<text x="747.5" y="462.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
+<tspan x="747.5" dy="0">Résolution structurée</tspan>
+<tspan x="747.5" dy="29.700000000000003">des problèmes</tspan>
+</text>
+</g></svg>
