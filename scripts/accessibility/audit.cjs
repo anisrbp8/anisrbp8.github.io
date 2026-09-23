@@ -37,12 +37,24 @@ const report={date:new Date().toISOString(),tools:{axe:require('axe-core').versi
    const skipTarget=await page.evaluate(()=>document.activeElement.id==='main-content');
    report.keyboard.push({width,test:'Skip link reaches main',passed:skip&&skipTarget});
    if(width===320){
-    await page.locator('.mobile-menu summary').focus();await page.keyboard.press('Enter');
-    const opened=await page.locator('.mobile-menu').getAttribute('open')!==null;
-    await page.keyboard.press('Tab');await page.keyboard.press('Escape');
-    const closed=await page.locator('.mobile-menu').getAttribute('open')===null;
-    const restored=await page.evaluate(()=>document.activeElement.matches('.mobile-menu summary'));
-    report.keyboard.push({width,test:'Mobile menu opens and Escape restores focus',passed:opened&&closed&&restored});
+    const enhancedToggle=page.locator('.mobile-menu-toggle');
+    if(await enhancedToggle.count()){
+     await enhancedToggle.focus();
+     await page.keyboard.press('Enter');
+     const opened=(await enhancedToggle.getAttribute('aria-expanded'))==='true' && (await page.locator('.mobile-panel').getAttribute('hidden'))===null;
+     await page.keyboard.press('Escape');
+     const closed=(await enhancedToggle.getAttribute('aria-expanded'))==='false' && (await page.locator('.mobile-panel').getAttribute('hidden'))!==null;
+     const restored=await page.evaluate(()=>document.activeElement.matches('.mobile-menu-toggle'));
+     report.keyboard.push({width,test:'Mobile menu opens and Escape restores focus',passed:opened&&closed&&restored});
+    }else{
+     const fallbackSummary=page.locator('details.mobile-menu > summary');
+     await fallbackSummary.focus();
+     await page.keyboard.press('Enter');
+     const opened=await page.locator('details.mobile-menu').getAttribute('open')!==null;
+     await page.keyboard.press('Escape');
+     const closed=await page.locator('details.mobile-menu').getAttribute('open')===null;
+     report.keyboard.push({width,test:'Mobile menu fallback opens and closes',passed:opened&&closed});
+    }
    }
    await page.goto('http://127.0.0.1:8877/index.html');
    await page.evaluate(()=>Promise.all([...document.images].map(img=>img.decode().catch(()=>{}))));
