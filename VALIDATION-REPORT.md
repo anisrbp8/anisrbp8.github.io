@@ -4,7 +4,7 @@
 - 1 158 références locales vérifiées : pages, ancres, feuilles de style, scripts, images, actions de formulaire et documents.
 - Aucun fichier local référencé manquant, aucune ancre manquante.
 - 4 images et 4 documents PDF présents.
-- Métadonnées bilingues, liens `hreflang` et sitemap configurés pour https://anisrbp8.github.io/.
+- Métadonnées bilingues, liens `hreflang` et sitemap configurés pour https://anisrojbi.fr/.
 - Syntaxe JavaScript vérifiée avec Node.js et syntaxe Python du QA vérifiée.
 - Contact : formulaires Formspree HTTPS en `POST`, champs essentiels obligatoires et explicitement étiquetés, honeypot anti-spam et message d’état accessible.
 - Aucune adresse électronique destinataire n’est publiée dans les pages HTML.
