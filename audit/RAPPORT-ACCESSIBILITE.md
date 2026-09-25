@@ -1,6 +1,6 @@
 # Audit et suivi d’accessibilité — Anis Rojbi
 
-Date de mise à jour : 25 septembre 2026. Dépôt : `anisrbp8/anisrbp8.github.io`.
+Date de mise à jour : 25 septembre 2026. Dépôt : `anisrbp8/anisrojbi.fr`.
 
 ## Statut
 
