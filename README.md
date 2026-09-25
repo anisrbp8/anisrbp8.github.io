@@ -1,6 +1,6 @@
 # Anis Rojbi — site académique
 
-Site bilingue français / anglais : https://anisrbp8.github.io/
+Site bilingue français / anglais : https://anisrojbi.fr/
 
 ## Publication
 Site statique HTML/CSS/JavaScript. GitHub Pages : branche `main`, dossier racine. Aucune compilation nécessaire.
