@@ -5,7 +5,7 @@ from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
 import json,re,xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[1]
-ORIGIN='anisrbp8.github.io'
+ORIGIN='anisrojbi.fr'
 class Page(HTMLParser):
  def __init__(self,text):
   super().__init__(convert_charrefs=True);self.ids=[];self.refs=[];self.h1=0;self.lang=None;self.issues=[];self.forms=0;self.labels=set();self.form_fields={};self.has_form_status=False;self.feed(text)
