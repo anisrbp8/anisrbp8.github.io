@@ -8,14 +8,32 @@ ROOT=Path(__file__).resolve().parents[1]
 ORIGIN='anisrbp8.github.io'
 class Page(HTMLParser):
  def __init__(self,text):
-  super().__init__(convert_charrefs=True);self.ids=[];self.refs=[];self.h1=0;self.lang=None;self.issues=[];self.feed(text)
+  super().__init__(convert_charrefs=True);self.ids=[];self.refs=[];self.h1=0;self.lang=None;self.issues=[];self.forms=0;self.labels=set();self.form_fields={};self.has_form_status=False;self.feed(text)
+  if self.forms:
+   required={'name','email','subject','message'}
+   missing=sorted(required-set(self.form_fields))
+   if missing:self.issues.append('Missing required contact fields: '+', '.join(missing))
+   for name in sorted(required & set(self.form_fields)):
+    field=self.form_fields[name]
+    if not field.get('required'):self.issues.append('Contact field not required: '+name)
+    if not field.get('id') or field.get('id') not in self.labels:self.issues.append('Contact field without explicit label: '+name)
+   if '_gotcha' not in self.form_fields:self.issues.append('Missing contact honeypot')
+   if not self.has_form_status:self.issues.append('Missing accessible form status')
  def handle_starttag(self,tag,attrs):
   a=dict(attrs)
   if tag=='html': self.lang=a.get('lang')
   if tag=='h1': self.h1+=1
   if 'id' in a:self.ids.append(a['id'])
   if tag=='img' and 'alt' not in a:self.issues.append('Missing image alternative')
-  if tag=='form':self.issues.append('Form without configured message service')
+  if tag=='form':
+   self.forms+=1
+   action=a.get('action','');method=a.get('method','').lower();u=urlsplit(action)
+   if not (u.scheme=='https' and u.netloc=='formspree.io' and u.path.startswith('/f/')):self.issues.append('Form without approved HTTPS Formspree endpoint')
+   if method!='post':self.issues.append('Contact form must use POST')
+  if tag=='label' and a.get('for'):self.labels.add(a['for'])
+  if tag in {'input','textarea','select'} and a.get('name'):
+   self.form_fields[a['name']]={'id':a.get('id'),'required':'required' in a}
+  if 'data-form-status' in a and a.get('role')=='status' and a.get('aria-live') in {'polite','assertive'}:self.has_form_status=True
   for key in ['href','src','action']:
    if a.get(key):self.refs.append(a[key])
   if a.get('srcset'):
