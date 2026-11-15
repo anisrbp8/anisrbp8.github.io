@@ -25,6 +25,11 @@ const files=['index.html','recherche.html','publications.html','projets.html','e
     await page.evaluate(()=>document.fonts.ready);
     const stats=await page.evaluate(()=>{const n=performance.getEntriesByType('navigation')[0],r=performance.getEntriesByType('resource');return {domContentLoaded:Math.round(n.domContentLoadedEventEnd),load:Math.round(n.loadEventEnd),lcp:Math.round(window.lab.lcp),cls:window.lab.cls,requests:r.length+1,transferBytes:n.transferSize+r.reduce((s,x)=>s+x.transferSize,0),encodedBytes:n.encodedBodySize+r.reduce((s,x)=>s+x.encodedBodySize,0),overflow:document.documentElement.scrollWidth>innerWidth,documentHeight:document.documentElement.scrollHeight};});
     await page.screenshot({path:path.join(out,file.replace('.html','')+'-'+device+'.png')});
+    if(file==='index.html'){
+     await page.locator('.affiliation-section').scrollIntoViewIfNeeded();
+     await page.evaluate(async()=>{for(const i of document.querySelectorAll('.affiliation-section img')){i.loading='eager';try{await i.decode()}catch{}}});
+     await page.screenshot({path:path.join(out,'affiliations-'+device+'.png')});
+    }
     if(file==='recherche.html'){
      await page.locator('#axe-3').scrollIntoViewIfNeeded();
      await page.evaluate(async()=>{for(const i of document.querySelectorAll('#axe-3 img')){i.loading='eager';try{await i.decode()}catch{}}});
