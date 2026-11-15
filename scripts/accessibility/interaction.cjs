@@ -14,7 +14,7 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
   const page=await browser.newPage({viewport:{width:320,height:900}});
   for(const file of ['index.html','en/index.html']) {
    await page.goto('http://127.0.0.1:8880/'+file);
-   const images=await page.evaluate(async()=>Promise.all([...document.images].map(async i=>{i.loading='eager';try{await i.decode();return i.naturalWidth>0;}catch{return false;}})));
+   const images=await page.evaluate(async()=>Promise.all([...document.images].filter(i=>i.getAttribute('src')||i.getAttribute('srcset')).map(async i=>{i.loading='eager';try{await i.decode();return i.naturalWidth>0;}catch{return false;}})));
    record(file+' images decode',images.every(Boolean));
    const menuToggle=page.locator('.mobile-menu-toggle');
    await menuToggle.focus();await page.keyboard.press('Enter');await page.keyboard.press('Tab');

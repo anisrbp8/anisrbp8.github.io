@@ -166,6 +166,13 @@
   });
   zoom.addEventListener('click',()=>{const active=viewport.classList.toggle('original-size');zoom.setAttribute('aria-pressed',String(active));});
   close.addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('keydown',event=>{
+    if(event.key!=='Tab')return;
+    const focusables=[...dialog.querySelectorAll('button,a[href],[tabindex="0"]')].filter(el=>el.getClientRects().length);
+    const first=focusables[0],last=focusables[focusables.length-1];
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+  });
   dialog.addEventListener('close',()=>{document.body.style.overflow=previousOverflow;opener?.focus();});
 })();
 
