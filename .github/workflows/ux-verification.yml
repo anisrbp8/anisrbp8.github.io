@@ -29,9 +29,16 @@ jobs:
         env:
           PHASE: "${{ contains(github.event.head_commit.message, '[ux-baseline]') && 'before' || 'after' }}"
         run: node scripts/accessibility/capture.cjs
+      - name: Replay journeys on the published site
+        if: "!contains(github.event.head_commit.message, '[ux-baseline]')"
+        env:
+          BASE_URL: https://anisrojbi.fr
+        run: node scripts/accessibility/ux.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: public-site-ux-evidence
-          path: audit/ux-2026-11-15/
+          path: |
+            audit/ux-2026-11-15/
+            test-output/ux-results.json
           retention-days: 30
