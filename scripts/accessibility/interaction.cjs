@@ -37,6 +37,27 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    record(file+' forced colours focus is outlined',await page.evaluate(()=>{const s=getComputedStyle(document.activeElement);return s.outlineStyle!=='none'&&parseFloat(s.outlineWidth)>=3;}));
    await page.emulateMedia({forcedColors:'none'});
   }
+  // Contact form: verify native validation and accessible feedback without sending real messages.
+  for (const file of ['contact.html','en/contact.html']) {
+   const formPage=await browser.newPage({viewport:{width:320,height:900}});
+   await formPage.route('https://formspree.io/**', route=>route.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'}));
+   await formPage.goto('http://127.0.0.1:8880/'+file);
+   const contactForm=formPage.locator('form[data-contact-form]');
+   const email=contactForm.locator('input[name="email"]');
+   record(file+' required fields are enforced natively',await contactForm.evaluate(f=>!f.checkValidity()));
+   await contactForm.locator('input[name="name"]').fill('Accessibility Test');
+   await email.fill('not-an-email');
+   await contactForm.locator('input[name="subject"]').fill('Test');
+   await contactForm.locator('textarea[name="message"]').fill('Form accessibility test');
+   record(file+' invalid email is rejected natively',await email.evaluate(el=>!el.checkValidity()));
+   await email.fill('test@example.org');
+   await contactForm.locator('button[type="submit"]').click();
+   const status=contactForm.locator('[data-form-status]');
+   await status.locator('text=/./').waitFor().catch(()=>{});
+   record(file+' successful submit announces status and moves focus',
+    await status.evaluate(el=>el.classList.contains('is-success') && el.getAttribute('role')==='status' && document.activeElement===el));
+   await formPage.close();
+  }
   const fallback=await browser.newPage({javaScriptEnabled:false,viewport:{width:320,height:900}});
   await fallback.goto('http://127.0.0.1:8880');await fallback.locator('.mobile-menu summary').focus();await fallback.keyboard.press('Enter');await fallback.keyboard.press('Tab');
   record('Native mobile navigation works without JavaScript',await fallback.locator('.mobile-panel a').first().evaluate(e=>document.activeElement===e));
