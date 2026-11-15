@@ -53,7 +53,7 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    await email.fill('test@example.org');
    await contactForm.locator('button[type="submit"]').click();
    const status=contactForm.locator('[data-form-status]');
-   await status.locator('text=/./').waitFor().catch(()=>{});
+   await formPage.waitForFunction(() => document.querySelector('[data-form-status]')?.classList.contains('is-success'), null, {timeout:5000});
    record(file+' successful submit announces status and moves focus',
     await status.evaluate(el=>el.classList.contains('is-success') && el.getAttribute('role')==='status' && document.activeElement===el));
    await formPage.close();
