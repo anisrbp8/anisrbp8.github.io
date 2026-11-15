@@ -1,0 +1,37 @@
+name: Public site UX verification
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: scripts/accessibility
+      - run: npx playwright install --with-deps chromium
+        working-directory: scripts/accessibility
+      - name: Wait for the public design version
+        if: "!contains(github.event.head_commit.message, '[ux-baseline]')"
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "https://anisrojbi.fr/?verify=$GITHUB_SHA" | grep -q '20261115-ux'; then exit 0; fi
+            sleep 10
+          done
+          exit 1
+      - name: Capture public desktop and mobile pages
+        env:
+          PHASE: "${{ contains(github.event.head_commit.message, '[ux-baseline]') && 'before' || 'after' }}"
+        run: node scripts/accessibility/capture.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-site-ux-evidence
+          path: audit/ux-2026-11-15/
+          retention-days: 30
