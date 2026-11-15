@@ -1,0 +1,236 @@
+{
+  "base": "https://anisrojbi.fr",
+  "phase": "before",
+  "date": "2026-11-15T19:14:29.545Z",
+  "conditions": "Chromium, new context per page, cache disabled, 10 Mbit/s downstream, 5 Mbit/s upstream, 40 ms latency; one lab navigation per page; cross-origin sizes may be unavailable without Timing-Allow-Origin",
+  "results": [
+    {
+      "file": "index.html",
+      "device": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "status": 200,
+      "domContentLoaded": 343,
+      "load": 370,
+      "lcp": 388,
+      "cls": 0.007380383555094402,
+      "requests": 7,
+      "transferBytes": 158509,
+      "encodedBytes": 156709,
+      "overflow": false,
+      "documentHeight": 5124,
+      "errors": []
+    },
+    {
+      "file": "recherche.html",
+      "device": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "status": 200,
+      "domContentLoaded": 130,
+      "load": 148,
+      "lcp": 160,
+      "cls": 0,
+      "requests": 4,
+      "transferBytes": 18668,
+      "encodedBytes": 17468,
+      "overflow": false,
+      "documentHeight": 9814,
+      "errors": []
+    },
+    {
+      "file": "publications.html",
+      "device": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "status": 200,
+      "domContentLoaded": 106,
+      "load": 113,
+      "lcp": 148,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 14151,
+      "encodedBytes": 13251,
+      "overflow": false,
+      "documentHeight": 5850,
+      "errors": []
+    },
+    {
+      "file": "projets.html",
+      "device": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "status": 200,
+      "domContentLoaded": 105,
+      "load": 112,
+      "lcp": 140,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 12671,
+      "encodedBytes": 11771,
+      "overflow": false,
+      "documentHeight": 3323,
+      "errors": []
+    },
+    {
+      "file": "enseignement.html",
+      "device": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "status": 200,
+      "domContentLoaded": 122,
+      "load": 123,
+      "lcp": 140,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 12341,
+      "encodedBytes": 11441,
+      "overflow": false,
+      "documentHeight": 2679,
+      "errors": []
+    },
+    {
+      "file": "contact.html",
+      "device": "desktop",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "status": 200,
+      "domContentLoaded": 106,
+      "load": 119,
+      "lcp": 144,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 12357,
+      "encodedBytes": 11457,
+      "overflow": false,
+      "documentHeight": 2072,
+      "errors": []
+    },
+    {
+      "file": "index.html",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "domContentLoaded": 141,
+      "load": 146,
+      "lcp": 164,
+      "cls": 0.00045654323168726487,
+      "requests": 7,
+      "transferBytes": 158509,
+      "encodedBytes": 156709,
+      "overflow": false,
+      "documentHeight": 6912,
+      "errors": []
+    },
+    {
+      "file": "recherche.html",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "domContentLoaded": 131,
+      "load": 131,
+      "lcp": 140,
+      "cls": 0,
+      "requests": 4,
+      "transferBytes": 18668,
+      "encodedBytes": 17468,
+      "overflow": false,
+      "documentHeight": 11247,
+      "errors": []
+    },
+    {
+      "file": "publications.html",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "domContentLoaded": 109,
+      "load": 116,
+      "lcp": 140,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 14151,
+      "encodedBytes": 13251,
+      "overflow": false,
+      "documentHeight": 7539,
+      "errors": []
+    },
+    {
+      "file": "projets.html",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "domContentLoaded": 120,
+      "load": 127,
+      "lcp": 144,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 12671,
+      "encodedBytes": 11771,
+      "overflow": false,
+      "documentHeight": 4751,
+      "errors": []
+    },
+    {
+      "file": "enseignement.html",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "domContentLoaded": 108,
+      "load": 114,
+      "lcp": 144,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 12341,
+      "encodedBytes": 11441,
+      "overflow": false,
+      "documentHeight": 3903,
+      "errors": []
+    },
+    {
+      "file": "contact.html",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": 200,
+      "domContentLoaded": 107,
+      "load": 112,
+      "lcp": 140,
+      "cls": 0,
+      "requests": 3,
+      "transferBytes": 12357,
+      "encodedBytes": 11457,
+      "overflow": false,
+      "documentHeight": 2935,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "base": "http://127.0.0.1:8890",
+  "checks": [
+    {
+      "name": "FR 1280 researcher journey: home → theme → representative article",
+      "passed": true
+    },
+    {
+      "name": "FR 1280 filters combine, announce empty result, and direct anchors reveal papers",
+      "passed": true
+    },
+    {
+      "name": "FR 1280 bibliography can be copied with keyboard",
+      "passed": true
+    },
+    {
+      "name": "FR 1280 figure dialog: keyboard, native size, focus containment and Escape",
+      "passed": true
+    },
+    {
+      "name": "FR 1280 partner journey: projects → contact form and CV",
+      "passed": true
+    },
+    {
+      "name": "FR 1280 student journey: teaching → official master information",
+      "passed": true
+    },
+    {
+      "name": "FR 1280 language switch preserves corresponding page",
+      "passed": true
+    },
+    {
+      "name": "EN 1280 researcher journey: home → theme → representative article",
+      "passed": true
+    },
+    {
+      "name": "EN 1280 filters combine, announce empty result, and direct anchors reveal papers",
+      "passed": true
+    },
+    {
+      "name": "EN 1280 bibliography can be copied with keyboard",
+      "passed": true
+    },
+    {
+      "name": "EN 1280 figure dialog: keyboard, native size, focus containment and Escape",
+      "passed": true
+    },
+    {
+      "name": "EN 1280 partner journey: projects → contact form and CV",
+      "passed": true
+    },
+    {
+      "name": "EN 1280 student journey: teaching → official master information",
+      "passed": true
+    },
+    {
+      "name": "EN 1280 language switch preserves corresponding page",
+      "passed": true
+    },
+    {
+      "name": "FR 320 researcher journey: home → theme → representative article",
+      "passed": true
+    },
+    {
+      "name": "FR 320 filters combine, announce empty result, and direct anchors reveal papers",
+      "passed": true
+    },
+    {
+      "name": "FR 320 bibliography can be copied with keyboard",
+      "passed": true
+    },
+    {
+      "name": "FR 320 figure dialog: keyboard, native size, focus containment and Escape",
+      "passed": true
+    },
+    {
+      "name": "FR 320 partner journey: projects → contact form and CV",
+      "passed": true
+    },
+    {
+      "name": "FR 320 student journey: teaching → official master information",
+      "passed": true
+    },
+    {
+      "name": "FR 320 language switch preserves corresponding page",
+      "passed": true
+    },
+    {
+      "name": "EN 320 researcher journey: home → theme → representative article",
+      "passed": true
+    },
+    {
+      "name": "EN 320 filters combine, announce empty result, and direct anchors reveal papers",
+      "passed": true
+    },
+    {
+      "name": "EN 320 bibliography can be copied with keyboard",
+      "passed": true
+    },
+    {
+      "name": "EN 320 figure dialog: keyboard, native size, focus containment and Escape",
+      "passed": true
+    },
+    {
+      "name": "EN 320 partner journey: projects → contact form and CV",
+      "passed": true
+    },
+    {
+      "name": "EN 320 student journey: teaching → official master information",
+      "passed": true
+    },
+    {
+      "name": "EN 320 language switch preserves corresponding page",
+      "passed": true
+    },
+    {
+      "name": "FR no-JavaScript bibliography and figures",
+      "passed": true
+    },
+    {
+      "name": "EN no-JavaScript bibliography and figures",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

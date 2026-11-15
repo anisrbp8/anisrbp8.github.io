@@ -1,0 +1,211 @@
+{
+  "commit": "26b212912faa1621207bcb92f366c7baa24f02bd",
+  "date": "2026-11-15T19:49:49.894466+00:00",
+  "results": [
+    {
+      "file": "enseignement.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "36e64adc62bb673ca7497b02f524a1806c44913ea9924eb57f7db796b6469d9f"
+    },
+    {
+      "file": "publications.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "ec1c6a3a7b27a9ac10ca4c302334ebc71d3a323daddf2d124139d5838d85241b"
+    },
+    {
+      "file": "confidentialite.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "855a08616eb955bf9b034f15a7d797d0536084632c2a0433c7daa87b4ddfa022"
+    },
+    {
+      "file": "recherche.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "ebb4dc7498a3d125a08f3c62978da9ba41169d532dea03afacc44b530867df42"
+    },
+    {
+      "file": "biographie.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "f410c1a9b45f405f1d8460b41bc4b94750886f21a9b52de6b064f83a00358d90"
+    },
+    {
+      "file": "index.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "d10680f1840d27b01c4afd389cc7f7c58b4f4d1441534624d00d7a1037fbf7d6"
+    },
+    {
+      "file": "accessibilite.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "e881d89509c2164950f28b6c5828b6422c656a3a165913a54778dd48d72b32d5"
+    },
+    {
+      "file": "contact.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "4dd6b0e4322a7a4caf40ff70b2b175e50b14b10c653ecc76aa4887abeed963f9"
+    },
+    {
+      "file": "projets.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "b8c1b468bb4b01908787252c6265041b9d91c1b6927db29f4a4424c42d312c81"
+    },
+    {
+      "file": "presentation-simple.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "dd5afab887390f3416f3765707ec24ad8cb1b931d640f64c4bc0e1a517185124"
+    },
+    {
+      "file": "glossaire.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "d1d5845fe7125afbadb4e5d0997230521c63c108cba08bbe014a95936e943bde"
+    },
+    {
+      "file": "404.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "2c6507174a92f81cf34308ff0fa557ffe2c1c47099acbbb738db74420b787fa2"
+    },
+    {
+      "file": "parcours.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "a18aa6494b8cc0dcc2d48dfc35be0a92024205d5188c481b39c01a1031697a58"
+    },
+    {
+      "file": "cv.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "7cf131bf3d8710284fd1ffcfee189b6e3cd12e9b2a5ef5af4305224eae6ec247"
+    },
+    {
+      "file": "plan-du-site.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "a433a7bce4319978848cc2df70f47586faa6c8646643c8d4a5792a5b9cbba6bf"
+    },
+    {
+      "file": "en/publications.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "f14fbfc27d3d58abbe6e5a849022fb88b4f5e2baeff5523b1d3c551b84da8f95"
+    },
+    {
+      "file": "en/profile.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "9b3f2ff9d1f06f1909d1a56cf696056d4659c5c4df99d79c6870e1af6014bb54"
+    },
+    {
+      "file": "en/projects.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "faedc00296b40bc50eac12d49d3246a239314c6292bba0239daeef1b3913c263"
+    },
+    {
+      "file": "en/index.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "264b365547c72737426c936783456442111576619513f373ff76d548c5e151e4"
+    },
+    {
+      "file": "en/research.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "5a048c6d343df68331bd52455e99dcbf63cc403aace8dac178ad443e4981c831"
+    },
+    {
+      "file": "en/site-map.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "a923fb63c1e36040ab91be629592936092539ae25bd1d9fb32fbed189213266e"
+    },
+    {
+      "file": "en/contact.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "ea5c979550cd9c7afbeca3ece041b406a20fed6cf6b72b52ca5562c775671a17"
+    },
+    {
+      "file": "en/plain-language.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "d9b355da400d32ec9ca2915db1aa34ce5abf2b48d09704d23caf2e1491f66656"
+    },
+    {
+      "file": "en/biography.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "c00f81a2c7a99f48c4d8cd36077ac56b94125f322f0a3e66966ce04624926c16"
+    },
+    {
+      "file": "en/teaching.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "910f0fde06bb766df5b9a0face7c8a1e694f81a20b9296bcc1e3bc0e18162bad"
+    },
+    {
+      "file": "en/accessibility.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "87ebdcb7770729b3b003bcc0f63ad62dc80097eec723dc7b9ccc65165f1d7439"
+    },
+    {
+      "file": "en/privacy.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "8817d6b67b9655b89b86cad9f990d1a4d04431cbeff0ddc6c78bba2db853252c"
+    },
+    {
+      "file": "en/cv.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "afff28ec98163aa4e671d2d916e56a08576984fdab17785950cf608f225ccc0a"
+    },
+    {
+      "file": "en/glossary.html",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "fb911c5034d563f966e45fc5e1d9c8eea4079360c43ee3adfd9287a618c9ed4b"
+    },
+    {
+      "file": "assets/css/styles.css",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "7fc8aa9c1f91a6ef5fc24adf3faa0608077fb580d6e501b68e321945f2825646"
+    },
+    {
+      "file": "assets/js/site.js",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "65c09c615ccfcc0a64d390855a71997ea6b0174804bc54985a8d67951dbfc812"
+    },
+    {
+      "file": "robots.txt",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "4d1a7137fe2c504a3c3b8e285beb56815003a93d7fb5e142bc38b8d0709a2b57"
+    },
+    {
+      "file": "sitemap.xml",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "7648465f0fdf3b4e32d6625c51f80e65a8dd21d5f8b06c73fee342682125ac38"
+    },
+    {
+      "file": "3de75991d22949dfb100e8aa9274bddf.txt",
+      "status": 200,
+      "identical_to_published_commit": true,
+      "sha256": "b3fa7fa39d34aaab4b9cba74a9219503646657c61da880c0f13c7654f52d6cd1"
+    }
+  ],
+  "passed": true
+}

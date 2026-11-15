@@ -1,0 +1,155 @@
+[
+  {
+    "url": "https://arxiv.org/abs/1706.02248",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/1706.02248",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://arxiv.org/abs/1707.04939",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/1707.04939",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://arxiv.org/abs/1712.03228",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/1712.03228",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://arxiv.org/abs/1712.04314",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/1712.04314",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://arxiv.org/abs/1808.04760",
+    "status": 200,
+    "final_url": "https://arxiv.org/abs/1808.04760",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "status": 200,
+    "final_url": "https://creativecommons.org/licenses/by/4.0/",
+    "type": "text/html"
+  },
+  {
+    "url": "https://doi.org/10.1007/978-3-030-02846-6_3",
+    "status": 200,
+    "final_url": "https://link.springer.com/chapter/10.1007/978-3-030-02846-6_3?error=cookies_not_supported&code=6d1c2499-76fd-4a27-bf92-929b24531d4e",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://doi.org/10.1007/978-3-030-03402-3_43",
+    "status": 200,
+    "final_url": "https://link.springer.com/chapter/10.1007/978-3-030-03402-3_43?error=cookies_not_supported&code=d2495ca2-99e9-4816-8255-4039852631b8",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://doi.org/10.1007/978-3-030-05051-1_33",
+    "status": 200,
+    "final_url": "https://link.springer.com/chapter/10.1007/978-3-030-05051-1_33?error=cookies_not_supported&code=60c83e45-b11c-4244-bd0c-8b1bab6da33a",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://doi.org/10.1109/ICTA.2017.8336057",
+    "status": 202,
+    "final_url": "https://ieeexplore.ieee.org/document/8336057/",
+    "type": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://doi.org/10.1109/IW_MSS59200.2023.10369531",
+    "status": 202,
+    "final_url": "https://ieeexplore.ieee.org/document/10369531/",
+    "type": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://doi.org/10.1145/2661334.2661335",
+    "status": 403,
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "url": "https://doi.org/10.15439/2017F413",
+    "status": 200,
+    "final_url": "https://annals-csis.org/Volume_11/drp/413.html",
+    "type": "text/html"
+  },
+  {
+    "url": "https://doi.org/10.17758/EIRAI18.DiR0523101",
+    "status": 200,
+    "final_url": "https://eirai.org/images/proceedings_pdf/DiR0523101.pdf",
+    "type": "application/pdf"
+  },
+  {
+    "url": "https://doi.org/10.23919/MIPRO.2017.7973449",
+    "status": 202,
+    "final_url": "https://ieeexplore.ieee.org/document/7973449/",
+    "type": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://doi.org/10.3389/fninf.2025.1521805",
+    "status": 200,
+    "final_url": "https://www.frontiersin.org/journals/neuroinformatics/articles/10.3389/fninf.2025.1521805/full",
+    "type": "text/html;charset=utf-8"
+  },
+  {
+    "url": "https://ifrath.fr/conferences/actes/ActesHandicap2010.pdf",
+    "status": 200,
+    "final_url": "https://ifrath.fr/conferences/actes/ActesHandicap2010.pdf",
+    "type": "application/pdf"
+  },
+  {
+    "url": "https://laboratoire-chart.fr/",
+    "status": 200,
+    "final_url": "https://laboratoire-chart.fr/",
+    "type": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://patents.google.com/patent/FR2864300A1/fr",
+    "status": 503,
+    "error": "HTTP Error 503: Service Unavailable"
+  },
+  {
+    "url": "https://projet.liris.cnrs.fr/coresa/articles/2003/articles/33.pdf",
+    "status": 503,
+    "error": "HTTP Error 503: Service Unavailable"
+  },
+  {
+    "url": "https://researchportal.erua-eui.eu/researchers/anis-rojbi",
+    "status": 200,
+    "final_url": "https://researchportal.erua-eui.eu/researchers/anis-rojbi",
+    "type": "text/html; charset=UTF-8"
+  },
+  {
+    "url": "https://ufr-erites.univ-paris8.fr/Ingenierie-Cognition-Handicap",
+    "status": 200,
+    "final_url": "https://ufr-erites.univ-paris8.fr/Ingenierie-Cognition-Handicap",
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "https://www.frontiersin.org/files/Articles/1521805/xml-images/fninf-19-1521805-g0002.webp",
+    "status": 200,
+    "final_url": "https://www.frontiersin.org/files/Articles/1521805/xml-images/fninf-19-1521805-g0002.webp",
+    "type": "image/webp"
+  },
+  {
+    "url": "https://www.frontiersin.org/files/Articles/1521805/xml-images/fninf-19-1521805-g0008.webp",
+    "status": 200,
+    "final_url": "https://www.frontiersin.org/files/Articles/1521805/xml-images/fninf-19-1521805-g0008.webp",
+    "type": "image/webp"
+  },
+  {
+    "url": "https://www.frontiersin.org/journals/neuroinformatics/articles/10.3389/fninf.2025.1521805/full",
+    "status": 200,
+    "final_url": "https://www.frontiersin.org/journals/neuroinformatics/articles/10.3389/fninf.2025.1521805/full",
+    "type": "text/html;charset=utf-8"
+  },
+  {
+    "url": "https://www.univ-paris8.fr/-Master-Technologie-et-Handicap-676-",
+    "status": 200,
+    "final_url": "https://www.univ-paris8.fr/-Master-Technologie-et-Handicap-676-",
+    "type": "text/html; charset=utf-8"
+  }
+]
