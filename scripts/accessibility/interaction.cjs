@@ -25,6 +25,14 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
     const panel=document.querySelector('.mobile-panel');
     return button?.getAttribute('aria-expanded')==='false' && panel?.hidden===true && document.activeElement===button;
    }));
+   // A viewport switch must not strand focus in links hidden by the desktop layout.
+   await menuToggle.click();
+   await page.locator('.mobile-panel a').first().focus();
+   await page.setViewportSize({width:1280,height:900});
+   record(file+' resizing to desktop restores visible keyboard focus',await page.evaluate(()=>{
+    return document.activeElement.matches('.desktop-nav a') && document.querySelector('.mobile-panel')?.hidden===true;
+   }));
+   await page.setViewportSize({width:320,height:900});
    await page.locator('.reading-tools summary').focus();await page.keyboard.press('Enter');await page.keyboard.press('Tab');
    record(file+' reading controls reachable with keyboard',await page.evaluate(()=>document.activeElement.id==='reading-theme'));
    await page.locator('#reading-theme').selectOption('dark');await page.reload();
