@@ -29,9 +29,14 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    await menuToggle.click();
    await page.locator('.mobile-panel a').first().focus();
    await page.setViewportSize({width:1280,height:900});
-   record(file+' resizing to desktop restores visible keyboard focus',await page.evaluate(()=>{
-    return document.activeElement.matches('.desktop-nav a') && document.querySelector('.mobile-panel')?.hidden===true;
-   }));
+   // The matchMedia change event may run after the viewport update resolves.
+   // Check the settled browser state instead of racing that event.
+   const desktopFocusRestored = await page.waitForFunction(() =>
+    document.activeElement?.matches('.desktop-nav a') &&
+    document.querySelector('.mobile-panel')?.hidden === true,
+    null, {timeout: 5000}
+   ).then(() => true, () => false);
+   record(file+' resizing to desktop restores visible keyboard focus', desktopFocusRestored);
    await page.setViewportSize({width:320,height:900});
    await page.locator('.reading-tools summary').focus();await page.keyboard.press('Enter');await page.keyboard.press('Tab');
    record(file+' reading controls reachable with keyboard',await page.evaluate(()=>document.activeElement.id==='reading-theme'));
