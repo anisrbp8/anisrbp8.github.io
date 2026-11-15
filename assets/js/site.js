@@ -67,7 +67,14 @@
 
     const desktop = window.matchMedia('(min-width: 70.01rem)');
     const closeOnDesktop = (event) => {
-      if (event.matches) setOpen(false);
+      if (!event.matches) return;
+      const focusWasInsidePanel = panel.contains(document.activeElement);
+      setOpen(false);
+      // Do not leave keyboard focus inside a menu that is now hidden.
+      if (focusWasInsidePanel) {
+        const desktopLink = document.querySelector('.desktop-nav a');
+        if (desktopLink) desktopLink.focus();
+      }
     };
     if (desktop.addEventListener) desktop.addEventListener('change', closeOnDesktop);
     else if (desktop.addListener) desktop.addListener(closeOnDesktop);
