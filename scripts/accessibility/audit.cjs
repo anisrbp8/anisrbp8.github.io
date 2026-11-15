@@ -57,7 +57,7 @@ const report={date:new Date().toISOString(),tools:{axe:require('axe-core').versi
     }
    }
    await page.goto('http://127.0.0.1:8877/index.html');
-   await page.evaluate(()=>Promise.all([...document.images].map(img=>img.decode().catch(()=>{}))));
+   await page.evaluate(()=>Promise.all([...document.images].map(img=>{img.loading='eager';return img.decode().catch(()=>{});} )));
    await page.screenshot({path:path.join(out,`home-${width}.png`),fullPage:false});
    await page.close();
   }
