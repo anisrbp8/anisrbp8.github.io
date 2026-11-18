@@ -1,0 +1,53 @@
+name: HTML validity (W3C Nu)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: html-nu-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Validate all HTML with W3C Nu
+        id: nu
+        shell: bash
+        run: |
+          mkdir -p validation
+          set +e
+          npx --yes --package=vnu-jar@26.10.12 vnu --errors-only --format json --skip-non-html . > validation/nu.json 2> validation/nu.stderr
+          result=$?
+          set -e
+          cat validation/nu.json
+          cat validation/nu.stderr
+          echo "exit_code=$result" >> "$GITHUB_OUTPUT"
+          # Keep an exact snapshot for reproducible diagnostics and offline checks.
+          tar -czf validation/site-snapshot.tar.gz --exclude=.git --exclude=validation --exclude=node_modules .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: html-nu-validation
+          path: validation/
+          retention-days: 14
+      - name: Fail if W3C Nu reports HTML errors
+        if: always() && steps.nu.outputs.exit_code != '0'
+        run: |
+          echo "W3C Nu found HTML errors. See the validation artifact."
+          exit 1
