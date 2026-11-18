@@ -5,7 +5,7 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 const root=path.resolve(__dirname,'../..');
 const base=process.env.BASE_URL||'http://127.0.0.1:8890';
 const server=process.env.BASE_URL?null:spawn('python3',['-m','http.server','8890','--bind','127.0.0.1','--directory',root],{stdio:'ignore'});
-const checks=[];let browser;
+const checks=[];let browser,runError=null;
 async function check(name,fn){try{await fn();checks.push({name,passed:true});}catch(e){checks.push({name,passed:false,error:e.message});}}
 (async()=>{
  try{
@@ -24,10 +24,20 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
     assert.equal(await page.locator('#eeg-2025 .doi-link').getAttribute('href'),'https://doi.org/10.3389/fninf.2025.1521805');
    });
    await check(label+' filters combine, announce empty result, and direct anchors reveal papers',async()=>{
+    const total=await page.locator('[data-publication]').count();
+    assert.equal(total,17,'The reviewed bibliography contains 17 distinct references');
     await page.locator('#publication-topic').selectOption('accessibility');await page.locator('#publication-year').selectOption('2025');
     assert.equal(await page.locator('[data-publication]:visible').count(),0);assert.match(await page.locator('#publication-count').innerText(),/^0 /);
-    await page.locator('.page-toc a[href="#eeg-2025"]').click();assert.equal(await page.locator('[data-publication]:visible').count(),16);
+    await page.locator('.page-toc a[href="#eeg-2025"]').click();assert.equal(await page.locator('[data-publication]:visible').count(),total);
     await page.locator('#publication-year').selectOption('2023');assert.equal(await page.locator('[data-publication]:visible').count(),2);
+    await page.locator('.publication-filters button').click();
+   });
+   await check(label+' ICMV 2026 reference is unique and available through the year filter',async()=>{
+    await page.locator('#publication-year').selectOption('2026');
+    assert.equal(await page.locator('[data-publication]:visible').count(),1);
+    assert.equal(await page.locator('#fatigue-2026').count(),1);
+    assert.ok(await page.locator('#fatigue-2026').isVisible());
+    assert.match(await page.locator('#fatigue-2026 h3').innerText(),/Multi-Feature Facial Behavior Analysis for Driver Fatigue Detection/);
     await page.locator('.publication-filters button').click();
    });
    await check(label+' bibliography can be copied with keyboard',async()=>{
@@ -76,10 +86,32 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
   for(const en of [false,true]){
    const prefix=en?'en/':'',ctx=await browser.newContext({javaScriptEnabled:false,viewport:{width:320,height:900}}),page=await ctx.newPage();
    await check((en?'EN':'FR')+' no-JavaScript bibliography and figures',async()=>{
-    await page.goto(base+'/'+prefix+'publications.html');assert.equal(await page.locator('[data-publication]:visible').count(),16);assert.equal(await page.locator('.publication-filters').count(),0);
+    await page.goto(base+'/'+prefix+'publications.html');const total=await page.locator('[data-publication]').count();assert.equal(total,17);assert.equal(await page.locator('[data-publication]:visible').count(),total);assert.equal(await page.locator('.publication-filters').count(),0);assert.ok(await page.locator('#fatigue-2026').isVisible());
     await page.locator('#eeg-2025 .citation summary').click();assert.ok(await page.locator('#eeg-2025 [data-citation]').isVisible());
     await page.goto(base+'/'+prefix+(en?'research.html':'recherche.html'));await page.locator('#article-figure-8 [data-figure-open]').click();assert.match(page.url(),/fninf-19-1521805-g0008.webp$/);
    });await ctx.close();
   }
- }finally{await browser?.close();server?.kill();fs.mkdirSync(path.join(root,'test-output'),{recursive:true});const result={base,checks,passed:checks.every(c=>c.passed)};fs.writeFileSync(path.join(root,'test-output/ux-results.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));if(!result.passed)process.exitCode=1;}
+  const noScript=await browser.newContext({javaScriptEnabled:false,viewport:{width:320,height:900}});
+  const noScriptPage=await noScript.newPage();
+  const allPages=fs.readdirSync(root).filter(f=>f.endsWith('.html')).concat(fs.readdirSync(path.join(root,'en')).filter(f=>f.endsWith('.html')).map(f=>'en/'+f));
+  for(const file of allPages) {
+   await check(file+' essential content remains available without JavaScript',async()=>{
+    const response=await noScriptPage.goto(base+'/'+file);
+    assert.equal(response.status(),200,'The requested HTML document must be served successfully');
+    if(file==='404.html') {
+     assert.match(await noScriptPage.title(),/Page introuvable/);
+     assert.match(await noScriptPage.locator('meta[name="robots"]').getAttribute('content'),/noindex/);
+    } else {
+     const canonicalPath=file==='index.html'?'':file==='en/index.html'?'en/':file;
+     assert.equal(await noScriptPage.locator('link[rel="canonical"]').getAttribute('href'),'https://anisrojbi.fr/'+canonicalPath,'The response must be the corresponding page, not a fallback error document');
+    }
+    assert.ok(await noScriptPage.locator('main').isVisible());
+    assert.equal(await noScriptPage.locator('h1:visible').count(),1);
+    assert.ok((await noScriptPage.locator('main').innerText()).trim().length>20);
+    assert.ok(await noScriptPage.locator('main a:visible').count()>0);
+   });
+  }
+  await noScript.close();
+ }catch(e){runError=e.message;throw e;}
+ finally{await browser?.close();server?.kill();fs.mkdirSync(path.join(root,'test-output'),{recursive:true});const result={base,checks,error:runError,passed:checks.length>0&&!runError&&checks.every(c=>c.passed)};fs.writeFileSync(path.join(root,'test-output/ux-results.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));if(!result.passed)process.exitCode=1;}
 })().catch(e=>{console.error(e);process.exitCode=1});

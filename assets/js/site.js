@@ -65,6 +65,13 @@
       }
     });
 
+    // Keep the next keyboard target visible when focus leaves the disclosure.
+    container.addEventListener('focusout', (event) => {
+      if (event.relatedTarget && !container.contains(event.relatedTarget)) {
+        setOpen(false);
+      }
+    });
+
     const desktop = window.matchMedia('(min-width: 70.01rem)');
     // A browser can blur a link as its parent becomes display:none, before matchMedia fires.
     let lastFocusInPanel = false;
@@ -233,13 +240,13 @@
           sending: 'Sending your message…',
           success: 'Your message has been sent. Thank you!',
           error: 'The message could not be sent. Please try again.',
-          serverError: 'The message could not be sent. Please check the fields and try again.'
+          serverError: 'The service could not accept your message. Please try again in a few moments.'
         }
       : {
           sending: 'Envoi de votre message…',
           success: 'Votre message a bien été envoyé. Merci !',
           error: 'Le message n’a pas pu être envoyé. Merci de réessayer.',
-          serverError: 'Le message n’a pas pu être envoyé. Vérifiez les champs puis réessayez.'
+          serverError: 'Le service n’a pas pu accepter votre message. Réessayez dans quelques instants.'
         };
 
     form.addEventListener('submit', async (event) => {

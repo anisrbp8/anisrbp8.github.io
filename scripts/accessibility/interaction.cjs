@@ -7,7 +7,7 @@ const server = spawn('python3', ['-m','http.server','8880','--bind','127.0.0.1',
 const checks = [];
 const record = (test, passed, detail) => checks.push({test,passed,detail});
 (async () => {
- let browser;
+ let browser, runError = null;
  try {
   for(let i=0;i<30;i++){try{await fetch('http://127.0.0.1:8880');break;}catch{await new Promise(r=>setTimeout(r,200));}}
   browser = await chromium.launch(process.env.CHROMIUM_EXECUTABLE_PATH ? {executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox']} : {});
@@ -24,6 +24,14 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
     const button=document.querySelector('.mobile-menu-toggle');
     const panel=document.querySelector('.mobile-panel');
     return button?.getAttribute('aria-expanded')==='false' && panel?.hidden===true && document.activeElement===button;
+   }));
+   await menuToggle.click();
+   await page.locator('.mobile-panel a').last().focus();
+   await page.keyboard.press('Tab');
+   record(file+' tabbing out closes the menu without obscuring or moving the next focus target',await page.evaluate(()=>{
+    const e=document.activeElement,r=e.getBoundingClientRect();
+    const top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+    return document.querySelector('.mobile-panel').hidden===true && e.matches('.utility-links a') && (top===e || e.contains(top));
    }));
    // A viewport switch must not strand focus in links hidden by the desktop layout.
    await menuToggle.click();
@@ -69,6 +77,23 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    await formPage.waitForFunction(() => document.querySelector('[data-form-status]')?.classList.contains('is-success'), null, {timeout:5000});
    record(file+' successful submit announces status and moves focus',
     await status.evaluate(el=>el.classList.contains('is-success') && el.getAttribute('role')==='status' && document.activeElement===el));
+   // Both failures are intercepted locally: no contact message is sent.
+   for (const failure of ['server','network']) {
+    await formPage.unroute('https://formspree.io/**');
+    await formPage.route('https://formspree.io/**',route=>failure==='server'
+     ? route.fulfill({status:503,contentType:'application/json',body:'{"error":"unavailable"}'})
+     : route.abort('failed'));
+    await contactForm.locator('input[name="name"]').fill('Accessibility Test');
+    await email.fill('test@example.org');
+    await contactForm.locator('input[name="subject"]').fill('Test');
+    await contactForm.locator('textarea[name="message"]').fill('Local intercepted accessibility check');
+    await contactForm.locator('button[type="submit"]').click();
+    await formPage.waitForFunction(()=>document.querySelector('[data-form-status]')?.classList.contains('is-error'),null,{timeout:5000});
+    record(file+' '+failure+' error is announced, preserves text and allows retry',
+     await status.evaluate(el=>el.textContent.length>0 && el.classList.contains('is-error') && document.activeElement===el)
+     && await contactForm.locator('textarea[name="message"]').inputValue()==='Local intercepted accessibility check'
+     && await contactForm.locator('button[type="submit"]').isEnabled());
+   }
    await formPage.close();
   }
   const fallback=await browser.newPage({javaScriptEnabled:false,viewport:{width:320,height:900}});
@@ -76,8 +101,12 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
   record('Native mobile navigation works without JavaScript',await fallback.locator('.mobile-panel a').first().evaluate(e=>document.activeElement===e));
   await fallback.locator('.reading-tools summary').click();
   record('No-JavaScript reading control explanation is visible',await fallback.locator('noscript p').isVisible());
-  console.log(JSON.stringify({checks,passed:checks.every(x=>x.passed)},null,2));
-  fs.mkdirSync(path.join(root,'test-output'),{recursive:true});fs.writeFileSync(path.join(root,'test-output/interaction-results.json'),JSON.stringify({checks,passed:checks.every(x=>x.passed)},null,2));
-  if(checks.some(x=>!x.passed))process.exitCode=1;
- }catch(e){console.error(e);process.exitCode=1;}finally{await browser?.close();server.kill();}
+ }catch(e){runError=e.message;console.error(e);process.exitCode=1;}finally{
+  const result={checks,error:runError,passed:checks.length>0&&!runError&&checks.every(x=>x.passed)};
+  fs.mkdirSync(path.join(root,'test-output'),{recursive:true});
+  fs.writeFileSync(path.join(root,'test-output/interaction-results.json'),JSON.stringify(result,null,2)+'\n');
+  console.log(JSON.stringify(result,null,2));
+  if(!result.passed)process.exitCode=1;
+  await browser?.close();server.kill();
+ }
 })();
