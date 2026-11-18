@@ -40,6 +40,13 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
     await page.goto(base+'/'+prefix+research+`#${axis}-3`);
     const trigger=page.locator('#article-figure-8 [data-figure-open]');await trigger.focus();await page.keyboard.press('Enter');
     assert.ok(await page.locator('dialog[open]').isVisible());
+    const figureCaption=await page.evaluate(()=>{
+      const figure=document.querySelector('#article-figure-8');
+      const shortCaption=document.getElementById(figure.getAttribute('aria-labelledby')).textContent.trim();
+      const dialogCaption=document.querySelector('.figure-dialog-caption').textContent.trim();
+      return {shortCaption,dialogCaption};
+    });
+    assert.equal(figureCaption.dialogCaption,figureCaption.shortCaption,'The dialog must show the short figure caption, not all expanded descriptions or controls');
     await page.locator('.figure-dialog img').evaluate(i=>i.decode());
     assert.equal(await page.locator('.figure-dialog img').evaluate(i=>i.naturalWidth),1417);
     await page.locator('.figure-dialog button[aria-pressed]').click();assert.equal(await page.locator('.figure-dialog button[aria-pressed]').getAttribute('aria-pressed'),'true');
