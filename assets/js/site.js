@@ -114,7 +114,7 @@
   const update=()=>{
     let count=0;
     cards.forEach(card=>{const show=(!topic.value||card.dataset.topics.split(' ').includes(topic.value))&&(!year.value||card.dataset.year===year.value);card.hidden=!show;if(show)count++;});
-    status.textContent=en?`${count} of ${cards.length} publications displayed.`:`${count} publication${count>1?'s':''} sur ${cards.length} affichée${count>1?'s':''}.`;
+    status.textContent=en?`${count} of ${cards.length} publications displayed.`:`${count} publication${count>1?'s':''} affichée${count>1?'s':''} sur ${cards.length}.`;
     empty.hidden=count!==0;
   };
   const showAll=()=>{topic.value='';year.value='';update();};
@@ -231,13 +231,13 @@
     const messages = isEnglish
       ? {
           sending: 'Sending your message…',
-          success: 'Message sent successfully. Thank you — your message has been delivered.',
+          success: 'Your message has been sent. Thank you!',
           error: 'The message could not be sent. Please try again.',
           serverError: 'The message could not be sent. Please check the fields and try again.'
         }
       : {
           sending: 'Envoi de votre message…',
-          success: 'Message envoyé avec succès. Merci, votre message a bien été transmis.',
+          success: 'Votre message a bien été envoyé. Merci !',
           error: 'Le message n’a pas pu être envoyé. Merci de réessayer.',
           serverError: 'Le message n’a pas pu être envoyé. Vérifiez les champs puis réessayez.'
         };
