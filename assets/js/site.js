@@ -149,7 +149,7 @@
   const zoom=document.createElement('button');zoom.type='button';zoom.className='button';zoom.setAttribute('aria-pressed','false');zoom.textContent=en?'Original size':'Taille originale';
   const original=document.createElement('a');original.className='button';original.textContent=en?'Open image file':'Ouvrir le fichier image';
   const viewport=document.createElement('div');viewport.className='figure-viewport';viewport.tabIndex=0;viewport.setAttribute('role','region');viewport.setAttribute('aria-label',en?'Scrollable figure':'Figure avec défilement');
-  const img=document.createElement('img');viewport.append(img);
+  const img=document.createElement('img');img.alt='';viewport.append(img);
   const caption=document.createElement('p');caption.className='figure-dialog-caption';
   header.append(title,close,zoom,original);dialog.append(header,viewport,caption);document.body.append(dialog);
   let opener=null,previousOverflow='';
