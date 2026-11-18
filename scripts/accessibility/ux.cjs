@@ -108,7 +108,9 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
     assert.ok(await noScriptPage.locator('main').isVisible());
     assert.equal(await noScriptPage.locator('h1:visible').count(),1);
     assert.ok((await noScriptPage.locator('main').innerText()).trim().length>20);
-    assert.ok(await noScriptPage.locator('main a:visible').count()>0);
+    // A definition-only glossary can have no links inside main; navigation
+    // in the header or footer must remain available without scripting too.
+    assert.ok(await noScriptPage.locator('header a:visible, main a:visible, footer a:visible').count()>0);
    });
   }
   await noScript.close();
