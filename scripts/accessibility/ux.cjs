@@ -38,6 +38,7 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
    });
    await check(label+' figure dialog: keyboard, native size, focus containment and Escape',async()=>{
     await page.goto(base+'/'+prefix+research+`#${axis}-3`);
+    assert.notEqual(await page.locator('.figure-dialog img').getAttribute('alt'),null,'The unopened figure dialog image must have an explicit text alternative');
     const trigger=page.locator('#article-figure-8 [data-figure-open]');await trigger.focus();await page.keyboard.press('Enter');
     assert.ok(await page.locator('dialog[open]').isVisible());
     const figureCaption=await page.evaluate(()=>{
