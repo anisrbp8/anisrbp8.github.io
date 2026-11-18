@@ -87,7 +87,9 @@ def add_link(paragraph, label, url, language=None):
 
 def inline(paragraph, node, base_url, language, bold=False, italic=False):
     if isinstance(node, NavigableString):
-        run = paragraph.add_run(str(node))
+        # Keep compound terms such as brain–computer together in the PDF.
+        text = re.sub(r"(?<=\w)–(?=\w)", "\u2060–\u2060", str(node))
+        run = paragraph.add_run(text)
         run.bold = bold
         run.italic = italic
         lang_prop(run._r.get_or_add_rPr(), language)
