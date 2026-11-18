@@ -159,7 +159,9 @@
       if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
       event.preventDefault();opener=link;
       const figure=link.closest('figure');img.src=link.href;img.alt=figure.querySelector('img')?.alt||'';original.href=link.href;
-      caption.textContent=figure.querySelector('figcaption')?.textContent||'';
+      const captionId=figure.getAttribute('aria-labelledby');
+      const shortCaption=captionId?document.getElementById(captionId):figure.querySelector('figcaption');
+      caption.textContent=shortCaption?.textContent||'';
       viewport.classList.remove('original-size');zoom.setAttribute('aria-pressed','false');
       previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();close.focus();viewport.scrollTo(0,0);
     });
