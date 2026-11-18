@@ -20,10 +20,21 @@ jobs:
       - name: Wait for the public design version
         if: "!contains(github.event.head_commit.message, '[ux-baseline]')"
         run: |
+          # Compare the deployed bytes against this commit, not a fixed CSS/JS
+          # version string that may already be present on an older deployment.
+          files=(index.html en/index.html recherche.html en/research.html assets/js/site.js)
           for attempt in $(seq 1 30); do
-            if curl --fail --silent "https://anisrojbi.fr/?verify=$GITHUB_SHA" | grep -q '20261115-ux'; then exit 0; fi
+            current=true
+            for file in "${files[@]}"; do
+              expected=$(sha256sum "$file" | cut -d ' ' -f 1)
+              deployed=$(curl --fail --location --silent --show-error --max-time 15 \
+                "https://anisrojbi.fr/$file?verify=$GITHUB_SHA" | sha256sum | cut -d ' ' -f 1) || { current=false; break; }
+              if [[ "$expected" != "$deployed" ]]; then current=false; break; fi
+            done
+            if [[ "$current" = true ]]; then exit 0; fi
             sleep 10
           done
+          echo "GitHub Pages is not yet serving the HTML and JavaScript from this commit." >&2
           exit 1
       - name: Capture public desktop and mobile pages
         env:
