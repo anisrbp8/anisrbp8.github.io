@@ -100,7 +100,7 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
   await fallback.goto('http://127.0.0.1:8880');await fallback.locator('.mobile-menu summary').focus();await fallback.keyboard.press('Enter');await fallback.keyboard.press('Tab');
   record('Native mobile navigation works without JavaScript',await fallback.locator('.mobile-panel a').first().evaluate(e=>document.activeElement===e));
   await fallback.locator('.reading-tools summary').click();
-  record('No-JavaScript reading control explanation is visible',await fallback.locator('noscript p').isVisible());
+  record('No-JavaScript reading control explanation is visible',await fallback.locator('.reading-tools noscript p').isVisible());
  }catch(e){runError=e.message;console.error(e);process.exitCode=1;}finally{
   const result={checks,error:runError,passed:checks.length>0&&!runError&&checks.every(x=>x.passed)};
   fs.mkdirSync(path.join(root,'test-output'),{recursive:true});
