@@ -1,0 +1,23 @@
+/* Home-page additions: ordinary text, no third-party widgets or animations. */
+.academic-links{display:flex;flex-wrap:wrap;gap:.2rem 1rem;margin-top:.65rem;font-size:1rem}
+.academic-links a{display:inline-flex;flex-direction:column;justify-content:center;min-height:44px;max-width:100%;text-underline-offset:.2em}
+.academic-links a:first-child{flex-basis:100%}.profile-note{font-size:.8rem;font-weight:400}
+.hero-visual .portrait-caption{max-width:none}.dated-news{list-style:none;padding:0;margin:0}
+.dated-news li{display:grid;grid-template-columns:minmax(9rem,12rem) minmax(0,1fr);gap:.5rem 1.5rem;border-top:1px solid var(--line);padding-block:.8rem}
+.dated-news li>time,.dated-news li>span{font-size:.95rem;font-variant-numeric:tabular-nums}.dated-news p{margin:0;max-width:80ch}
+.selected-publications{list-style:none;padding:0;margin:1.2rem 0}
+.selected-publications>li{border-top:1px solid var(--line);padding-block:1.1rem}
+.selected-publications h3{font-size:1.1rem;line-height:1.5;max-width:85ch;margin:.2rem 0}
+.selected-meta,.selected-authors{font-size:.9rem;max-width:95ch;margin:.3rem 0;line-height:1.5}
+.publication-resources{display:flex;flex-wrap:wrap;gap:.1rem 1.3rem;font-size:.95rem}
+.publication-resources a{display:inline-flex;align-items:center;min-height:44px;max-width:100%}
+.academic-details{border-block:1px solid var(--line);margin:1rem 0;max-width:85ch}
+.academic-details>summary{cursor:pointer;min-height:44px;padding-block:.8rem;font-weight:650;text-decoration:underline;text-underline-offset:.2em}
+.academic-details[open]{padding-bottom:1rem}.application-guidance h3{font-size:1.15rem;margin-top:1.3rem}.application-guidance p{max-width:75ch}
+.granularity-controls{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;margin-block:1rem}.granularity-controls[hidden]{display:none}
+.granularity-controls label{font-weight:650}.granularity-controls select{width:auto;max-width:100%;min-height:44px}.granularity-controls button{min-height:44px;cursor:pointer}
+.granularity-image{display:block;width:min(100%,20rem);height:auto;color:var(--ink);background:var(--paper);border:1px solid currentColor}
+.demo-note{font-size:.95rem;max-width:75ch}.granularity-demo p{max-width:75ch}
+@media(max-width:40rem){.dated-news li{grid-template-columns:1fr;gap:.3rem}.hero-visual{display:block;max-width:24rem}.hero-visual .portrait-shell{max-width:8rem}.academic-links a:first-child{flex-basis:auto}.academic-links{gap:.25rem 1rem}.selected-publications h3{font-size:1rem}}
+@media(forced-colors:active){.granularity-image{color:CanvasText;background:Canvas}.granularity-controls button,.granularity-controls select{border:2px solid ButtonText}}
+@media print{.granularity-controls{display:none!important}}
