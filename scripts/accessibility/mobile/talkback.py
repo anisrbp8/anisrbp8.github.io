@@ -118,7 +118,8 @@ def verify_chrome():
 def enable_logging():
     settings=sh('cmd','package','query-activities','--brief','-c','android.accessibilityservice.SERVICE_SETTINGS',APP)
     components=re.findall(r'('+re.escape(APP)+r'/[\.\w$]+PreferencesActivity)',settings)
-    for component in [*components,APP+'/com.android.talkback.TalkBackPreferencesActivity',APP+'/.TalkBackPreferencesActivity']:
+    talkback=[c for c in components if c.endswith('.TalkBackPreferencesActivity')]
+    for component in [APP+'/com.android.talkback.TalkBackPreferencesActivity',*talkback,APP+'/.TalkBackPreferencesActivity']:
         result=sh('am','start','-n',component,check=False)
         if not any(x in result for x in ('Error','Exception','does not exist')):break
     else:raise RuntimeError('TalkBack preferences could not be opened')
