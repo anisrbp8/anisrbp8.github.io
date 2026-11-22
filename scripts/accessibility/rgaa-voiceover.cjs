@@ -191,7 +191,7 @@ async function audit(en) {
     check('Required name and edit control',await focus(name),[/name|nom/,/required|obligatoire/,/edit|text|saisie/]);
     await focus(send);const error=await key('Enter');check('Invalid field and focus',[error,await speak('describeItemWithKeyboardFocus')].join(' | '),[/required|obligatoire|invalid/],(await state(name)).focused&&(await state(name)).invalid==='true');
     await action('populate',form);service=503;await focus(send);
-    check('Refusal and retained message',await key('Enter'),[/conserve|accepter|kept|could not accept/],(await state(status)).css.includes('is-error')&&(await state('[name=message]')).value==='Local test only.');
+    check('Refusal and retained message',await key('Enter'),[/conserve|accepter|kept|could not accept/],(await state('[data-form-alert]')).css.includes('is-error')&&(await state('[name=message]')).value==='Local test only.');
     service=200;await focus(send);check('Successful simulated confirmation',await key('Enter'),[/envoye|sent/],(await state(status)).css.includes('is-success')&&(await state('[name=message]')).value==='');
   });
 }

@@ -139,7 +139,7 @@
   cards.forEach(card=>{
     const citation=card.querySelector('[data-citation]');if(!citation)return;
     const button=document.createElement('button');button.type='button';button.className='button citation-copy';button.textContent=en?'Copy reference':'Copier la référence';
-    const feedback=document.createElement('p');feedback.className='copy-status';feedback.setAttribute('role','status');
+    const feedback=document.createElement('p');feedback.className='copy-status';feedback.setAttribute('role','status');feedback.setAttribute('aria-atomic','true');
     citation.after(button,feedback);
     button.addEventListener('click',async()=>{
       try{await navigator.clipboard.writeText(citation.textContent.trim());feedback.textContent=en?'Reference copied.':'Référence copiée.';}
@@ -189,7 +189,10 @@
   close.addEventListener('click',()=>dialog.close());
   dialog.addEventListener('keydown',event=>{
     if(event.key!=='Tab')return;
-    const focusables=[...dialog.querySelectorAll('button,a[href],summary,[tabindex="0"]')].filter(el=>el.getClientRects().length);
+    const closedDetails = [...dialog.querySelectorAll('details:not([open])')];
+    const focusables = [...dialog.querySelectorAll('button,a[href],summary,[tabindex="0"]')].filter(el =>
+      el.getClientRects().length && closedDetails.every(details =>
+        !details.contains(el) || details.querySelector(':scope > summary')?.contains(el)));
     const first=focusables[0],last=focusables[focusables.length-1];
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}

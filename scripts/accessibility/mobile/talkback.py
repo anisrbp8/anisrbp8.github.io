@@ -54,9 +54,11 @@ def ui_tap(labels,attempts=4,must=True):
         if attempts>1 and i < attempts-1:sh('input','swipe',WIDTH//2,int(.77*HEIGHT),WIDTH//2,int(.32*HEIGHT),350)
     if must:raise RuntimeError('Android preferences did not show '+repr(labels)+'. Visible: '+repr([n.get('text') for n in nodes if n.get('text')][:35]))
 def verify_chrome():
+    report['environment']['initialChromeScreens']=[]
     sh('am','start','-a','android.intent.action.VIEW','-d',BASE+'contact.html',CHROME);time.sleep(1.2)
     for _ in range(4):
         nodes=ui_nodes()
+        report['environment']['initialChromeScreens'].append([n.get('text') for n in nodes if n.get('text')][:22])
         if any(n.get('class')=='android.webkit.WebView' and n.get('package')==CHROME for n in nodes):break
         labels={'use without an account','continue without an account','accept & continue','accept and continue','no thanks','no, thanks','use without an account','got it','skip','continue','not now'}
         if not ui_tap(labels,1,False):break
@@ -76,12 +78,13 @@ def enable_logging():
         result=sh('am','start','-n',component,check=False)
         if not any(x in result for x in ('Error','Exception','does not exist')):break
     else:raise RuntimeError('TalkBack preferences could not be opened')
+    report['environment']['preferencesComponent']=component
     time.sleep(.8)
     ui_tap({'advanced settings','advanced'},12)
     ui_tap({'developer settings','developer options'},14)
     ui_tap({'log output level','log level'},8)
     ui_tap({'verbose'},3)
-    ui_tap({'ok','enable','allow','turn on','yes'},1,False)
+    report['environment']['loggingConfirmation']=ui_tap({'yes, enable verbose logging','ok','enable','allow','turn on','yes'},1,False)
 def environment():
     pkgs=set(x.replace('package:','') for x in sh('pm','list','packages').splitlines())
     if APP not in pkgs or CHROME not in pkgs:raise RuntimeError('Official Chrome and TalkBack must both be installed')

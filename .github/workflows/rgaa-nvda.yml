@@ -6,6 +6,7 @@ on:
       - '**.html'
       - 'assets/**'
       - 'scripts/accessibility/rgaa-nvda.cjs'
+      - 'scripts/accessibility/nvda-release.ps1'
       - '.github/workflows/rgaa-nvda.yml'
 permissions:
   contents: read
@@ -37,6 +38,9 @@ jobs:
           npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 install nvda
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npx playwright install firefox
+      - name: Prepare the verified current NV Access patch release
+        shell: pwsh
+        run: ./scripts/accessibility/nvda-release.ps1
       - name: Exercise the site with NVDA and capture its spoken output
         run: node scripts/accessibility/rgaa-nvda.cjs
       - uses: actions/upload-artifact@v4

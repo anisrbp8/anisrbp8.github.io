@@ -50,7 +50,7 @@ async function scenario(file, name, action) {
   result.scenarios.push(row);
   function record(check, transcript, condition, expected, state = true) {
     const speechMatched = typeof expected === 'function' ? expected(transcript) : outputHas(transcript, expected);
-    row.checks.push({ check, transcript, state, speechMatched, passed: Boolean(condition && speechMatched) });
+    row.checks.push({ check, transcript, state, stateMatched: Boolean(condition), speechMatched, passed: Boolean(condition && speechMatched) });
   }
   try { await action(record); }
   catch (error) { row.error = error.message; }
@@ -136,7 +136,8 @@ async function auditLanguage(en) {
     const copy = details.locator('button.citation-copy');
     record('Copy reference button label and role', await nameAtFocus(copy), await copy.isVisible(), t=> /copi|copy/.test(normalize(t)) && /button|bouton/.test(normalize(t)));
     const copied = await key('Enter');
-    record('Clipboard success or selection fallback announced', copied, Boolean(await details.locator('.copy-status').innerText()), /copi|copied|selectionne|selected/);
+    const feedback = await details.locator('.copy-status').innerText();
+    record('Clipboard success or selection fallback announced', copied, Boolean(feedback), /copi|copied|selectionne|selected/, { visibleFeedback: feedback });
   });
   await scenario(research, 'Scientific figure dialog', async record => {
     await openPage(research);
@@ -163,7 +164,7 @@ async function auditLanguage(en) {
     const status = form.locator('[data-form-status]');
     networkMode = 'failure'; await nameAtFocus(submit);
     const failed = await key('Enter');
-    record('Service refusal and retained message', failed, await status.evaluate(el=>el.classList.contains('is-error')) && await message.inputValue()==='Essai local.', /conserve|accepter|kept|could not accept/);
+    record('Service refusal and retained message', failed, await form.locator('[data-form-alert]').evaluate(el=>el.classList.contains('is-error')) && await message.inputValue()==='Essai local.', /conserve|accepter|kept|could not accept/);
     networkMode = 'success'; await nameAtFocus(submit);
     const sent = await key('Enter');
     record('Positive response and confirmation', sent, await status.evaluate(el=>el.classList.contains('is-success')) && await message.inputValue()==='', /envoye|sent/);
@@ -194,7 +195,9 @@ async function auditLanguage(en) {
     });
     result.stage = 'Starting NVDA'; save();
     await nvda.start({ capture: true, settings: { general: { language: 'fr' } } });
-    started = true; result.screenReader = `NVDA ${nvda.version}`;
+    started = true; result.controllerAsset = nvda.version;
+    result.screenReader = `NVDA ${process.env.RGAA_NVDA_RELEASE || nvda.version.split('-').pop()}`;
+    if (process.env.RGAA_NVDA_NATIVE_VERSION) result.nativeVersion = process.env.RGAA_NVDA_NATIVE_VERSION;
     result.stage = 'Reading pages'; save();
     await auditLanguage(false); await auditLanguage(true);
   } catch (error) { result.error = error.stack; }

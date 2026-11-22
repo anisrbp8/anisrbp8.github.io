@@ -117,6 +117,12 @@ async function cancel(page,target) {
         const close=page.locator('.figure-dialog-header button').filter({hasText:/Fermer|Close/});await cancel(page,close);assert.equal(await page.locator('dialog[open]').count(),1);await close.click();assert.equal(await page.locator('dialog[open]').count(),0);
       }else if(real.includes('publication')){
         const citation=page.locator('details.citation').first();await citation.locator('summary').click();const copy=citation.locator('button');await cancel(page,copy);assert.equal(await citation.locator('.copy-status').innerText(),'');
+        for(const [id,n] of [['music-2017',3],['alphabets-2017',4]]){
+          const details=page.locator('#'+id+' details.figure-description'),summary=details.locator('summary');
+          await cancel(page,summary);assert.equal(await details.getAttribute('open'),null);
+          await summary.focus();await page.keyboard.press('Space');assert.equal(await details.locator('p').count(),n);
+          assert.equal(await details.locator('p').last().isVisible(),true);await summary.press('Enter');assert.equal(await details.getAttribute('open'),null);
+        }
       }else{
         const name=page.locator('#contact-name');const btn=page.locator('.contact-form button[type=submit]');await cancel(page,btn);assert.notEqual(await name.getAttribute('aria-invalid'),'true');assert.equal(await page.locator('form [aria-invalid="true"]').count(),0);
       }
