@@ -1,0 +1,35 @@
+name: RGAA desktop – VoiceOver and native Safari
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '**.html'
+      - 'assets/**'
+      - 'scripts/accessibility/rgaa-voiceover.cjs'
+      - '.github/workflows/rgaa-voiceover.yml'
+permissions:
+  contents: read
+jobs:
+  safari-voiceover:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare the ephemeral runner for native VoiceOver
+        run: npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 setup --ci
+      - name: Install the VoiceOver controller and verify its assets
+        working-directory: scripts/accessibility
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund @guidepup/guidepup@0.40.0
+          npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 install voiceover
+      - name: Use Apple Safari and record actual VoiceOver speech
+        run: node scripts/accessibility/rgaa-voiceover.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rgaa-voiceover-safari
+          path: test-output/rgaa-voiceover/
+          retention-days: 30

@@ -87,6 +87,7 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
     && await contactForm.locator('textarea[name="message"]').getAttribute('aria-describedby')==='message-help');
    await contactForm.locator('button[type="submit"]').click();
    const status=contactForm.locator('[data-form-status]');
+   const alert=contactForm.locator('[data-form-alert]');
    await formPage.waitForFunction(() => document.querySelector('[data-form-status]')?.classList.contains('is-success'), null, {timeout:5000});
    record(file+' successful submit announces status and moves focus',
     await status.evaluate(el=>el.classList.contains('is-success') && el.getAttribute('role')==='status' && document.activeElement===el));
@@ -101,9 +102,10 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
     await contactForm.locator('input[name="subject"]').fill('Test');
     await contactForm.locator('textarea[name="message"]').fill('Local intercepted accessibility check');
     await contactForm.locator('button[type="submit"]').click();
-    await formPage.waitForFunction(()=>document.querySelector('[data-form-status]')?.classList.contains('is-error'),null,{timeout:5000});
+    await formPage.waitForFunction(()=>document.querySelector('[data-form-alert]')?.classList.contains('is-error'),null,{timeout:5000});
     record(file+' '+failure+' error is announced, preserves text and allows retry',
-     await status.evaluate(el=>el.textContent.length>0 && el.classList.contains('is-error') && document.activeElement===el)
+     await alert.evaluate(el=>el.textContent.length>0 && el.getAttribute('role')==='alert')
+     && await contactForm.locator('button[type="submit"]').evaluate(el=>document.activeElement===el)
      && await contactForm.locator('textarea[name="message"]').inputValue()==='Local intercepted accessibility check'
      && await contactForm.locator('button[type="submit"]').isEnabled());
    }
@@ -111,15 +113,15 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    await formPage.unroute('https://formspree.io/**');
    await formPage.route('https://formspree.io/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<p>Sign in</p>'}));
    await contactForm.locator('button[type="submit"]').click();
-   await formPage.waitForFunction(()=>document.querySelector('[data-form-status]').classList.contains('is-error'));
+   await formPage.waitForFunction(()=>document.querySelector('[data-form-alert]').classList.contains('is-error'));
    record(file+' a 200 HTML response cannot erase the draft or announce success',
-    await contactForm.locator('textarea').inputValue()==='Local intercepted accessibility check' && await status.evaluate(e=>document.activeElement===e));
+    await contactForm.locator('textarea').inputValue()==='Local intercepted accessibility check' && await alert.evaluate(e=>e.getAttribute('role')==='alert' && e.textContent.length>0));
    await formPage.unroute('https://formspree.io/**');
    await formPage.route('https://formspree.io/**',route=>route.fulfill({status:422,json:{errors:[{field:'email',code:'TYPE_EMAIL'}]}}));
    await contactForm.locator('button[type="submit"]').click();
    await formPage.waitForFunction(()=>document.querySelector('[name="email"]').getAttribute('aria-invalid')==='true');
    record(file+' a service-side rejection identifies and focuses the affected field',
-    await email.evaluate(e=>document.activeElement===e && document.getElementById(e.getAttribute('aria-describedby')).textContent.length>0));
+    await email.evaluate(e=>document.activeElement===e && e.getAttribute('aria-describedby').split(/\s+/).some(id=>id===e.id+'-error' && document.getElementById(id)?.textContent)));
    await email.fill('revised@example.org');
    await formPage.unroute('https://formspree.io/**');
    let accept;
@@ -144,11 +146,11 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    await contactForm.evaluate(f=>{f.requestSubmit();f.requestSubmit();});
    record(file+' repeated submit starts only one request',await formPage.evaluate(()=>window.testContactRequests===1));
    await formPage.clock.fastForward(30001);
-   await formPage.waitForFunction(()=>document.querySelector('[data-form-status]').classList.contains('is-error'));
+   await formPage.waitForFunction(()=>document.querySelector('[data-form-alert]').classList.contains('is-error'));
    record(file+' timeout preserves the draft and restores the submit button',
     await contactForm.locator('textarea[name="message"]').inputValue()==='Local intercepted accessibility check'
     && await contactForm.locator('button[type="submit"]').isEnabled()
-    && await status.evaluate(e=>document.activeElement===e));
+    && await alert.evaluate(e=>e.getAttribute('role')==='alert' && e.textContent.length>0));
    await formPage.close();
   }
   const fallback=await browser.newPage({javaScriptEnabled:false,viewport:{width:320,height:900}});

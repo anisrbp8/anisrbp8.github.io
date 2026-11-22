@@ -33,7 +33,7 @@ html{scroll-padding-bottom:1rem}
 
 
 /* Accessible contact form */
-.contact-form{margin-top:1.5rem;max-width:42rem}.form-field{margin-bottom:1.25rem}.form-field label{display:block;font-weight:700;margin-bottom:.4rem}.form-field textarea{resize:vertical;min-height:10rem}.required-note,.form-optional{font-weight:400;color:var(--muted);font-size:.9rem}.contact-submit{cursor:pointer;background:var(--ink);color:#fff;border-color:var(--ink);text-decoration:none}.contact-submit:hover{background:var(--navy-2);color:#fff}.contact-submit:disabled{cursor:wait;opacity:.7}.form-status{margin-top:1rem;min-height:1.7em;font-weight:650}.form-status:empty{min-height:0;margin-top:0}.form-status.is-error{color:var(--danger);border-left:3px solid var(--danger);padding:.8rem 1rem;background:#fff4f4}.form-status.is-success{color:#205c3b;border-left:3px solid #205c3b;padding:.8rem 1rem;background:#f0f7f2}.form-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}/* Native feedback only after interaction; JS also provides persistent text errors. */
+.contact-form{margin-top:1.5rem;max-width:42rem}.form-field{margin-bottom:1.25rem}.form-field label{display:block;font-weight:700;margin-bottom:.4rem}.form-field textarea{resize:vertical;min-height:10rem}.required-note,.form-optional{font-weight:400;color:var(--muted);font-size:.9rem}.contact-submit{cursor:pointer;background:var(--ink);color:#fff;border-color:var(--ink);text-decoration:none}.contact-submit:hover{background:var(--navy-2);color:#fff}.contact-submit:disabled,.contact-submit[aria-disabled="true"]{cursor:wait;opacity:.7}.form-status{margin-top:1rem;min-height:1.7em;font-weight:650}.form-status:empty{min-height:0;margin-top:0}.form-status.is-error{color:var(--danger);border-left:3px solid var(--danger);padding:.8rem 1rem;background:#fff4f4}.form-status.is-success{color:#205c3b;border-left:3px solid #205c3b;padding:.8rem 1rem;background:#f0f7f2}.form-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}/* Native feedback only after interaction; JS also provides persistent text errors. */
 .contact-form input:user-invalid,.contact-form textarea:user-invalid{border-color:var(--danger)}
 .contact-form [aria-invalid=true]{border-color:var(--danger)}
 .form-field-error{font-size:1rem;font-weight:600;color:var(--danger);margin:.5rem 0 0;max-width:65ch}@media(forced-colors:active){.contact-submit{border:2px solid ButtonText}.form-status.is-error,.form-status.is-success{color:CanvasText}}
@@ -58,3 +58,19 @@ html{scroll-padding-bottom:1rem}
 .affiliation-logo-link--paris8{flex-basis:100%;justify-content:center;padding:1.25rem;background:#fff}.affiliation-logo-link--paris8 img{width:10rem;height:auto;max-width:100%;max-height:none}html[data-reading-theme] body .affiliation-logo-link--paris8,html[data-reading-theme] body .affiliation-logo-link--paris8 img{background-color:#fff!important;color:#000!important}
 
 @media(forced-colors:active){html[data-reading-theme] :focus-visible{outline-color:Highlight!important}.contact-form [aria-invalid=true]{border:3px dashed CanvasText}.form-field-error{color:CanvasText}}
+
+/* Accessible scientific captions and reading themes. */
+.rgaa-scientific-figure,.expanded-scientific-figure{margin:0}
+.expanded-figure-description{margin-block:.75rem}
+.expanded-figure-description:empty{display:none}
+.research-figure .rgaa-scientific-figure>img{max-height:34rem;object-fit:contain}
+@media(max-width:40rem){.research-figure .rgaa-scientific-figure>img{max-height:none}}
+html[data-reading-theme] :is(select,input,textarea,button,.button,.mobile-menu-toggle,.figure-viewport){border-color:var(--reader-fg)!important}
+html[data-reading-theme] .contact-form [aria-invalid=true]{border-style:dashed}
+html[data-reading-theme] .back-to-top{border-color:var(--reader-fg)!important}
+@media(forced-colors:active){html[data-reading-theme] :is(select,input,textarea,button,.button,.mobile-menu-toggle,.figure-viewport){border-color:ButtonText!important}}
+
+.site-footer .html-check{display:inline-flex;align-items:center;gap:.45rem;min-height:44px;text-decoration:underline;text-underline-offset:.2em}.html-check img{flex:0 0 24px;width:24px;height:24px}
+/* Native lists retain the spacing of the existing research and career layouts. */
+:where(ol.career-list,ol.flow-diagram,ul.publication-list){list-style:none;padding-inline-start:0;margin-block:0}
+.page-toc .toc-title{font:inherit;font-weight:700;margin-block:0 1rem}

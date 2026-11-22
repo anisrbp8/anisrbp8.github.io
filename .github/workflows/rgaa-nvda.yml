@@ -18,6 +18,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Check whether the runner already provides a JAWS installation
+        shell: pwsh
+        run: |
+          $program = Get-ChildItem "$env:ProgramFiles\Freedom Scientific\JAWS\*\jfw.exe" -ErrorAction SilentlyContinue
+          if ($program) { $program | ForEach-Object { Write-Output "JAWS present: $($_.VersionInfo.ProductVersion)" } }
+          else { Write-Output 'JAWS not installed on this runner.' }
       - name: Set up the temporary Windows screen-reader session
         run: npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 setup --ci
       - run: npm ci --no-audit --no-fund

@@ -53,7 +53,7 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
     assert.ok(await page.locator('dialog[open]').isVisible());
     const figureCaption=await page.evaluate(()=>{
       const figure=document.querySelector('#article-figure-8');
-      const shortCaption=document.getElementById(figure.getAttribute('aria-labelledby')).textContent.trim();
+      const shortCaption=figure.querySelector('figcaption').textContent.trim();
       const dialogCaption=document.querySelector('.figure-dialog-caption').textContent.trim();
       return {shortCaption,dialogCaption};
     });
@@ -69,12 +69,12 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
    await page.goto(base+'/'+prefix+research);
    await page.locator('.figure-collection > summary').focus();
    await page.keyboard.press('Enter');
-   const figures=await page.locator('main figure.research-figure').all();
+   const figures=await page.locator('main .research-figure').all();
    await check(label+' all nine research figures are present',async()=>assert.equal(figures.length,9));
    for(const figure of figures){
     const id=await figure.getAttribute('id');
     await check(`${label} ${id}: text alternative and local full-size image`,async()=>{
-     const preview=figure.locator(':scope > img');
+     const preview=figure.locator('figure > img');
      await preview.scrollIntoViewIfNeeded();
      await preview.evaluate(image=>image.decode());
      const description=figure.locator('.figure-description');

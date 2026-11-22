@@ -30,3 +30,10 @@
 .home .hero{border-bottom-color:#aebcba}
 @media(max-width:25rem){.hero-visual{grid-template-columns:minmax(0,5rem) minmax(0,1fr);gap:.75rem}.academic-links{gap:.2rem .75rem}}
 @media(forced-colors:active){.home .eyebrow,.dated-news li>time,.dated-news li>span{color:CanvasText}}
+
+/* The affiliation caption belongs to the portrait, the profile links to navigation. */
+.hero-visual .portrait-shell{margin:0;aspect-ratio:auto;overflow:visible;background:transparent}
+.hero-visual .portrait-shell picture{height:auto;aspect-ratio:4/5;overflow:hidden;border-radius:2px}
+.hero-visual .portrait-shell img{display:block}
+@media(max-width:40rem){.hero-visual{grid-template-columns:minmax(0,1fr)}.hero-visual .portrait-shell{display:grid;grid-template-columns:6rem minmax(0,1fr);align-items:center;gap:.75rem}.hero-visual .academic-links{margin:0}}
+@media(max-width:25rem){.hero-visual .portrait-shell{grid-template-columns:5rem minmax(0,1fr)}}

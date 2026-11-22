@@ -121,13 +121,13 @@
   const year = makeSelect('publication-year',en?'Year':'Année',[['',en?'All years':'Toutes les années'],...[...new Set(cards.map(c=>c.dataset.year))].sort().reverse().map(y=>[y,y])]);
   const reset=document.createElement('button');reset.type='button';reset.className='button';reset.textContent=en?'Show all':'Tout afficher';controls.append(reset);
   const status=document.createElement('p');status.id='publication-count';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-  const empty=document.createElement('p');empty.hidden=true;empty.textContent=en?'No publication matches these filters. Use “Show all” to reset.':'Aucune publication ne correspond à ces filtres. Utilisez « Tout afficher » pour les réinitialiser.';
-  list.before(controls,status,empty);
+  const emptyHelp=en?'No publication matches these filters. Use “Show all” to reset.':'Aucune publication ne correspond à ces filtres. Utilisez « Tout afficher » pour les réinitialiser.';
+  list.before(controls,status);
   const update=()=>{
     let count=0;
     cards.forEach(card=>{const show=(!topic.value||card.dataset.topics.split(' ').includes(topic.value))&&(!year.value||card.dataset.year===year.value);card.hidden=!show;if(show)count++;});
     status.textContent=en?`${count} of ${cards.length} publications displayed.`:`${count} publication${count>1?'s':''} affichée${count>1?'s':''} sur ${cards.length}.`;
-    empty.hidden=count!==0;
+    if (count === 0) status.textContent += ' ' + emptyHelp;
   };
   const showAll=()=>{topic.value='';year.value='';update();};
   topic.addEventListener('change',update);year.addEventListener('change',update);reset.addEventListener('click',showAll);
@@ -162,18 +162,24 @@
   const original=document.createElement('a');original.className='button';original.textContent=en?'Open image file':'Ouvrir le fichier image';
   const viewport=document.createElement('div');viewport.className='figure-viewport';viewport.tabIndex=0;viewport.setAttribute('role','region');viewport.setAttribute('aria-label',en?'Scrollable figure':'Figure avec défilement');
   const img=document.createElement('img');img.alt='';viewport.append(img);
-  const caption=document.createElement('p');caption.className='figure-dialog-caption';
-  header.append(title,close,zoom,original);dialog.append(header,viewport,caption);document.body.append(dialog);
+  const expanded=document.createElement('figure');expanded.className='expanded-scientific-figure';expanded.setAttribute('role','figure');
+  const caption=document.createElement('figcaption');caption.className='figure-dialog-caption';
+  const description=document.createElement('div');description.className='expanded-figure-description';
+  header.append(title,close,zoom,original);expanded.append(viewport,caption);dialog.append(header,expanded,description);document.body.append(dialog);
   let opener=null,previousOverflow='';
   links.forEach(link=>{
     link.setAttribute('aria-haspopup','dialog');
     link.addEventListener('click',event=>{
       if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
       event.preventDefault();opener=link;
-      const figure=link.closest('figure');img.src=link.href;img.alt=figure.querySelector('img')?.alt||'';original.href=link.href;
-      const captionId=figure.getAttribute('aria-labelledby');
-      const shortCaption=captionId?document.getElementById(captionId):figure.querySelector('figcaption');
-      caption.textContent=shortCaption?.textContent||'';
+      const container=link.closest('.research-figure');
+      const figure=container.querySelector('figure');
+      img.src=link.href;img.alt=figure.querySelector('img').alt;original.href=link.href;
+      caption.textContent=figure.querySelector('figcaption').textContent;
+      expanded.setAttribute('aria-label',caption.textContent);
+      const longText=container.querySelector('.figure-description, .figure-actions a[href*="#article-figure-"]');
+      description.replaceChildren();
+      if(longText)description.append(longText.cloneNode(true));
       viewport.classList.remove('original-size');zoom.setAttribute('aria-pressed','false');
       previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();close.focus();viewport.scrollTo(0,0);
     });
@@ -237,8 +243,9 @@
 
   document.querySelectorAll('form[data-contact-form]').forEach((form) => {
     const status = form.querySelector('[data-form-status]');
+    const alert = form.querySelector('[data-form-alert]');
     const submit = form.querySelector('button[type="submit"]');
-    if (!status || !submit || !window.fetch) return;
+    if (!status || !alert || !submit || !window.fetch) return;
 
     const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
     const messages = isEnglish
@@ -247,6 +254,7 @@
           success: 'Your message has been sent. Thank you!',
           edited: 'Your message was sent. Changes made after you pressed Send are still in the form.',
           uncertain: 'The service did not confirm delivery. Your text is still in the form.',
+          fields: 'Please correct the marked fields and send your message again.',
           rejected: 'The service could not accept this entry. Please check it before trying again.',
           error: 'The connection was interrupted. Delivery could not be confirmed. Your text has been kept; please check your connection before trying again.',
           serverError: 'The service could not accept your message. Your text has been kept. Please try again in a few moments.',
@@ -259,6 +267,7 @@
           success: 'Votre message a bien \u00e9t\u00e9 envoy\u00e9. Merci !',
           edited: 'Votre message a été envoyé. Les modifications apportées après l’envoi sont toujours dans le formulaire.',
           uncertain: 'Le service n’a pas confirmé l’envoi. Votre texte est conservé.',
+          fields: 'Corrigez les champs signalés, puis renvoyez votre message.',
           rejected: 'Le service a refusé cette valeur. Vérifiez-la avant de réessayer.',
           error: 'La connexion a \u00e9t\u00e9 interrompue. L\u2019envoi n\u2019a pas pu \u00eatre confirm\u00e9. Votre texte est conserv\u00e9 ; v\u00e9rifiez votre connexion avant de r\u00e9essayer.',
           serverError: 'Le service n\u2019a pas pu accepter votre message. Votre texte est conserv\u00e9. R\u00e9essayez dans quelques instants.',
@@ -317,9 +326,15 @@
       if (!form.reportValidity()) return;
 
       sending = true;
-      status.classList.remove('is-error', 'is-success');
+      const focusAtSubmit = document.activeElement;
+      const focusIfUnchanged = target => {
+        if (document.activeElement === focusAtSubmit) target.focus();
+      };
+      alert.textContent = '';
+      alert.classList.remove('is-error');
+      status.classList.remove('is-success');
       status.textContent = messages.sending;
-      submit.disabled = true;
+      // Keep the button in the tab order; the sending flag also covers implicit submissions.
       submit.setAttribute('aria-disabled', 'true');
       const controller = typeof AbortController === 'function' ? new AbortController() : null;
       const timeout = controller ? window.setTimeout(() => controller.abort(), 30000) : null;
@@ -343,12 +358,17 @@
           for (const issue of errors) {
             const field = fields.find(input => input.name === issue?.field);
             if (!field || field.value !== submitted.get(field.name)) continue;
-            showFieldError(field, field.type === 'email' ? messages.email : messages.rejected);
+            let hint = messages.rejected;
+            if (issue.code === 'REQUIRED_FIELD_EMPTY' || issue.code === 'REQUIRED_FIELD_MISSING') hint = messages.required;
+            else if (issue.code === 'TYPE_EMAIL') hint = messages.email;
+            showFieldError(field, hint);
             firstInvalid ??= field;
           }
-          status.classList.add('is-error');
-          status.textContent = response.ok && !errors.length && !result?.error ? messages.uncertain : messages.serverError;
-          (firstInvalid || status).focus();
+          status.textContent = '';
+          alert.classList.add('is-error');
+          alert.textContent = firstInvalid ? messages.fields
+            : response.ok && !errors.length && !result?.error ? messages.uncertain : messages.serverError;
+          if (firstInvalid) focusIfUnchanged(firstInvalid);
           return;
         }
 
@@ -356,15 +376,14 @@
         if (!changed) form.reset();
         status.classList.add('is-success');
         status.textContent = changed ? messages.edited : messages.success;
-        status.focus();
+        if (!changed) focusIfUnchanged(status);
       } catch (error) {
-        status.classList.add('is-error');
-        status.textContent = error.name === 'AbortError' ? messages.timeout : messages.error;
-        status.focus();
+        status.textContent = '';
+        alert.classList.add('is-error');
+        alert.textContent = error.name === 'AbortError' ? messages.timeout : messages.error;
       } finally {
         if (timeout !== null) window.clearTimeout(timeout);
         sending = false;
-        submit.disabled = false;
         submit.removeAttribute('aria-disabled');
       }
     });

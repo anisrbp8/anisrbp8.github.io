@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const { spawn } = require('node:child_process');
+const http = require('node:http');
 const { firefox } = require('playwright');
 const { nvda, NVDAKeyCodeCommands: commands } = require('@guidepup/guidepup');
 const root = path.resolve(__dirname, '../..');
@@ -172,8 +172,18 @@ async function auditLanguage(en) {
 (async () => {
   fs.mkdirSync(output, { recursive: true });
   try {
-    server = spawn('python', ['-m','http.server','8887','--bind','127.0.0.1','--directory',root], { stdio: 'ignore' });
-    for (let i=0;i<35;i++) { try { if ((await fetch(base+'/index.html')).ok) break; } catch {} await delay(200); }
+    result.stage = 'Starting loopback preview'; save();
+    const mime = { '.html':'text/html;charset=utf-8', '.css':'text/css', '.js':'application/javascript', '.svg':'image/svg+xml', '.jpg':'image/jpeg', '.webp':'image/webp', '.png':'image/png', '.woff2':'font/woff2' };
+    server = http.createServer((req,res)=>{
+      const file = path.resolve(root, '.' + decodeURIComponent(new URL(req.url,base).pathname));
+      if (!file.startsWith(root+path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
+        res.writeHead(404); res.end(); return;
+      }
+      res.writeHead(200, { 'Content-Type': mime[path.extname(file)] || 'application/octet-stream' });
+      fs.createReadStream(file).on('error',()=>res.destroy()).pipe(res);
+    });
+    await new Promise((resolve,reject)=>server.once('error',reject).listen(8887,'127.0.0.1',resolve));
+    result.stage = 'Starting Firefox'; save();
     browser = await firefox.launch({ headless: false });
     result.browser = 'Firefox ' + browser.version();
     page = await browser.newPage({ viewport: { width: 1240, height: 840 } });
@@ -182,13 +192,15 @@ async function auditLanguage(en) {
       result.messagesIntercepted++;
       return route.fulfill({ status: networkMode === 'success' ? 200 : 503, contentType:'application/json', body: JSON.stringify(networkMode === 'success' ? {ok:true} : {error:'temporarily unavailable'}) });
     });
+    result.stage = 'Starting NVDA'; save();
     await nvda.start({ capture: true, settings: { general: { language: 'fr' } } });
     started = true; result.screenReader = `NVDA ${nvda.version}`;
+    result.stage = 'Reading pages'; save();
     await auditLanguage(false); await auditLanguage(true);
   } catch (error) { result.error = error.stack; }
   finally {
     if (started) await nvda.stop().catch(error => { result.stopError=error.message; });
-    await browser?.close(); server?.kill();
+    await browser?.close(); server?.closeAllConnections(); server?.close();
     const all = result.scenarios.flatMap(s=>s.checks);
     result.complete = !result.error && result.scenarios.length===12;
     result.passed = result.complete && result.scenarios.every(s=>s.passed);
