@@ -46,7 +46,10 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
     null, {timeout: 5000}
    ).then(() => true, () => false);
    record(file+' resizing to desktop restores visible keyboard focus', desktopFocusRestored);
+   await page.locator('.desktop-nav a').nth(2).focus();
    await page.setViewportSize({width:320,height:900});
+   record(file+' resizing to mobile keeps keyboard focus on the menu button',
+    await page.waitForFunction(()=>document.activeElement?.matches('.mobile-menu-toggle'),null,{timeout:5000}).then(()=>true,()=>false));
    await page.locator('.reading-tools summary').focus();await page.keyboard.press('Enter');await page.keyboard.press('Tab');
    record(file+' reading controls reachable with keyboard',await page.evaluate(()=>document.activeElement.id==='reading-theme'));
    await page.locator('#reading-theme').selectOption('dark');await page.reload();
@@ -104,6 +107,31 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
      && await contactForm.locator('textarea[name="message"]').inputValue()==='Local intercepted accessibility check'
      && await contactForm.locator('button[type="submit"]').isEnabled());
    }
+   // Some intermediaries return HTTP 200 with an HTML page instead of a delivery receipt.
+   await formPage.unroute('https://formspree.io/**');
+   await formPage.route('https://formspree.io/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<p>Sign in</p>'}));
+   await contactForm.locator('button[type="submit"]').click();
+   await formPage.waitForFunction(()=>document.querySelector('[data-form-status]').classList.contains('is-error'));
+   record(file+' a 200 HTML response cannot erase the draft or announce success',
+    await contactForm.locator('textarea').inputValue()==='Local intercepted accessibility check' && await status.evaluate(e=>document.activeElement===e));
+   await formPage.unroute('https://formspree.io/**');
+   await formPage.route('https://formspree.io/**',route=>route.fulfill({status:422,json:{errors:[{field:'email',code:'TYPE_EMAIL'}]}}));
+   await contactForm.locator('button[type="submit"]').click();
+   await formPage.waitForFunction(()=>document.querySelector('[name="email"]').getAttribute('aria-invalid')==='true');
+   record(file+' a service-side rejection identifies and focuses the affected field',
+    await email.evaluate(e=>document.activeElement===e && document.getElementById(e.getAttribute('aria-describedby')).textContent.length>0));
+   await email.fill('revised@example.org');
+   await formPage.unroute('https://formspree.io/**');
+   let accept;
+   const pending=new Promise(resolve=>{accept=resolve;});
+   await formPage.route('https://formspree.io/**',async route=>{await pending;await route.fulfill({status:200,json:{next:'/thanks'}});});
+   await contactForm.locator('button[type="submit"]').click();
+   await contactForm.locator('textarea').fill('Edited while waiting for confirmation');
+   accept();
+   await formPage.waitForFunction(()=>document.querySelector('[data-form-status]').classList.contains('is-success'));
+   record(file+' a confirmed submission preserves edits made in flight',
+    await contactForm.locator('textarea').inputValue()==='Edited while waiting for confirmation');
+   await contactForm.locator('textarea').fill('Local intercepted accessibility check');
    // Test the actual abort timer with virtual time and a local fetch stub.
    await formPage.clock.install();
    await formPage.evaluate(()=>{
@@ -128,6 +156,7 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
   record('Native mobile navigation works without JavaScript',await fallback.locator('.mobile-panel a').first().evaluate(e=>document.activeElement===e));
   await fallback.locator('.reading-tools summary').click();
   record('No-JavaScript reading control explanation is visible',await fallback.locator('.reading-tools noscript p').isVisible());
+  record('Reading controls that need JavaScript are absent from the fallback tab order',await fallback.locator('#reading-theme').isHidden());
  }catch(e){runError=e.message;console.error(e);process.exitCode=1;}finally{
   const result={checks,error:runError,passed:checks.length>0&&!runError&&checks.every(x=>x.passed)};
   fs.mkdirSync(path.join(root,'test-output'),{recursive:true});

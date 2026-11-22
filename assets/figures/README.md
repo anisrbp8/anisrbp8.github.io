@@ -6,7 +6,7 @@ Source : Anis Rojbi, `ICH_Seminar_Anis8BIS.pptx`, quatre diapositives fournies p
 |---|---|---|---|
 | 1 | image-processing | Diapositive 1, image1.png | Granulation, décomposition, interpolation, sélection, construction du SVG tactile ; les branches et le facteur de réduction sont conservés. |
 | 2 | image-use-cases | Diapositive 2, image2.png | Utilisateurs voyants et aveugles, exploration tactile, deux extensions UML de personnalisation. |
-| 3 | granularity-mechanisms | Diapositive 3, diagramme SmartArt 1 | Optimisation, conversion entre niveaux et résolution conjointe. |
+| 3 | granularity-mechanisms | Diapositive 3, diagramme SmartArt 1 | Trois mécanismes du calcul granulaire. La représentation à plusieurs niveaux appartient à la branche de résolution conjointe. |
 | 4 | granular-computing | Diapositive 3, diagramme SmartArt 2 | Pensée structurée, traitement de l’information et résolution des problèmes. |
 | 5 | fatigue-multimodal | Texte de la diapositive 4 | Nouveau schéma de synthèse, explicitement identifié comme tel. Aucun résultat ou niveau de performance ajouté. |
 
@@ -19,7 +19,7 @@ Regeneration: `python scripts/research_figures.py`.
 ## Figures de publication ajoutées en novembre 2026
 
 - Gordienko Y., Gordienko N., Taran V., Rojbi A., Telenyk S. et Stirenko S. (2025), *Effect of Natural and Synthetic Noise Data Augmentation on Physical Action Classification by Brain–Computer Interface and Deep Learning*, Frontiers in Neuroinformatics 19:1521805. DOI : https://doi.org/10.3389/fninf.2025.1521805. Licence [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-- `frontiers-2025-figure-2-preview.webp` et `frontiers-2025-figure-8-preview.webp` : aperçus redimensionnés à 880 px et recompressés, sans recadrage, recoloration ou modification des annotations. Les liens d’agrandissement ouvrent les fichiers originaux de l’éditeur (1772 × 1759 et 1417 × 2191 px).
+- `frontiers-2025-figure-2-preview.webp` et `frontiers-2025-figure-8-preview.webp` : aperçus redimensionnés à 880 px et recompressés, sans recadrage, recoloration ou modification des annotations. Le site sert les agrandissements depuis son propre domaine, uniquement à la demande. Les copies locales `fninf-19-1521805-g0002.webp` (1 772 × 1 759 px) et `fninf-19-1521805-g0008.webp` (1 417 × 2 191 px) sont identiques, octet pour octet, aux fichiers de l’éditeur. [Figure 2 chez Frontiers](https://www.frontiersin.org/files/Articles/1521805/xml-images/fninf-19-1521805-g0002.webp) · [Figure 8 chez Frontiers](https://www.frontiersin.org/files/Articles/1521805/xml-images/fninf-19-1521805-g0008.webp).
 - `frontiers-2025-figure-2-home.webp` : aperçu de 480 px pour l’accueil ; l’explication complète et l’original restent accessibles depuis ce bloc.
 - Figure 2 : chaque ligne a sa propre échelle en microvolts. Les couleurs entre lignes ne doivent pas être comparées sans tenir compte des échelles.
 - Figure 8 : l’abscisse visible est une liste d’actions physiques, malgré la formulation ambiguë de la légende éditeur « as a function of the number of samples ». La description du site correspond au graphique réellement reproduit : des barres d’AUC moyenne par action et offset, pour deux conditions de bruit. Aucune valeur n’a été estimée à partir des pixels.

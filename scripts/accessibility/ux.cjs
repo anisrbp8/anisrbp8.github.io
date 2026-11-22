@@ -66,6 +66,50 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
     const axe=await page.evaluate(()=>axe.run(document.querySelector('dialog'),{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa','wcag22aa']}}));assert.equal(axe.violations.length,0,JSON.stringify(axe.violations.map(v=>v.id)));
     await page.keyboard.press('Escape');assert.equal(await page.locator('dialog[open]').count(),0);assert.ok(await trigger.evaluate(e=>e===document.activeElement));
    });
+   await page.goto(base+'/'+prefix+research);
+   await page.locator('.figure-collection > summary').focus();
+   await page.keyboard.press('Enter');
+   const figures=await page.locator('main figure.research-figure').all();
+   await check(label+' all nine research figures are present',async()=>assert.equal(figures.length,9));
+   for(const figure of figures){
+    const id=await figure.getAttribute('id');
+    await check(`${label} ${id}: text alternative and local full-size image`,async()=>{
+     const preview=figure.locator(':scope > img');
+     await preview.scrollIntoViewIfNeeded();
+     await preview.evaluate(image=>image.decode());
+     const description=figure.locator('.figure-description');
+     await description.locator('summary').focus();
+     await page.keyboard.press('Enter');
+     assert.ok(await description.locator('p, ul').first().isVisible());
+     const trigger=figure.locator('[data-figure-open]');
+     const url=new URL(await trigger.getAttribute('href'),page.url());
+     assert.equal(url.origin,new URL(page.url()).origin);
+     await trigger.focus();
+     await page.keyboard.press('Enter');
+     const dialog=page.locator('.figure-dialog[open]');
+     try{
+      const image=dialog.locator('img');
+      await image.evaluate(element=>element.decode());
+      const zoom=dialog.locator('button[aria-pressed]');
+      await zoom.focus();
+      await page.keyboard.press('Enter');
+      assert.equal(await zoom.getAttribute('aria-pressed'),'true');
+      const metrics=await image.evaluate(element=>({url:element.currentSrc,width:element.clientWidth,natural:element.naturalWidth,height:element.naturalHeight}));
+      assert.equal(metrics.url,url.href);
+      const articleSizes={'article-figure-2':[1772,1759],'article-figure-8':[1417,2191]};
+      const expected=articleSizes[id]||[Number(await preview.getAttribute('width')),Number(await preview.getAttribute('height'))];
+      assert.deepEqual([metrics.natural,metrics.height],expected);
+      assert.equal(metrics.width,metrics.natural,'Zoom must display the intrinsic image width');
+      if(width===320){
+       assert.ok(await dialog.locator('.figure-viewport').evaluate(element=>element.scrollWidth>element.clientWidth));
+       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+      }
+     }finally{
+      if(await dialog.count())await page.keyboard.press('Escape');
+     }
+     assert.ok(await trigger.evaluate(link=>link===document.activeElement));
+    });
+   }
    await check(label+' partner journey: projects → contact form and CV',async()=>{
     await page.goto(base+'/'+prefix+'index.html');await page.locator('.visitor-card .card-link').nth(1).click();
     await page.locator('.page-toc a[href="contact.html"]').click();assert.ok(await page.locator('#contact-form').isVisible());
@@ -111,6 +155,18 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
     // A definition-only glossary can have no links inside main; navigation
     // in the header or footer must remain available without scripting too.
     assert.ok(await noScriptPage.locator('header a:visible, main a:visible, footer a:visible').count()>0);
+    await noScriptPage.keyboard.press('Tab');
+    assert.ok(await noScriptPage.locator('.skip-link').evaluate(el => el === document.activeElement));
+    await noScriptPage.keyboard.press('Enter');
+    assert.ok(await noScriptPage.locator('main').evaluate(el => el === document.activeElement));
+    if (file !== '404.html') {
+      const switcher=noScriptPage.locator('.lang-link');
+      const language=await switcher.getAttribute('hreflang');
+      const equivalent=await noScriptPage.locator('link[rel="alternate"][hreflang="'+language+'"]').getAttribute('href');
+      await switcher.click();
+      assert.equal(await noScriptPage.locator('html').getAttribute('lang'), language);
+      assert.equal(await noScriptPage.locator('link[rel="canonical"]').getAttribute('href'), equivalent);
+    }
    });
   }
   await noScript.close();

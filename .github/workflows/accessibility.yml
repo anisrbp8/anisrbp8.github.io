@@ -47,3 +47,40 @@ jobs:
             test-output/
             audit/ux-2026-11-15/preview/
           retention-days: 30
+
+  native-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: scripts/accessibility
+      - run: npx playwright install --with-deps chromium
+        working-directory: scripts/accessibility
+      - name: Install the native screen reader and desktop test tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends orca speech-dispatcher-espeak-ng pulseaudio pulseaudio-utils dbus-x11 xvfb xdotool xauth
+      - name: Verify browser zoom and Orca speech on the candidate
+        if: always()
+        run: |
+          xvfb-run -a -s '-screen 0 1440x1000x24' dbus-run-session -- bash -eu -c '
+            unset NO_AT_BRIDGE
+            export XDG_RUNTIME_DIR=$(mktemp -d)
+            chmod 700 "$XDG_RUNTIME_DIR"
+            dbus-update-activation-environment DISPLAY XAUTHORITY XDG_RUNTIME_DIR
+            gsettings set org.gnome.desktop.interface toolkit-accessibility true
+            pulseaudio --start --exit-idle-time=-1
+            pactl load-module module-null-sink sink_name=review_output
+            pactl set-default-sink review_output
+            node scripts/accessibility/native-zoom-orca.cjs
+          '
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-access-results
+          path: test-output/native-access/
+          retention-days: 30

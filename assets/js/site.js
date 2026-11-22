@@ -74,20 +74,25 @@
 
     const desktop = window.matchMedia('(min-width: 70.01rem)');
     // A browser can blur a link as its parent becomes display:none, before matchMedia fires.
-    let lastFocusInPanel = false;
-    document.addEventListener('focusin', event => {lastFocusInPanel = panel.contains(event.target);});
+    const desktopNav = document.querySelector('.desktop-nav');
+    let lastNavigationFocus = null;
+    document.addEventListener('focusin', event => {
+      lastNavigationFocus = container.contains(event.target) || desktopNav?.contains(event.target)
+        ? event.target : null;
+    });
     const closeOnDesktop = (event) => {
-      if (!event.matches) return;
-      const focusWasInsidePanel = panel.contains(document.activeElement) ||
-        (lastFocusInPanel && button.getAttribute('aria-expanded') === 'true');
-      setOpen(false);
-      // Do not leave keyboard focus inside a menu that is now hidden.
-      if (focusWasInsidePanel) {
-        const desktopLink = document.querySelector('.desktop-nav a');
-        if (desktopLink && desktopLink.getClientRects().length) desktopLink.focus();
-        else if (button.getClientRects().length) button.focus();
+      const previous = document.activeElement === document.body ? lastNavigationFocus : document.activeElement;
+      if (!previous) return;
+      if (!event.matches) {
+        if (desktopNav?.contains(previous)) button.focus();
+        return;
       }
-      lastFocusInPanel = false;
+      setOpen(false);
+      if (container.contains(previous)) {
+        const matching = [...desktopNav.querySelectorAll('a')].find(link => link.href === previous.href);
+        const target = matching || (previous.hreflang ? document.querySelector('.lang-link') : desktopNav.querySelector('a'));
+        target?.focus();
+      }
     };
     if (desktop.addEventListener) desktop.addEventListener('change', closeOnDesktop);
     else if (desktop.addListener) desktop.addListener(closeOnDesktop);
@@ -194,6 +199,7 @@
   const reset = document.getElementById('reading-reset');
   const status = document.getElementById('reading-status');
   if (!theme || !size || !spacing || !reset) return;
+  theme.closest('.reading-fields').hidden = false;
   const key = 'anis-reading-preferences';
   const defaults = {theme: 'default', size: '100', spacing: false};
   const valid = (value) => ({
@@ -239,6 +245,9 @@
       ? {
           sending: 'Sending your message\u2026',
           success: 'Your message has been sent. Thank you!',
+          edited: 'Your message was sent. Changes made after you pressed Send are still in the form.',
+          uncertain: 'The service did not confirm delivery. Your text is still in the form.',
+          rejected: 'The service could not accept this entry. Please check it before trying again.',
           error: 'The connection was interrupted. Delivery could not be confirmed. Your text has been kept; please check your connection before trying again.',
           serverError: 'The service could not accept your message. Your text has been kept. Please try again in a few moments.',
           timeout: 'The service is taking too long to respond. Delivery could not be confirmed. Your text has been kept.',
@@ -248,6 +257,9 @@
       : {
           sending: 'Envoi de votre message\u2026',
           success: 'Votre message a bien \u00e9t\u00e9 envoy\u00e9. Merci !',
+          edited: 'Votre message a été envoyé. Les modifications apportées après l’envoi sont toujours dans le formulaire.',
+          uncertain: 'Le service n’a pas confirmé l’envoi. Votre texte est conservé.',
+          rejected: 'Le service a refusé cette valeur. Vérifiez-la avant de réessayer.',
           error: 'La connexion a \u00e9t\u00e9 interrompue. L\u2019envoi n\u2019a pas pu \u00eatre confirm\u00e9. Votre texte est conserv\u00e9 ; v\u00e9rifiez votre connexion avant de r\u00e9essayer.',
           serverError: 'Le service n\u2019a pas pu accepter votre message. Votre texte est conserv\u00e9. R\u00e9essayez dans quelques instants.',
           timeout: 'Le service met trop de temps \u00e0 r\u00e9pondre. L\u2019envoi n\u2019a pas pu \u00eatre confirm\u00e9. Votre texte est conserv\u00e9.',
@@ -266,7 +278,7 @@
       if (descriptions.length) field.setAttribute('aria-describedby', descriptions.join(' '));
       else field.removeAttribute('aria-describedby');
     };
-    const showFieldError = (field) => {
+    const showFieldError = (field, serviceMessage) => {
       const id = field.id + '-error';
       let error = document.getElementById(id);
       if (!error) {
@@ -275,9 +287,9 @@
         error.className = 'form-field-error';
         field.after(error);
       }
-      error.textContent = field.validity.valueMissing ? messages.required
+      error.textContent = serviceMessage || (field.validity.valueMissing ? messages.required
         : field.type === 'email' && field.validity.typeMismatch ? messages.email
-        : field.validationMessage;
+        : field.validationMessage);
       field.setAttribute('aria-invalid', 'true');
       const descriptions = new Set((field.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
       descriptions.add(id);
@@ -287,6 +299,10 @@
       field.addEventListener('invalid', () => showFieldError(field));
       field.addEventListener('input', () => {
         if (field.validity.valid) clearFieldError(field);
+        if (!sending && status.classList.contains('is-success')) {
+          status.classList.remove('is-success');
+          status.textContent = '';
+        }
       });
       field.addEventListener('blur', () => {
         if (field.getAttribute('aria-invalid') === 'true' && !field.validity.valid) showFieldError(field);
@@ -307,25 +323,39 @@
       submit.setAttribute('aria-disabled', 'true');
       const controller = typeof AbortController === 'function' ? new AbortController() : null;
       const timeout = controller ? window.setTimeout(() => controller.abort(), 30000) : null;
+      const submitted = new FormData(form);
 
       try {
         const response = await fetch(form.action, {
           method: 'POST',
-          body: new FormData(form),
+          body: submitted,
           headers: {Accept: 'application/json'},
           ...(controller ? {signal: controller.signal} : {})
         });
 
-        if (!response.ok) {
+        // Formspree's JSON success response includes ok or a next-page URL.
+        // A proxy or a challenge can serve an HTML page with status 200.
+        const result = await response.json().catch(() => null);
+        const errors = Array.isArray(result?.errors) ? result.errors : [];
+        const confirmed = result?.ok === true || (result?.ok !== false && typeof result?.next === 'string' && result.next.length > 0);
+        if (!response.ok || !confirmed || errors.length || result?.error) {
+          let firstInvalid;
+          for (const issue of errors) {
+            const field = fields.find(input => input.name === issue?.field);
+            if (!field || field.value !== submitted.get(field.name)) continue;
+            showFieldError(field, field.type === 'email' ? messages.email : messages.rejected);
+            firstInvalid ??= field;
+          }
           status.classList.add('is-error');
-          status.textContent = messages.serverError;
-          status.focus();
+          status.textContent = response.ok && !errors.length && !result?.error ? messages.uncertain : messages.serverError;
+          (firstInvalid || status).focus();
           return;
         }
 
-        form.reset();
+        const changed = fields.some(field => field.value !== submitted.get(field.name));
+        if (!changed) form.reset();
         status.classList.add('is-success');
-        status.textContent = messages.success;
+        status.textContent = changed ? messages.edited : messages.success;
         status.focus();
       } catch (error) {
         status.classList.add('is-error');
