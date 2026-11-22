@@ -33,6 +33,7 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
     const top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
     return document.querySelector('.mobile-panel').hidden===true && e.matches('.utility-links a') && (top===e || e.contains(top));
    }));
+   record(file+' back-to-top link stays in the document flow',await page.locator('.back-to-top').evaluate(e=>getComputedStyle(e).position==='static'));
    // A viewport switch must not strand focus in links hidden by the desktop layout.
    await menuToggle.click();
    await page.locator('.mobile-panel a').first().focus();
@@ -65,13 +66,22 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    await formPage.goto('http://127.0.0.1:8880/'+file);
    const contactForm=formPage.locator('form[data-contact-form]');
    const email=contactForm.locator('input[name="email"]');
+   record(file+' untouched fields have no premature error state',
+    await contactForm.locator('[aria-invalid="true"],.form-field-error').count()===0
+    && await email.evaluate(e=>getComputedStyle(e).borderColor!=='rgb(141, 30, 30)'));
    record(file+' required fields are enforced natively',await contactForm.evaluate(f=>!f.checkValidity()));
+   record(file+' invalid fields have persistent associated explanations',
+    await contactForm.locator('.form-field-error').count()===4
+    && await contactForm.locator('textarea[name="message"]').getAttribute('aria-describedby')==='message-help contact-message-error');
    await contactForm.locator('input[name="name"]').fill('Accessibility Test');
    await email.fill('not-an-email');
    await contactForm.locator('input[name="subject"]').fill('Test');
    await contactForm.locator('textarea[name="message"]').fill('Form accessibility test');
    record(file+' invalid email is rejected natively',await email.evaluate(el=>!el.checkValidity()));
    await email.fill('test@example.org');
+   record(file+' correcting values removes errors but retains help',
+    await contactForm.locator('.form-field-error').count()===0
+    && await contactForm.locator('textarea[name="message"]').getAttribute('aria-describedby')==='message-help');
    await contactForm.locator('button[type="submit"]').click();
    const status=contactForm.locator('[data-form-status]');
    await formPage.waitForFunction(() => document.querySelector('[data-form-status]')?.classList.contains('is-success'), null, {timeout:5000});
@@ -94,6 +104,23 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
      && await contactForm.locator('textarea[name="message"]').inputValue()==='Local intercepted accessibility check'
      && await contactForm.locator('button[type="submit"]').isEnabled());
    }
+   // Test the actual abort timer with virtual time and a local fetch stub.
+   await formPage.clock.install();
+   await formPage.evaluate(()=>{
+    window.testContactRequests=0;
+    window.fetch=(_url,options)=>new Promise((_resolve,reject)=>{
+     window.testContactRequests++;
+     options.signal.addEventListener('abort',()=>reject(new DOMException('Timed out','AbortError')),{once:true});
+    });
+   });
+   await contactForm.evaluate(f=>{f.requestSubmit();f.requestSubmit();});
+   record(file+' repeated submit starts only one request',await formPage.evaluate(()=>window.testContactRequests===1));
+   await formPage.clock.fastForward(30001);
+   await formPage.waitForFunction(()=>document.querySelector('[data-form-status]').classList.contains('is-error'));
+   record(file+' timeout preserves the draft and restores the submit button',
+    await contactForm.locator('textarea[name="message"]').inputValue()==='Local intercepted accessibility check'
+    && await contactForm.locator('button[type="submit"]').isEnabled()
+    && await status.evaluate(e=>document.activeElement===e));
    await formPage.close();
   }
   const fallback=await browser.newPage({javaScriptEnabled:false,viewport:{width:320,height:900}});

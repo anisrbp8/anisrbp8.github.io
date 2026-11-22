@@ -39,9 +39,11 @@ async function noOverflow(page) {
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(base + '/' + file, {waitUntil:'networkidle'});
       await check(`${lang} ${width} academic links and dated content`, async () => {
+        assert.equal(await page.locator('body.home').count(), 1);
         assert.equal(await page.locator('.academic-links a').count(), 3);
         assert.equal(await page.locator('.academic-links a').first().getAttribute('href'), 'https://www.researchgate.net/scientific-contributions/Anis-Rojbi-81385993');
-        assert.equal(await page.locator('.dated-news > li').count(), 4);
+        assert.equal(await page.locator('.dated-news > li').count(), 3);
+        assert.equal(await page.locator('.dated-news').getByText('Handicap 2026', {exact:false}).count(), 0);
         assert.equal(await page.locator('.selected-publications > li').count(), 5);
         assert.equal(await page.locator('.selected-publications a[href^="https://doi.org/"]').count(), 5);
         await noOverflow(page);
@@ -98,7 +100,7 @@ async function noOverflow(page) {
         assert.ok(await page.locator('[data-demo-cells] path').isVisible());
         assert.equal(await page.locator('[data-demo-controls]').isVisible(), false);
         assert.equal(await page.locator('.selected-publications > li').count(),5);
-        assert.equal(await page.locator('.dated-news > li').count(),4);
+        assert.equal(await page.locator('.dated-news > li').count(),3);
         await noOverflow(page);
       });
       await context.close();

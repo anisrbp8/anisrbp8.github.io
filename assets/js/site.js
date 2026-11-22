@@ -237,32 +237,83 @@
     const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
     const messages = isEnglish
       ? {
-          sending: 'Sending your message…',
+          sending: 'Sending your message\u2026',
           success: 'Your message has been sent. Thank you!',
-          error: 'The message could not be sent. Please try again.',
-          serverError: 'The service could not accept your message. Please try again in a few moments.'
+          error: 'The connection was interrupted. Delivery could not be confirmed. Your text has been kept; please check your connection before trying again.',
+          serverError: 'The service could not accept your message. Your text has been kept. Please try again in a few moments.',
+          timeout: 'The service is taking too long to respond. Delivery could not be confirmed. Your text has been kept.',
+          required: 'Please complete this required field.',
+          email: 'Enter a complete email address, for example name@example.org.'
         }
       : {
-          sending: 'Envoi de votre message…',
-          success: 'Votre message a bien été envoyé. Merci !',
-          error: 'Le message n’a pas pu être envoyé. Merci de réessayer.',
-          serverError: 'Le service n’a pas pu accepter votre message. Réessayez dans quelques instants.'
+          sending: 'Envoi de votre message\u2026',
+          success: 'Votre message a bien \u00e9t\u00e9 envoy\u00e9. Merci !',
+          error: 'La connexion a \u00e9t\u00e9 interrompue. L\u2019envoi n\u2019a pas pu \u00eatre confirm\u00e9. Votre texte est conserv\u00e9 ; v\u00e9rifiez votre connexion avant de r\u00e9essayer.',
+          serverError: 'Le service n\u2019a pas pu accepter votre message. Votre texte est conserv\u00e9. R\u00e9essayez dans quelques instants.',
+          timeout: 'Le service met trop de temps \u00e0 r\u00e9pondre. L\u2019envoi n\u2019a pas pu \u00eatre confirm\u00e9. Votre texte est conserv\u00e9.',
+          required: 'Renseignez ce champ obligatoire.',
+          email: 'Saisissez une adresse \u00e9lectronique compl\u00e8te, par exemple nom@example.org.'
         };
 
-    form.addEventListener('submit', async (event) => {
-      if (!form.checkValidity()) return;
+    // Keep native validation, including the no-JavaScript fallback. Add persistent
+    // text only after an invalid event, never on an untouched required field.
+    const fields = [...form.querySelectorAll('.form-field input, .form-field textarea')];
+    const clearFieldError = (field) => {
+      const id = field.id + '-error';
+      document.getElementById(id)?.remove();
+      field.removeAttribute('aria-invalid');
+      const descriptions = (field.getAttribute('aria-describedby') || '').split(/\s+/).filter(value => value && value !== id);
+      if (descriptions.length) field.setAttribute('aria-describedby', descriptions.join(' '));
+      else field.removeAttribute('aria-describedby');
+    };
+    const showFieldError = (field) => {
+      const id = field.id + '-error';
+      let error = document.getElementById(id);
+      if (!error) {
+        error = document.createElement('p');
+        error.id = id;
+        error.className = 'form-field-error';
+        field.after(error);
+      }
+      error.textContent = field.validity.valueMissing ? messages.required
+        : field.type === 'email' && field.validity.typeMismatch ? messages.email
+        : field.validationMessage;
+      field.setAttribute('aria-invalid', 'true');
+      const descriptions = new Set((field.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+      descriptions.add(id);
+      field.setAttribute('aria-describedby', [...descriptions].join(' '));
+    };
+    fields.forEach((field) => {
+      field.addEventListener('invalid', () => showFieldError(field));
+      field.addEventListener('input', () => {
+        if (field.validity.valid) clearFieldError(field);
+      });
+      field.addEventListener('blur', () => {
+        if (field.getAttribute('aria-invalid') === 'true' && !field.validity.valid) showFieldError(field);
+      });
+    });
+    form.addEventListener('reset', () => fields.forEach(clearFieldError));
 
+    let sending = false;
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      if (sending) return;
+      if (!form.reportValidity()) return;
+
+      sending = true;
       status.classList.remove('is-error', 'is-success');
       status.textContent = messages.sending;
       submit.disabled = true;
       submit.setAttribute('aria-disabled', 'true');
+      const controller = typeof AbortController === 'function' ? new AbortController() : null;
+      const timeout = controller ? window.setTimeout(() => controller.abort(), 30000) : null;
 
       try {
         const response = await fetch(form.action, {
           method: 'POST',
           body: new FormData(form),
-          headers: {Accept: 'application/json'}
+          headers: {Accept: 'application/json'},
+          ...(controller ? {signal: controller.signal} : {})
         });
 
         if (!response.ok) {
@@ -276,11 +327,13 @@
         status.classList.add('is-success');
         status.textContent = messages.success;
         status.focus();
-      } catch {
+      } catch (error) {
         status.classList.add('is-error');
-        status.textContent = messages.error;
+        status.textContent = error.name === 'AbortError' ? messages.timeout : messages.error;
         status.focus();
       } finally {
+        if (timeout !== null) window.clearTimeout(timeout);
+        sending = false;
         submit.disabled = false;
         submit.removeAttribute('aria-disabled');
       }

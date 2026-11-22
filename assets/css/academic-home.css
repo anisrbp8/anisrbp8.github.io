@@ -18,6 +18,15 @@
 .granularity-controls label{font-weight:650}.granularity-controls select{width:auto;max-width:100%;min-height:44px}.granularity-controls button{min-height:44px;cursor:pointer}
 .granularity-image{display:block;width:min(100%,20rem);height:auto;color:var(--ink);background:var(--paper);border:1px solid currentColor}
 .demo-note{font-size:.95rem;max-width:75ch}.granularity-demo p{max-width:75ch}
-@media(max-width:40rem){.dated-news li{grid-template-columns:1fr;gap:.3rem}.hero-visual{display:block;max-width:24rem}.hero-visual .portrait-shell{max-width:8rem}.academic-links a:first-child{flex-basis:auto}.academic-links{gap:.25rem 1rem}.selected-publications h3{font-size:1rem}}
+@media(max-width:40rem){.dated-news li{grid-template-columns:1fr;gap:.3rem}.hero-visual{display:grid;grid-template-columns:minmax(0,6rem) minmax(0,1fr);align-items:start;max-width:28rem}.hero-visual .portrait-shell{max-width:none}.hero-visual .portrait-caption{margin-top:0}.academic-links a:first-child{flex-basis:auto}.academic-links{gap:.25rem 1rem}.selected-publications h3{font-size:1.1rem}}
 @media(forced-colors:active){.granularity-image{color:CanvasText;background:Canvas}.granularity-controls button,.granularity-controls select{border:2px solid ButtonText}}
 @media print{.granularity-controls{display:none!important}}
+
+/* Quiet editorial hierarchy; body text and reading themes retain their contrast. */
+.hero-lead{font-size:clamp(1.2rem,1.6vw,1.4rem);line-height:1.5;max-width:52ch}
+.selected-publications h3 a{display:inline-block;min-height:24px}
+.home .hero-links a{min-width:44px;justify-content:center}
+.home .eyebrow,.dated-news li>time,.dated-news li>span{color:#284f54}
+.home .hero{border-bottom-color:#aebcba}
+@media(max-width:25rem){.hero-visual{grid-template-columns:minmax(0,5rem) minmax(0,1fr);gap:.75rem}.academic-links{gap:.2rem .75rem}}
+@media(forced-colors:active){.home .eyebrow,.dated-news li>time,.dated-news li>span{color:CanvasText}}
