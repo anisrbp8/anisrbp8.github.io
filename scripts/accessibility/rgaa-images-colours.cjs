@@ -28,7 +28,7 @@ function measure(){
  };
  const rootVisit=document.querySelector('dialog[open]')||document.body;
  const all=[...rootVisit.querySelectorAll('*')].filter(el=>el instanceof HTMLElement&&el.checkVisibility({opacityProperty:true,visibilityProperty:true})&&el.getClientRects().length);
- const pairs={},failures=[],outlines=[];let textNodes=0,controls=0,min=100;
+ const pairs={},failures=[],aaaFailures=[],outlines=[];let textNodes=0,controls=0,min=100,minSmall=100,minLarge=100;
  for(const el of all){
   const css=getComputedStyle(el);const tg=el.tagName.toLowerCase();if(el.matches('option,script,style,noscript,:disabled,[aria-disabled="true"]'))continue;
   // Ancestors such as a focus ring and a button background may be distinct.
@@ -40,8 +40,13 @@ function measure(){
    const colors=visibleText?[{fg,bg,font:parseFloat(css.fontSize),weight:parseInt(css.fontWeight)||400,part:''}]:[];
    for(const ps of generated){const st=getComputedStyle(el,ps);const psBg=over(colour(st.backgroundColor),bg);colors.push({fg:over(colour(st.color),psBg),bg:psBg,font:parseFloat(st.fontSize),weight:parseInt(st.fontWeight)||400,part:ps});}
    for(const c of colors){
-    const threshold=(c.font>=24||(c.weight>=700&&c.font>=18.5))?3:4.5;const val=ratio(c.fg,c.bg);const key=rgb(c.fg)+' / '+rgb(c.bg);pairs[key]=(pairs[key]||0)+1;textNodes++;min=Math.min(min,val);
-    if(val+.00001<threshold)failures.push({kind:'text',element:desc(el)+c.part,pair:key,ratio:+val.toFixed(3),threshold,text:(el.textContent||'').trim().slice(0,55)});
+    const large=c.font>=24||(c.weight>=700&&c.font>=18.5);
+    const threshold=large?3:4.5,enhanced=large?4.5:7;
+    const val=ratio(c.fg,c.bg);const key=rgb(c.fg)+' / '+rgb(c.bg);pairs[key]=(pairs[key]||0)+1;textNodes++;min=Math.min(min,val);
+    if(large)minLarge=Math.min(minLarge,val);else minSmall=Math.min(minSmall,val);
+    const detail={kind:'text',element:desc(el)+c.part,pair:key,ratio:+val.toFixed(3),size:c.font,weight:c.weight,text:(el.textContent||'').trim().slice(0,55)};
+    if(val+.00001<threshold)failures.push({...detail,threshold});
+    if(val+.00001<enhanced)aaaFailures.push({...detail,threshold:enhanced});
    }
   }
   if(el.matches('select,input:not([type="checkbox"]):not([type="radio"]),textarea,button,.button,.mobile-menu-toggle,.figure-viewport')){
@@ -53,7 +58,7 @@ function measure(){
    outlines.push([desc(el),+(drawn?edge:0).toFixed(2),+inside.toFixed(2)]);
   }
  }
- return {textNodes,controls,minimumTextContrast:textNodes?+min.toFixed(3):null,pairs,failures,controlContrast:outlines};
+ return {textNodes,controls,minimumTextContrast:textNodes?+min.toFixed(3):null,minimumSmallText:minSmall===100?null:+minSmall.toFixed(3),minimumLargeText:minLarge===100?null:+minLarge.toFixed(3),pairs,failures,aaaFailures,controlContrast:outlines};
 }
 
 async function exercise(){

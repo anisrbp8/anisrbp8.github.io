@@ -61,7 +61,7 @@ async function tabThroughPage(page) {
       }));
       return {
         idx:all.indexOf(e), name:(e.getAttribute('aria-label') || e.innerText || e.labels?.[0]?.textContent || e.tagName).trim().slice(0,100),
-        id:e.id,tag:e.tagName,rect:[r.width,r.height],outline:s.outlineStyle,thickness:parseFloat(s.outlineWidth), 
+        id:e.id,tag:e.tagName,rect:[r.width,r.height],outline:s.outlineStyle,thickness:parseFloat(s.outlineWidth),
         offscreen:box.bottom<=0||box.top>=innerHeight||box.right<=0||box.left>=innerWidth,
         exposed:inside.some(Boolean),legalInline:!!e.closest('p,figcaption,li p,address,dd>p'),targetSizeExempt:e.tagName==='SUMMARY'&&s.display==='list-item',
         group:e.closest('main,header,footer,aside,nav')?.tagName

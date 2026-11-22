@@ -200,9 +200,12 @@ async function audit(en) {
   try {
     report.system=execFileSync('sw_vers',['-productVersion'],{encoding:'utf8'}).trim();
     report.safari=execFileSync('/usr/libexec/PlistBuddy',['-c','Print :CFBundleShortVersionString','/Applications/Safari.app/Contents/Info.plist'],{encoding:'utf8'}).trim();
+    const readerInfo='/System/Library/CoreServices/VoiceOver.app/Contents/Info.plist';
+    if(fs.existsSync(readerInfo)) report.voiceOverBundle=execFileSync('/usr/libexec/PlistBuddy',['-c','Print :CFBundleShortVersionString',readerInfo],{encoding:'utf8'}).trim();
+    report.stage='Starting VoiceOver';save();
     server=http.createServer((req,res)=>handle(req,res).catch(()=>{if(!res.headersSent)res.writeHead(500);res.end();}));
     await new Promise((resolve,reject)=>server.once('error',reject).listen(8894,'127.0.0.1',resolve));
-    await vo.start({capture:true,restoreUserScreenReader:false});started=true;report.voiceOver=vo.version;
+    await vo.start({capture:true,restoreUserScreenReader:false});started=true;report.controllerAsset=vo.version;report.stage='Reading pages';save();
     await audit(false);await audit(true);
   } catch(error) {report.error=error.stack;} finally {
     if(started) await vo.stop().catch(error=>report.stopError=error.message);

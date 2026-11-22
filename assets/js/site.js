@@ -161,7 +161,7 @@
   const zoom=document.createElement('button');zoom.type='button';zoom.className='button';zoom.setAttribute('aria-pressed','false');zoom.textContent=en?'Original size':'Taille originale';
   const original=document.createElement('a');original.className='button';original.textContent=en?'Open image file':'Ouvrir le fichier image';
   const viewport=document.createElement('div');viewport.className='figure-viewport';viewport.tabIndex=0;viewport.setAttribute('role','region');viewport.setAttribute('aria-label',en?'Scrollable figure':'Figure avec défilement');
-  const img=document.createElement('img');img.alt='';viewport.append(img);
+  const img=document.createElement('img');
   const expanded=document.createElement('figure');expanded.className='expanded-scientific-figure';expanded.setAttribute('role','figure');
   const caption=document.createElement('figcaption');caption.className='figure-dialog-caption';
   const description=document.createElement('div');description.className='expanded-figure-description';
@@ -175,6 +175,7 @@
       const container=link.closest('.research-figure');
       const figure=container.querySelector('figure');
       img.src=link.href;img.alt=figure.querySelector('img').alt;original.href=link.href;
+      if (!img.parentElement) viewport.append(img);
       caption.textContent=figure.querySelector('figcaption').textContent;
       expanded.setAttribute('aria-label',caption.textContent);
       const longText=container.querySelector('.figure-description, .figure-actions a[href*="#article-figure-"]');
@@ -188,7 +189,7 @@
   close.addEventListener('click',()=>dialog.close());
   dialog.addEventListener('keydown',event=>{
     if(event.key!=='Tab')return;
-    const focusables=[...dialog.querySelectorAll('button,a[href],[tabindex="0"]')].filter(el=>el.getClientRects().length);
+    const focusables=[...dialog.querySelectorAll('button,a[href],summary,[tabindex="0"]')].filter(el=>el.getClientRects().length);
     const first=focusables[0],last=focusables[focusables.length-1];
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
@@ -308,6 +309,11 @@
       field.addEventListener('invalid', () => showFieldError(field));
       field.addEventListener('input', () => {
         if (field.validity.valid) clearFieldError(field);
+        else if (field.getAttribute('aria-invalid') === 'true') showFieldError(field);
+        if (!sending && alert.textContent === messages.fields && !form.querySelector('[aria-invalid="true"]')) {
+          alert.textContent = '';
+          alert.classList.remove('is-error');
+        }
         if (!sending && status.classList.contains('is-success')) {
           status.classList.remove('is-success');
           status.textContent = '';

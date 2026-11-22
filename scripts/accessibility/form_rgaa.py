@@ -69,6 +69,13 @@ async def single_page(browser, p, width):
         seq.append(ident)
         await pg.keyboard.press('Tab')
     # A hidden summary in closed details is excluded by rects. Summaries can list a default tabIndex=0.
+    await pg.locator('[data-audit-focus-id="'+markup[-1]+'"]').focus()
+    backwards=[]
+    for _ in range(min(len(markup)+2,250)):
+        ident=await pg.evaluate("()=>document.activeElement.dataset.auditFocusId||''")
+        if not ident or ident in backwards:break
+        backwards.append(ident)
+        await pg.keyboard.press('Shift+Tab')
     readings={}
     for id_,v in [('reading-theme','dark'),('reading-size','125')]:
         loc=pg.locator('#'+id_);await loc.focus();await loc.select_option(v)
@@ -77,7 +84,7 @@ async def single_page(browser, p, width):
     readings['reading-space']=(await pg.evaluate('document.activeElement.id'),await pg.locator('#reading-space').is_checked())
     await pg.locator('#reading-reset').focus();await pg.keyboard.press('Enter')
     readings['reset']=(await pg.evaluate('document.activeElement.id'),await pg.locator('#reading-status').inner_text())
-    out={'page':p,'width':width,'fields':all_fields,'names':field_names,'buttons':buttons,'counts':counts,'focusOrderPass':seq==markup,'tabCount':len(seq),'tabExpected':len(markup),'tabMissing':sorted(set(markup)-set(seq)),'readingActions':readings}
+    out={'page':p,'width':width,'fields':all_fields,'names':field_names,'buttons':buttons,'counts':counts,'focusOrderPass':seq==markup and backwards==markup[::-1],'forward':seq==markup,'backward':backwards==markup[::-1],'reverseTabCount':len(backwards),'tabCount':len(seq),'tabExpected':len(markup),'tabMissing':sorted(set(markup)-set(seq)),'readingActions':readings}
     if 'publications.html' in p:
         await pg.locator('#publication-topic').focus();await pg.locator('#publication-topic').select_option('accessibility')
         await pg.locator('#publication-year').focus();await pg.locator('#publication-year').select_option('2025')

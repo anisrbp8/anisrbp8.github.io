@@ -48,7 +48,7 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
    });
    await check(label+' figure dialog: keyboard, native size, focus containment and Escape',async()=>{
     await page.goto(base+'/'+prefix+research+`#${axis}-3`);
-    assert.notEqual(await page.locator('.figure-dialog img').getAttribute('alt'),null,'The unopened figure dialog image must have an explicit text alternative');
+    assert.equal(await page.locator('.figure-dialog img').count(),0,'A closed, unused dialog must not insert an empty image');
     const trigger=page.locator('#article-figure-8 [data-figure-open]');await trigger.focus();await page.keyboard.press('Enter');
     assert.ok(await page.locator('dialog[open]').isVisible());
     const figureCaption=await page.evaluate(()=>{
@@ -58,6 +58,13 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
       return {shortCaption,dialogCaption};
     });
     assert.equal(figureCaption.dialogCaption,figureCaption.shortCaption,'The dialog must show the short figure caption, not all expanded descriptions or controls');
+    assert.ok(await page.locator('.figure-dialog img').getAttribute('alt'));
+    await page.locator('.figure-dialog .figure-viewport').focus();
+    await page.keyboard.press('Tab');
+    const readDescription=page.locator('.figure-dialog .expanded-figure-description summary');
+    assert.ok(await readDescription.evaluate(s=>s===document.activeElement),'The description must be reachable after the enlarged image');
+    await page.keyboard.press('Enter');
+    assert.ok(await page.locator('.figure-dialog .expanded-figure-description details').evaluate(d=>d.open));
     await page.locator('.figure-dialog img').evaluate(i=>i.decode());
     assert.equal(await page.locator('.figure-dialog img').evaluate(i=>i.naturalWidth),1417);
     await page.locator('.figure-dialog button[aria-pressed]').click();assert.equal(await page.locator('.figure-dialog button[aria-pressed]').getAttribute('aria-pressed'),'true');

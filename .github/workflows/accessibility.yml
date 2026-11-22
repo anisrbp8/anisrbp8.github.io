@@ -34,6 +34,9 @@ jobs:
       - name: Test academic home, granularity demo and candidacy information
         if: always()
         run: node scripts/accessibility/academic-home.cjs
+      - name: Verify document structure and accessible link names
+        if: always()
+        run: node scripts/accessibility/rgaa-structure.cjs
       - name: Review scientific images and contrast in reading themes
         if: always()
         run: node scripts/accessibility/rgaa-images-colours.cjs
