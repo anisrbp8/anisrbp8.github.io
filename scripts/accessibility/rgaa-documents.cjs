@@ -94,13 +94,23 @@ async function cancel(page,target) {
       await reset.press('Tab');assert.ok(await summary.evaluate(el=>el===document.activeElement));
       await summary.press('Enter');assert.ok(await alternative.locator('li').first().isVisible());
       const explained=await alternative.innerText();for(const n of ['42','28','114','44','354'])assert.ok(explained.includes(n));
-      await page.locator('[data-granularity-demo]').screenshot({path:path.join(output,(en?'en':'fr')+'-demo.png')});
+      await select.evaluate(el=>el.scrollIntoView({block:'center'}));
+      const hitTest=await select.evaluate(el=>{
+        const label=el.labels[0],skip=document.querySelector('.skip-link');
+        const middle=element=>{const box=element.getBoundingClientRect();return document.elementFromPoint(box.left+box.width/2,box.top+box.height/2);};
+        const r=skip.getBoundingClientRect(),style=getComputedStyle(skip);
+        return {selectExposed:middle(el)===el,labelExposed:label.contains(middle(label)),skipTop:r.top,skipBottom:r.bottom,skipClip:style.clipPath};
+      });
+      assert.ok(hitTest.selectExposed&&hitTest.labelExposed);assert.ok(hitTest.skipBottom<=0||hitTest.skipClip!=='none');
+      await page.screenshot({path:path.join(output,(en?'en':'fr')+'-demo-controls.png')});
+      await summary.evaluate(el=>el.scrollIntoView({block:'start'}));
+      await page.screenshot({path:path.join(output,(en?'en':'fr')+'-demo-text.png')});
       await summary.click();assert.equal(await alternative.getAttribute('open'),null);
       await cancel(page,summary);assert.equal(await alternative.getAttribute('open'),null);
       await summary.click();assert.ok(await alternative.locator('li').first().isVisible());
       await select.selectOption('8');await cancel(page,reset);assert.equal(await select.inputValue(),'8');
       await reset.click();assert.equal(await select.inputValue(),'16');
-      return {levels,alternative:explained};
+      return {levels,alternative:explained,hitTest};
     });
     await test(file+' / version textuelle sans JavaScript',async()=>{
       const cx=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}}),p=await cx.newPage();

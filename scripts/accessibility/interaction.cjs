@@ -89,8 +89,9 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
    const status=contactForm.locator('[data-form-status]');
    const alert=contactForm.locator('[data-form-alert]');
    await formPage.waitForFunction(() => document.querySelector('[data-form-status]')?.classList.contains('is-success'), null, {timeout:5000});
-   record(file+' successful submit announces status and moves focus',
-    await status.evaluate(el=>el.classList.contains('is-success') && el.getAttribute('role')==='status' && document.activeElement===el));
+   record(file+' successful submit announces status and keeps focus on the submit button',
+    await status.evaluate(el=>el.classList.contains('is-success') && el.getAttribute('role')==='status')
+    && await contactForm.locator('button[type="submit"]').evaluate(el=>document.activeElement===el));
    // Both failures are intercepted locally: no contact message is sent.
    for (const failure of ['server','network']) {
     await formPage.unroute('https://formspree.io/**');

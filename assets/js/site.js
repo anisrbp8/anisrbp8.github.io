@@ -336,9 +336,6 @@
 
       sending = true;
       const focusAtSubmit = document.activeElement;
-      const focusIfUnchanged = target => {
-        if (document.activeElement === focusAtSubmit) target.focus();
-      };
       alert.textContent = '';
       alert.classList.remove('is-error');
       status.classList.remove('is-success');
@@ -377,7 +374,7 @@
           alert.classList.add('is-error');
           alert.textContent = firstInvalid ? messages.fields
             : response.ok && !errors.length && !result?.error ? messages.uncertain : messages.serverError;
-          if (firstInvalid) focusIfUnchanged(firstInvalid);
+          if (firstInvalid && document.activeElement === focusAtSubmit) firstInvalid.focus();
           return;
         }
 
@@ -385,7 +382,6 @@
         if (!changed) form.reset();
         status.classList.add('is-success');
         status.textContent = changed ? messages.edited : messages.success;
-        if (!changed) focusIfUnchanged(status);
       } catch (error) {
         status.textContent = '';
         alert.classList.add('is-error');

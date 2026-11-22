@@ -59,6 +59,19 @@ async function scenario(file, name, action) {
   console.log(`${row.passed ? 'PASS' : 'REVIEW'} ${file} ${name}: ${row.checks.filter(x => x.passed).length}/${row.checks.length}${row.error ? ' ' + row.error : ''}`);
 }
 async function focusIs(locator) { return locator.evaluate(el => el === document.activeElement); }
+async function tabToMenu(menu) {
+  // Browse-mode Enter follows NVDA's virtual cursor. Physical Tab synchronizes
+  // that cursor with system focus before testing the disclosure and its links.
+  await nvda.press('Control+Home', {capture:false});
+  for (let step=0;step<18;step++) {
+    const spoken=await key('Tab');
+    if (await focusIs(menu)) {
+      await nvda.perform(commands.reportCurrentFocus,{capture:true});
+      return [spoken,await nvda.lastSpokenPhrase()].join(' | ');
+    }
+  }
+  throw Error('Keyboard did not reach the mobile menu on '+page.url());
+}
 async function auditLanguage(en) {
   const prefix = en ? 'en/' : '';
   const home = prefix + 'index.html';
@@ -78,7 +91,7 @@ async function auditLanguage(en) {
   await scenario(home, 'Mobile menu and reading preferences', async record => {
     await openPage(home, 390);
     const menu = page.locator('.mobile-menu-toggle');
-    const initial = await nameAtFocus(menu);
+    const initial = await tabToMenu(menu);
     record('Menu name, button role, closed state', initial, (await menu.getAttribute('aria-expanded')) === 'false', text => /menu/.test(normalize(text)) && /bouton|button/.test(normalize(text)) && /repli|redui|contract|ferm|collapsed/.test(normalize(text)));
     const opened = await key('Enter');
     const expanded = await menu.getAttribute('aria-expanded');
@@ -167,7 +180,8 @@ async function auditLanguage(en) {
     record('Service refusal and retained message', failed, await form.locator('[data-form-alert]').evaluate(el=>el.classList.contains('is-error')) && await message.inputValue()==='Essai local.', /conserve|accepter|kept|could not accept/);
     networkMode = 'success'; await nameAtFocus(submit);
     const sent = await key('Enter');
-    record('Positive response and confirmation', sent, await status.evaluate(el=>el.classList.contains('is-success')) && await message.inputValue()==='', /envoye|sent/);
+    const confirmations = (normalize(sent).match(en ? /your message has been sent/g : /votre message a bien ete envoye/g) || []).length;
+    record('Positive response and a single confirmation', sent, await status.evaluate(el=>el.classList.contains('is-success')) && await message.inputValue()==='' && confirmations === 1, /envoye|sent/, { spokenConfirmations: confirmations });
   });
 }
 (async () => {

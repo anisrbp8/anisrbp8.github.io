@@ -1,6 +1,7 @@
 """Sample spoken output of the real Google TalkBack service on a fresh Android device."""
 import json
 import re
+import shutil
 import subprocess
 import time
 import traceback
@@ -14,7 +15,8 @@ OUT.mkdir(exist_ok=True,parents=True)
 BASE = 'http://127.0.0.1:8941/'
 APP = 'com.google.android.marvin.talkback'
 CHROME = 'com.android.chrome'
-report = {'environment':{},'checks':[],'details':[]}
+report = {'environment':{},'checks':[],'details':[],'recordings':[]}
+recording_start=None
 def run(*args, timeout=25, check=True):
     p=subprocess.run([str(a) for a in args],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout,check=False)
     if check and p.returncode:
@@ -125,15 +127,20 @@ def heard():
         m=re.search(r'Speaking fragment text=(.*?), utteranceId=',line,re.I)
         if m:lines.append(m.group(1).strip())
     return lines
-def sample(label,action,expected):
+def sample(label,action,expected,verify=None,one_of=()):
+    offset=round(time.monotonic()-recording_start,1) if recording_start else None
     adb('logcat','-c'); result=action();time.sleep(1)
     utterances=heard()
     corpus=compact(' '.join(utterances))
-    terms=[compact(x) for x in expected]
-    if any(t not in corpus for t in terms):
+    required=expected() if callable(expected) else expected
+    terms=[compact(x) for x in required]
+    def matches(text):
+        return bool(terms) and all(t and t in text for t in terms) and (not one_of or any(compact(t) in text for t in one_of))
+    if not matches(corpus):
         time.sleep(1.6); utterances=heard();corpus=compact(' '.join(utterances))
-    passed=all(t in corpus for t in terms)
-    report['checks'].append({'sample':label,'passed':passed,'requiredWords':expected,'talkback':utterances,'observation':result})
+    verified=verify() if verify else None
+    passed=matches(corpus) and verified is not False
+    report['checks'].append({'sample':label,'passed':passed,'requiredWords':required,'oneOf':one_of,'talkback':utterances,'observation':result,'controlStateVerified':verified,'recordingOffsetSeconds':offset})
     print(('PASS ' if passed else 'REVIEW ')+label+': '+str(utterances)[-500:],flush=True)
     return passed
 def xy(selector,adjust=0):
@@ -168,7 +175,7 @@ def journey(en):
     pre='en/' if en else ''; d='EN' if en else 'FR'
     goto(pre+'contact.html')
     inspect(d+' mobile menu name','.mobile-menu-toggle',['menu'])
-    sample(d+' mobile menu opening',lambda:touchActivate('.mobile-menu-toggle'),['menu'])
+    sample(d+' mobile menu opening',lambda:touchActivate('.mobile-menu-toggle'),['menu'],lambda:read('document.querySelector(".mobile-menu-toggle").getAttribute("aria-expanded")==="true"'),('expanded','développé','ouvert'))
     if read('document.querySelector(".mobile-menu-toggle").getAttribute("aria-expanded")==="true"'):
         sample(d+' navigation by the TalkBack next-item gesture',lambda:sh('input','swipe',WIDTH//3,HEIGHT//2,2*WIDTH//3,HEIGHT//2,140),['home'] if en else ['accueil'])
         touchActivate('.mobile-menu-toggle')
@@ -180,23 +187,45 @@ def journey(en):
         sample(d+' reading preferences status',lambda:touchActivate('#reading-space'),['preferences','applied'] if en else ['préférences','appliquées'])
         touchActivate('#reading-reset')
     # Only the local test receiver is ever used, regardless of the UI outcome.
-    read("""(()=>{const f=document.querySelector('form[data-contact-form]');f.action='/_test/accepted';for(const [n,v] of Object.entries({name:'Test',email:'test@example.org',subject:'Test',message:'Test local'})){f.elements[n].value=v;f.elements[n].dispatchEvent(new Event('input',{bubbles:true}));}return f.action;})()""")
+    read("""(()=>{const f=document.querySelector('form[data-contact-form]');f.action='/_test/rejected';for(const [n,v] of Object.entries({name:'Test',email:'test@example.org',subject:'Test',message:'Test local'})){f.elements[n].value=v;f.elements[n].dispatchEvent(new Event('input',{bubbles:true}));}return f.action;})()""")
+    sample(d+' local service field-error announcement',lambda:touchActivate('button[type=submit]'),['correct','fields'] if en else ['corrigez','champs'],lambda:read('document.querySelector("#contact-email").getAttribute("aria-invalid")==="true"'))
+    read("""(()=>{const f=document.querySelector('form[data-contact-form]');f.action='/_test/accepted';f.elements.email.value='corrected@example.org';f.elements.email.dispatchEvent(new Event('input',{bubbles:true}));return f.action;})()""")
     sample(d+' locally intercepted successful contact status',lambda:touchActivate('button[type=submit]'),['message','sent'] if en else ['message','envoyé'])
     goto(pre+'publications.html')
     inspect(d+' publication year filter','#publication-year',['year'] if en else ['année'])
-    sample(d+' publication count after native picker',lambda:select_key('#publication-year','KEYCODE_DPAD_DOWN'),['publications'] if en else ['publication'])
+    sample(d+' publication count after native picker',lambda:select_key('#publication-year','KEYCODE_DPAD_DOWN'),lambda:[read('document.querySelector("#publication-count").textContent')],lambda:read('document.querySelector("#publication-year").value!==""'))
+    goto(pre+'publications.html#eeg-2025')
     touchActivate('#eeg-2025 .citation summary')
     if read('!!document.querySelector("#eeg-2025 .citation[open]")'):
-        sample(d+' copy reference feedback',lambda:touchActivate('#eeg-2025 .citation-copy'),['reference'] if en else ['référence'])
+        sample(d+' copy reference feedback',lambda:touchActivate('#eeg-2025 .citation-copy'),lambda:[read('document.querySelector("#eeg-2025 .copy-status").textContent')])
     goto(pre+('research.html' if en else 'recherche.html')+'#axe-3')
     inspect(d+' research figure alternative','#article-figure-2 img',['EEG'] if en else ['EEG'])
     sample(d+' figure dialog and its close button',lambda:touchActivate('#article-figure-2 [data-figure-open]'),['close'] if en else ['fermer'])
     if read('!!document.querySelector("dialog[open]")'):touchActivate('dialog[open] button')
 def attempt(group,test):
+    global recording_start
+    filename=re.sub(r'[^a-z0-9]+','-',group.lower()).strip('-')+'.webm'
+    path=(OUT/filename).resolve()
+    # Android's emulator recorder captures the guest speaker. It never opens a host microphone.
+    started=adb('emu','screenrecord','start','--size','432x960','--bit-rate','300000','--time-limit','180','--fps','4',path,check=False)
+    recording_start=time.monotonic() if 'OK' in started else None
     try:test()
     except Exception as err:
         report['details'].append({'group':group,'error':str(err)})
         print('REVIEW '+group+' '+str(err),flush=True)
+    finally:
+        if recording_start:
+            adb('emu','screenrecord','stop',check=False)
+            time.sleep(.4)
+        recording_start=None
+        if path.exists():
+            entry={'group':group,'file':filename,'bytes':path.stat().st_size}
+            if shutil.which('ffmpeg'):
+                analysis=run('ffmpeg','-hide_banner','-nostdin','-i',path,'-vn','-af','volumedetect','-f','null','-',timeout=30,check=False)
+                peak=re.search(r'max_volume: ([-.0-9]+) dB',analysis)
+                entry['audioPeakDbFS']=float(peak.group(1)) if peak else None
+            report['recordings'].append(entry)
+
 try:
     environment()
     for en in [False,True]:

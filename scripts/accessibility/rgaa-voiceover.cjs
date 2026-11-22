@@ -11,7 +11,8 @@ const output = path.join(root, 'test-output/rgaa-voiceover');
 const origin = 'http://127.0.0.1:8894';
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const normalized = s => String(s).normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
-const report = { revision: process.env.GITHUB_SHA || 'local', scenarios: [], simulatedRequests: [] };
+const languages=(process.env.RGAA_VOICEOVER_LANGUAGES || 'fr,en').split(',');
+const report = { revision: process.env.GITHUB_SHA || 'local', languages, scenarios: [], simulatedRequests: [] };
 const save = () => fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify(report, null, 2) + '\n');
 let current, sessionId = 0, commandId = 0, service = 503, server;
 // Runs only inside the temporary loopback preview. No source files are modified.
@@ -135,9 +136,10 @@ async function focus(selector) {
 async function state(selector) { return action('state',selector); }
 async function checkPage(file,name,run,narrow=false) {
   const row={file,name,checks:[]}; report.scenarios.push(row);
-  function check(label,speech,patterns,observed=true) {
+  function check(label,speech,patterns,observed=true,evidence) {
     const matches = patterns.every(re=>re.test(normalized(speech)));
-    row.checks.push({label,speech,speechMatched:matches,stateMatched:Boolean(observed),passed:matches&&Boolean(observed)});
+    row.checks.push({label,speech,speechMatched:matches,stateMatched:Boolean(observed),evidence,passed:matches&&Boolean(observed)});
+    save();
   }
   try { row.context = await navigate(file,narrow); await run(check); } catch(error) {row.error=error.message;}
   row.passed = !row.error && row.checks.length>0 && row.checks.every(c=>c.passed); save();
@@ -192,7 +194,9 @@ async function audit(en) {
     await focus(send);const error=await key('Enter');check('Invalid field and focus',[error,await speak('describeItemWithKeyboardFocus')].join(' | '),[/required|obligatoire|invalid/],(await state(name)).focused&&(await state(name)).invalid==='true');
     await action('populate',form);service=503;await focus(send);
     check('Refusal and retained message',await key('Enter'),[/conserve|accepter|kept|could not accept/],(await state('[data-form-alert]')).css.includes('is-error')&&(await state('[name=message]')).value==='Local test only.');
-    service=200;await focus(send);check('Successful simulated confirmation',await key('Enter'),[/envoye|sent/],(await state(status)).css.includes('is-success')&&(await state('[name=message]')).value==='');
+    service=200;await focus(send);const sent=await key('Enter');
+    const confirmations=(normalized(sent).match(en ? /your message has been sent/g : /votre message a bien ete envoye/g)||[]).length;
+    check('Successful simulated response with one confirmation',sent,[/envoye|sent/],(await state(status)).css.includes('is-success')&&(await state('[name=message]')).value===''&&confirmations===1,{spokenConfirmations:confirmations});
   });
 }
 (async()=>{
@@ -206,12 +210,15 @@ async function audit(en) {
     server=http.createServer((req,res)=>handle(req,res).catch(()=>{if(!res.headersSent)res.writeHead(500);res.end();}));
     await new Promise((resolve,reject)=>server.once('error',reject).listen(8894,'127.0.0.1',resolve));
     await vo.start({capture:true,restoreUserScreenReader:false});started=true;report.controllerAsset=vo.version;report.stage='Reading pages';save();
-    await audit(false);await audit(true);
+    for (const language of languages) {
+      if (!['fr','en'].includes(language)) throw Error('Unexpected test language');
+      await audit(language === 'en');
+    }
   } catch(error) {report.error=error.stack;} finally {
     if(started) await vo.stop().catch(error=>report.stopError=error.message);
     server?.closeAllConnections();server?.close();
     const checks=report.scenarios.flatMap(s=>s.checks); report.total=checks.length;report.passed=checks.filter(c=>c.passed).length;
-    report.complete=report.scenarios.length===12&&!report.error&&report.scenarios.every(s=>!s.error);
+    report.complete=report.scenarios.length===6*languages.length&&!report.error&&report.scenarios.every(s=>!s.error);
     save();console.log(JSON.stringify({complete:report.complete,total:report.total,passed:report.passed,error:report.error}));
     if(!report.complete||report.passed!==report.total)process.exitCode=1;
   }

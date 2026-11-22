@@ -267,7 +267,7 @@ async def main():
                 modes=item['testedModes']
                 valid = (all(modes[k]['alert'] and not modes[k]['status'] for k in ['error','unknown','html','offline'])
                     and modes['delay']['singleRequest'] and modes['delay']['focus']=='contact-message'
-                    and modes['success']['status'] and not modes['success']['message']
+                    and modes['success']['status'] and not modes['success']['message'] and modes['success']['focus']=='BUTTON'
                     and item['correctedErrors']=={'left':0,'alert':''})
             else:
                 valid = all(r['post']['method']=='POST' and r['post']['url']==endpoint and r['draftAfterBack']=='Intercepted at browser'

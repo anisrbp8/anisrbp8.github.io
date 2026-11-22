@@ -12,6 +12,12 @@ permissions:
 jobs:
   safari-voiceover:
     runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [fr, en]
+    env:
+      RGAA_VOICEOVER_LANGUAGES: ${{ matrix.language }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -26,10 +32,11 @@ jobs:
           npm install --no-save --package-lock=false --no-audit --no-fund @guidepup/guidepup@0.40.0
           npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 install voiceover
       - name: Use Apple Safari and record actual VoiceOver speech
+        timeout-minutes: 15
         run: node scripts/accessibility/rgaa-voiceover.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rgaa-voiceover-safari
+          name: rgaa-voiceover-safari-${{ matrix.language }}
           path: test-output/rgaa-voiceover/
           retention-days: 30
