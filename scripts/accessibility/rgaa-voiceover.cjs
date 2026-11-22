@@ -22,7 +22,9 @@ function instrument() {
   function state(selector) {
     const el = query(selector);
     if (!el) return { exists: false };
-    return { exists: true, focused: el === document.activeElement, visible: el.getClientRects().length > 0,
+    const closed=el.closest('details:not([open])');
+    const hiddenByDisclosure=closed && closed!==el && !closed.querySelector(':scope > summary')?.contains(el);
+    return { exists: true, focused: el === document.activeElement, visible: !hiddenByDisclosure && !el.closest('[hidden]') && el.getClientRects().length > 0,
       expanded: el.getAttribute('aria-expanded'), invalid: el.getAttribute('aria-invalid'),
       checked: el.checked, open: el.open, value: el.value, text: el.textContent.trim(),
       css: el.className, grid: el.getAttribute('data-grid-size'), width: window.innerWidth };
@@ -193,6 +195,16 @@ async function audit(en) {
     await key('Enter');
     if (!(await state('#granularity-demo')).open) throw Error('VoiceOver default action did not open the demonstration');
     await speak('moveCursorToKeyboardFocus');
+    // The adjacent paragraph is a second access route to the shape. Record its
+    // own spoken text independently from the SVG image's name/description.
+    const adjacent=[];
+    for(let item=0;item<4;item++) {
+      await bounded(vo.next({capture:true}),'read next item in the demonstration');
+      adjacent.push(await vo.lastSpokenPhrase());
+      if((en?/triangular roof/:/toit triangulaire/).test(normalized(adjacent.join(' ')))&&(en?/door/:/porte/).test(normalized(adjacent.join(' '))))break;
+    }
+    check('Shape description in ordinary reading order',adjacent.join(' | '),[en?/triangular roof/:/toit triangulaire/,en?/door/:/porte/]);
+    await speak('moveCursorToKeyboardFocus');
     const graphic=await speak('findNextGraphic'); const more=await speak('hearItemDescription');
     const desc=[graphic,more,await speak('describeItem')].join(' | ');
     check('Title of the displayed graphic',desc,[en?/synthetic house image/:/image synthetique de maison/],(await state('.granularity-image')).visible);
@@ -211,7 +223,7 @@ async function audit(en) {
   await checkPage(en?'en/research.html':'recherche.html','Figure dialog',async check=>{
     const open='[data-figure-open]'; check('Figure opener',await focus(open),[/figure/]);
     const a=await key('Enter');const close='dialog[open] button';
-    check('Dialog and close control',[a,await focus(close)].join(' | '),[/dialog/,/fermer|close/],(await state(close)).focused);
+    check('Dialog and close control',[a,await speak('describeItemWithKeyboardFocus')].join(' | '),[/dialog/,/fermer|close/],(await state(close)).focused);
     const b=await key('Escape');check('Close and restore figure focus',[b,await speak('describeItemWithKeyboardFocus')].join(' | '),[/figure/],(await state(open)).focused && !(await state('dialog[open]')).exists);
   });
   await checkPage(prefix+'contact.html','Contact and simulated service',async check=>{

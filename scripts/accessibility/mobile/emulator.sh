@@ -21,9 +21,15 @@ printf 'avd.ini.encoding=UTF-8\npath=%s\ntarget=android-37.2\n' "$avd" > "$ANDRO
 "$emulator" -list-avds | grep -Fx accessible
 # Keep the guest audio mixer active for the emulator's native WebM recorder.
 # This software-only ALSA endpoint has no physical speaker or microphone.
+# Generate this runner's own ADB key before boot so the Play image can trust it
+# when Android restarts adbd after setup. The key never leaves this runner.
+adb start-server
+if [ -s "$HOME/.android/adbkey.pub" ]; then
+  install -m 644 "$HOME/.android/adbkey.pub" "$ANDROID_USER_HOME/adbkey.pub"
+fi
 export ALSA_CONFIG_PATH="$RUNNER_TEMP/rgaa-asound.conf"
 printf 'pcm.!default { type null }\n' > "$ALSA_CONFIG_PATH"
-nohup "$emulator" -avd accessible -no-window -no-snapshot -no-boot-anim -gpu swiftshader_indirect -no-metrics -audio alsa > "$out/emulator.log" 2>&1 &
+nohup "$emulator" -avd accessible -skip-adb-auth -no-window -no-snapshot -no-boot-anim -gpu swiftshader_indirect -no-metrics -audio alsa > "$out/emulator.log" 2>&1 &
 emulator_pid=$!
 for i in {1..30}; do
   kill -0 "$emulator_pid" 2>/dev/null || { tail -35 "$out/emulator.log"; exit 1; }

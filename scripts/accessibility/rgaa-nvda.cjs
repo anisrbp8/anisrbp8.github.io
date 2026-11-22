@@ -100,7 +100,8 @@ async function auditLanguage(en) {
     const firstLink = await key('Tab');
     record('Reach first mobile navigation link', firstLink, await focusIs(page.locator('.mobile-panel a').first()), en ? /home/ : /accueil/);
     await key('Escape');
-    const closed = await nameAtFocus(menu);
+    await nvda.perform(commands.reportCurrentFocus, {capture:true});
+    const closed = await nvda.lastSpokenPhrase();
     record('Escape restores focus and announces closed menu', closed, await focusIs(menu) && await menu.getAttribute('aria-expanded') === 'false', /menu/);
     const reading = page.locator('.reading-tools > summary');
     const before = await nameAtFocus(reading);
@@ -159,10 +160,12 @@ async function auditLanguage(en) {
     const first = await key('Enter');
     const dialog = page.locator('dialog[open]');
     const close = dialog.locator('button').first();
-    const dialogSpeech = first + ' | ' + await nameAtFocus(close);
+    await nvda.perform(commands.reportCurrentFocus, {capture:true});
+    const dialogSpeech = first + ' | ' + await nvda.lastSpokenPhrase();
     record('Dialog opens, is named and identifies its close button', dialogSpeech, await dialog.isVisible() && await focusIs(close), t => /dialog/.test(normalize(t)) && /fermer|close/.test(normalize(t)));
     const restored = await key('Escape');
-    record('Escape closes dialog and restores figure link', restored + ' | ' + await nameAtFocus(link), await focusIs(link) && !(await dialog.count()), /figure/);
+    await nvda.perform(commands.reportCurrentFocus, {capture:true});
+    record('Escape closes dialog and restores figure link', restored + ' | ' + await nvda.lastSpokenPhrase(), await focusIs(link) && !(await dialog.count()), /figure/);
   });
   await scenario(contact, 'Required fields, errors and simulated service responses', async record => {
     await openPage(contact);
@@ -172,7 +175,8 @@ async function auditLanguage(en) {
     record('Required name and edit-control role', await nameAtFocus(name), await name.getAttribute('required') !== null, t => /nom|name/.test(normalize(t)) && /obligatoire|required/.test(normalize(t)) && /edition|edit|zone de texte|texte/.test(normalize(t)));
     await nameAtFocus(submit);
     const invalid = await key('Enter');
-    record('Missing field and associated error', invalid + ' | ' + await nameAtFocus(name), await focusIs(name) && await name.getAttribute('aria-invalid')==='true', /obligatoire|required|invalide|invalid/);
+    await nvda.perform(commands.reportCurrentFocus, {capture:true});
+    record('Missing field and associated error', invalid + ' | ' + await nvda.lastSpokenPhrase(), await focusIs(name) && await name.getAttribute('aria-invalid')==='true', /obligatoire|required|invalide|invalid/);
     await name.fill('Test'); await email.fill('test@example.org'); await form.locator('[name=subject]').fill('Test'); await message.fill('Essai local.');
     const status = form.locator('[data-form-status]');
     networkMode = 'failure'; await nameAtFocus(submit);
