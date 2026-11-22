@@ -31,6 +31,10 @@ jobs:
         run: |
           npm install --no-save --package-lock=false --no-audit --no-fund @guidepup/guidepup@0.40.0
           npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 install voiceover
+      - name: Enable keyboard navigation through every web control in the temporary Safari profile
+        run: |
+          defaults write -g AppleKeyboardUIMode -int 3
+          defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
       - name: Use Apple Safari and record actual VoiceOver speech
         timeout-minutes: 15
         run: node scripts/accessibility/rgaa-voiceover.cjs

@@ -52,6 +52,7 @@ function instrument() {
       }
       return true;
     }
+    if (action === 'navigate') { setTimeout(()=>location.assign(value),350); return true; }
     if (action === 'ready') return { doc: document.title, width: innerWidth, hasFocus: document.hasFocus(), ua: navigator.userAgent };
     throw new Error('Unknown action');
   }
@@ -80,7 +81,7 @@ async function handle(req, res) {
     report.simulatedRequests.push({ page: current?.file, status: service });
     return send(service, JSON.stringify(service === 200 ? {ok:true} : {error:'Temporary refusal'}), 'application/json');
   }
-  if (url.pathname.startsWith('/__vo/') && url.pathname !== '/__vo/narrow') {
+  if (url.pathname.startsWith('/__vo/')) {
     if (url.searchParams.get('key') !== String(current?.id)) return send(410);
     if (url.pathname === '/__vo/poll') {
       const op = current.op;
@@ -96,11 +97,6 @@ async function handle(req, res) {
       return send(204);
     }
     return send(404);
-  }
-  if (url.pathname === '/__vo/narrow') {
-    // Safari's actual layout viewport is narrowed inside the specified frame.
-    const source = '/' + current.file + '?vo=' + current.id;
-    return send(200, `<!doctype html><html lang="en"><title>Small viewport</title><body style="margin:0"><iframe title="Site académique" src="${source}" style="display:block;width:390px;height:100vh;border:0"></iframe></body></html>`, 'text/html;charset=utf-8');
   }
   const local = path.resolve(root, '.' + decodeURIComponent(url.pathname));
   if (!local.startsWith(root+path.sep) || !fs.existsSync(local) || !fs.statSync(local).isFile()) return send(404);
@@ -127,9 +123,24 @@ function action(action, selector, value) {
   });
 }
 async function navigate(file,narrow=false) {
-  current = { id: ++sessionId, file };
-  execFileSync('/usr/bin/open', ['-a','Safari', origin + (narrow ? '/__vo/narrow?vo=' : '/'+file+'?vo=')+current.id]);
-  const info=await action('ready'); await delay(450); return info;
+  const next = { id: ++sessionId, file };
+  const url = origin+'/'+file+'?vo='+next.id;
+  if (current?.ready) await action('navigate',null,url);
+  else execFileSync('/usr/bin/open', ['-a','Safari',url]);
+  current=next;
+  let info;
+  try { info=await action('ready'); }
+  catch { execFileSync('/usr/bin/open', ['-a','Safari',url]); info=await action('ready'); }
+  current.ready=true;await delay(600);
+  if(narrow && !(await action('state','.mobile-menu-toggle')).visible) throw Error(`Menu is not collapsed at native Safari window width ${info.width}`);
+  return info;
+}
+function physical(key,shift=false) {
+  // System keyboard events in the ordinary Safari window. No DOM event is
+  // created by the test. Quartz keycodes 48 and 53 are Tab and Escape.
+  const code=key==='Tab'?48:53;
+  const script=`ObjC.import('CoreGraphics'); for (const down of [true,false]) { const e = $.CGEventCreateKeyboardEvent(null, ${code}, down); $.CGEventSetFlags(e, ${shift?131072:0}); $.CGEventPost(0,e); }`;
+  execFileSync('/usr/bin/osascript',['-l','JavaScript','-e',script],{timeout:4500});
 }
 // VoiceOver's capture waits for speech. A stuck command ends this run; do
 // not dispatch another command in parallel with the system screen reader.
@@ -146,14 +157,20 @@ async function key(stroke) {
   if(stroke==='Enter'||stroke==='Space') {
     await bounded(vo.perform(vo.keyboardCommands.moveCursorToKeyboardFocus,{capture:false}),'synchronise keyboard focus');
     await bounded(vo.act({capture:true}),'VO-Space');
-  } else {await bounded(vo.press(stroke,{capture:true}),stroke);}
+  } else if (stroke==='Tab'||stroke==='Escape') {return capture(()=>physical(stroke));}
+  else {await bounded(vo.press(stroke,{capture:true}),stroke);}
   return await vo.lastSpokenPhrase() || '';
 }
 async function speak(command) { await bounded(vo.perform(vo.keyboardCommands[command],{capture:true}),command); return (await vo.lastSpokenPhrase()) || ''; }
 async function focus(selector) {
-  let currentState;
-  const spoken = await capture(async()=>{currentState=await action('focus',selector);});
-  if(!currentState.focused) throw Error('Safari keyboard focus did not reach '+selector);
+  const initial=await action('focus',selector);
+  if(!initial.focused) throw Error('Safari keyboard focus did not reach '+selector);
+  // Programmatic focus, even when confirmed by the DOM, can leave the VO cursor
+  // on the preceding item. Return to this control with actual system Tab keys.
+  physical('Tab',true);await delay(160);
+  const spoken=await capture(()=>physical('Tab'));
+  if(!(await state(selector)).focused) throw Error('System Tab did not return to '+selector);
+  await bounded(vo.perform(vo.keyboardCommands.moveCursorToKeyboardFocus,{capture:false}),'track actual tab focus');
   const currentFocus = await speak('describeItemWithKeyboardFocus');
   return [spoken,currentFocus].filter(Boolean).join(' | ');
 }
@@ -182,8 +199,8 @@ async function audit(en) {
     check('Menu name, button and collapsed state',await focus(menu),[/menu/,/button|bouton/,/collapsed|repli|ferm|reduit/],(await state(menu)).expanded==='false');
     const open=await key('Enter');
     check('Expanded menu state',[open,await speak('describeItemWithKeyboardFocus')].join(' | '),[/expanded|develop|ouvert/],(await state(menu)).expanded==='true');
-    await bounded(vo.nextLink({capture:true}),'next link in expanded menu');
-    check('Read first expanded mobile navigation link',await vo.lastSpokenPhrase(),[en?/home/:/accueil/,/link|lien/],(await state('.mobile-panel a')).visible);
+    const firstLink=await key('Tab');
+    check('Reach first expanded mobile navigation link with Tab',firstLink,[en?/home/:/accueil/,/link|lien/],(await state('.mobile-panel a')).focused);
     const close=await key('Escape'); check('Escape restores menu focus',[close,await speak('describeItemWithKeyboardFocus')].join(' | '),[/menu/],(await state(menu)).focused&&(await state(menu)).expanded==='false');
     check('Reading preferences',await focus(reading),[en?/reading preferences/:/confort de lecture/]);
     await key('Enter'); const box='#reading-space'; check('Spacing checkbox',await focus(box),[/check|case/,/spacing|espacements|espace/]);
@@ -245,9 +262,12 @@ async function audit(en) {
     const readerInfo='/System/Library/CoreServices/VoiceOver.app/Contents/Info.plist';
     if(fs.existsSync(readerInfo)) report.voiceOverBundle=execFileSync('/usr/libexec/PlistBuddy',['-c','Print :CFBundleShortVersionString',readerInfo],{encoding:'utf8'}).trim();
     report.stage='Starting VoiceOver';save();
+    execFileSync('/usr/bin/open',['-a','Safari','about:blank']);await delay(1300);
     server=http.createServer((req,res)=>handle(req,res).catch(()=>{if(!res.headersSent)res.writeHead(500);res.end();}));
     await new Promise((resolve,reject)=>server.once('error',reject).listen(8894,'127.0.0.1',resolve));
-    await vo.start({capture:true,restoreUserScreenReader:false});started=true;report.controllerAsset=vo.version;report.stage='Reading pages';save();
+    await vo.start({capture:true,restoreUserScreenReader:false});started=true;report.controllerAsset=vo.version;report.stage='Reading pages';
+    try {report.observesLiveRegions=vo.getSetting('SCRCUserDefaultsWebObserveLiveRegions');} catch {}
+    save();
     for (const language of languages) {
       if (!['fr','en'].includes(language)) throw Error('Unexpected test language');
       await audit(language === 'en');

@@ -43,6 +43,18 @@ async function cancel(page,target) {
       await cancel(page,page.locator('.reading-tools>summary'));assert.equal(await page.locator('.reading-tools').getAttribute('open'),null);
       await page.locator('.reading-tools>summary').click();assert.ok(await page.locator('#reading-theme').isVisible());
       await page.locator('.reading-tools>summary').click();
+      if(['accessibilite.html','en/accessibility.html'].includes(file)){
+        const topics=page.locator('#audit-rgaa-html>details');
+        assert.equal(await topics.count(),13);
+        for(const section of await topics.all()){
+          const summary=section.locator(':scope > summary');await summary.focus();await page.keyboard.press('Space');
+          assert.ok(await section.locator('dt').first().isVisible());await summary.press('Enter');assert.equal(await section.getAttribute('open'),null);
+        }
+        const wcag=page.locator('#audit-wcag-html'),trigger=wcag.locator(':scope > summary');
+        await trigger.focus();await page.keyboard.press('Enter');assert.equal(await wcag.locator('dt').count(),86);
+        assert.ok(await wcag.locator('dt').last().isVisible());await trigger.press('Space');assert.equal(await wcag.getAttribute('open'),null);
+        assert.equal(await topics.locator('dt').count(),106);
+      }
       // Open all page-body disclosures to compare content, including initially collapsed material.
       await page.locator('main details').evaluateAll(items=>items.forEach(e=>e.open=true));
       const collect=async()=>page.locator('main').evaluate(main=>({
