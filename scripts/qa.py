@@ -8,7 +8,9 @@ ROOT=Path(__file__).resolve().parents[1]
 ORIGIN='anisrojbi.fr'
 class Page(HTMLParser):
  def __init__(self,text):
-  super().__init__(convert_charrefs=True);self.ids=[];self.refs=[];self.h1=0;self.lang=None;self.issues=[];self.forms=0;self.labels=set();self.form_fields={};self.has_form_status=False;self.feed(text)
+  super().__init__(convert_charrefs=True);self.ids=[];self.refs=[];self.h1=0;self.lang=None;self.issues=[];self.forms=0;self.labels=set();self.form_fields={};self.has_form_status=False
+  self.in_footer=False;self.in_statement_link=False;self.footer_statement_labels=[]
+  self.feed(text)
   if self.forms:
    required={'name','email','subject','message'}
    missing=sorted(required-set(self.form_fields))
@@ -21,6 +23,10 @@ class Page(HTMLParser):
    if not self.has_form_status:self.issues.append('Missing accessible form status')
  def handle_starttag(self,tag,attrs):
   a=dict(attrs)
+  if tag=='footer':self.in_footer=True
+  if self.in_footer and tag=='a' and Path(urlsplit(a.get('href','')).path).name in {'accessibilite.html','accessibility.html'}:
+   self.in_statement_link=True
+   self.footer_statement_labels.append('')
   if tag=='html': self.lang=a.get('lang')
   if tag=='h1': self.h1+=1
   if 'id' in a:self.ids.append(a['id'])
@@ -38,10 +44,28 @@ class Page(HTMLParser):
    if a.get(key):self.refs.append(a[key])
   if a.get('srcset'):
    self.refs.extend(x.strip().split()[0] for x in a['srcset'].split(','))
+ def handle_data(self,data):
+  if self.in_statement_link:self.footer_statement_labels[-1]+=data
+ def handle_endtag(self,tag):
+  if tag=='a':self.in_statement_link=False
+  if tag=='footer':self.in_footer=False
+
+def published_footer_label(statement, prefix, statuses):
+ text=statement.read_text()
+ matches=[status for status in statuses if '<strong>'+status+' ' in text]
+ return prefix+matches[0] if len(matches)==1 else None
+
+footer_labels={
+ 'fr':published_footer_label(ROOT/'accessibilite.html','Accessibilité · ',('non conforme','partiellement conforme','totalement conforme')),
+ 'en':published_footer_label(ROOT/'en/accessibility.html','Accessibility · ',('non-compliant','partially compliant','fully compliant'))
+}
 files=sorted(p for p in ROOT.rglob('*.html') if not any(x in {'node_modules','test-output','.git'} for x in p.parts));parsed={p:Page(p.read_text()) for p in files};issues=[];checks=0
 for p,page in parsed.items():
  rel=str(p.relative_to(ROOT));text=p.read_text()
  for issue in page.issues:issues.append([rel,issue])
+ expected_footer=footer_labels.get(page.lang)
+ if not expected_footer or [' '.join(label.split()) for label in page.footer_statement_labels]!=[expected_footer]:
+  issues.append([rel,'Footer link must state the accessibility status published in this language'])
  if not page.lang:issues.append([rel,'Missing language'])
  if page.h1!=1:issues.append([rel,'Expected one h1'])
  if len(set(page.ids))!=len(page.ids):issues.append([rel,'Duplicate IDs'])
