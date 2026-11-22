@@ -51,10 +51,18 @@ def double(x,y):
 def key(value):
     sh('input','keyevent',value)
 def ui_nodes():
-    # Only before TalkBack starts. UIAutomator could interrupt another accessibility service.
-    sh('uiautomator','dump','/sdcard/rgaa-device.xml',timeout=18)
-    data=adb('exec-out','cat','/sdcard/rgaa-device.xml')
-    return list(ET.fromstring(data).iter('node'))
+    # UIAutomator is used only before TalkBack starts. A new activity or a brief
+    # system animation can have no accessible window yet; poll for real XML.
+    for _ in range(5):
+        tree='/sdcard/rgaa-device.xml'
+        sh('rm','-f',tree)
+        result=sh('uiautomator','dump',tree,timeout=22,check=False)
+        data=adb('exec-out','cat',tree,check=False)
+        if '<hierarchy' in data:
+            try:return list(ET.fromstring(data[data.index('<hierarchy'):]).iter('node'))
+            except ET.ParseError:pass
+        time.sleep(1)
+    raise RuntimeError('Android UI hierarchy was not ready: '+result[:160])
 def box(node):
     x1,y1,x2,y2=map(int,re.findall(r'-?\d+',node.get('bounds')))
     return (x1+x2)//2,(y1+y2)//2
@@ -76,7 +84,7 @@ def verify_chrome():
     # Chromium documents --disable-fre for tests on new Android profiles. This
     # only skips Chrome's welcome/promo screen on this account-free test phone.
     sh('am','set-debug-app','--persistent',CHROME)
-    sh("echo 'chrome --disable-fre --no-first-run --no-default-browser-check --disable-search-engine-choice-screen' > /data/local/tmp/chrome-command-line")
+    sh("echo 'chrome --disable-fre --no-first-run --no-default-browser-check --disable-search-engine-choice-screen --disable-translate --disable-features=Translate,TranslateUI,TranslateMessage' > /data/local/tmp/chrome-command-line")
     sh('am','force-stop',CHROME)
     report['environment']['chromeLaunch']=sh('am','start','-W','-a','android.intent.action.VIEW','-d',BASE+'contact.html',CHROME,timeout=45)
     adb('forward','tcp:9223','localabstract:chrome_devtools_remote')
@@ -120,7 +128,7 @@ def enable_logging():
     components=re.findall(r'('+re.escape(APP)+r'/[\.\w$]+PreferencesActivity)',settings)
     talkback=[c for c in components if c.endswith('.TalkBackPreferencesActivity')]
     for component in [APP+'/com.android.talkback.TalkBackPreferencesActivity',*talkback,APP+'/.TalkBackPreferencesActivity']:
-        result=sh('am','start','-n',component,check=False)
+        result=sh('am','start','-W','-n',component,timeout=45,check=False)
         if not any(x in result for x in ('Error','Exception','does not exist')):break
     else:raise RuntimeError('TalkBack preferences could not be opened')
     report['environment']['preferencesComponent']=component
@@ -168,7 +176,8 @@ def environment():
         raise RuntimeError('No active TalkBack touch-exploration service is listed by the system')
     # Bring the actual candidate back to the front after the first-run tutorial.
     sh('am','start','-a','android.intent.action.VIEW','-d',BASE+'contact.html',CHROME)
-    time.sleep(1)
+    # Let the service finish its first-use spoken instructions before gestures.
+    time.sleep(12)
 def goto(path):
     command('goto',BASE+path)
     for _ in range(15):
@@ -231,6 +240,25 @@ def select_key(selector,keyname):
     time.sleep(.35);key(keyname);time.sleep(.25);key('KEYCODE_ENTER')
     time.sleep(.5)
     return read('document.querySelector('+json.dumps(selector)+').value')
+def keyed_menu(en):
+    lang='EN' if en else 'FR'
+    goto(('en/' if en else '')+'contact.html')
+    read('window.scrollTo({top:0,behavior:"instant"})')
+    # Keys drive focus and activate the real control. The read-only enquiry just
+    # identifies the tab stop, avoiding assumptions about Chrome's own toolbars.
+    def tab_to_open_menu():
+        for number in range(1,22):
+            key('KEYCODE_TAB');time.sleep(.28)
+            if read('document.activeElement?.matches(".mobile-menu-toggle")===true'):
+                return {'tabs':number}
+        return {'tabs':21,'found':False}
+    def is_button():return read('document.activeElement?.matches(".mobile-menu-toggle")===true')
+    sample(lang+' mobile keyboard reaches navigation control',tab_to_open_menu,['open menu'] if en else ['ouvrir le menu'],is_button)
+    if is_button():
+        def expanded():return read('document.querySelector(".mobile-menu-toggle").getAttribute("aria-expanded")==="true"')
+        sample(lang+' mobile keyboard opens navigation',lambda:key('KEYCODE_ENTER'),['close menu'] if en else ['fermer le menu'],expanded)
+        if expanded():key('KEYCODE_ESCAPE')
+
 def tapdemo(en):
     home='en/' if en else ''
     goto(home+'index.html#granularity')
@@ -303,6 +331,7 @@ try:
     attempt('FR navigation tactile initiale',first_menu)
     if TOP is not None:
         for en in [False,True]:
+            attempt('Navigation au clavier Android '+('EN' if en else 'FR'),lambda:keyed_menu(en))
             attempt('House demonstration '+str(en),lambda:tapdemo(en))
             attempt('Main controls '+str(en),lambda:journey(en))
 except Exception as err:
