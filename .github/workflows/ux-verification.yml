@@ -10,6 +10,13 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Archive the exact source used for verification
+        run: git archive --format=tar.gz HEAD -o "$RUNNER_TEMP/site-source.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-site-source
+          path: ${{ runner.temp }}/site-source.tar.gz
+          retention-days: 7
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -20,9 +27,9 @@ jobs:
       - name: Wait for the public design version
         if: "!contains(github.event.head_commit.message, '[ux-baseline]')"
         run: |
-          # Compare the deployed bytes against this commit, not a fixed CSS/JS
-          # version string that may already be present on an older deployment.
-          files=(index.html en/index.html recherche.html en/research.html assets/js/site.js)
+          # Include shared styles: a CSS-only change must not be checked against
+          # an older deployment whose HTML and JavaScript already match.
+          files=(index.html en/index.html recherche.html en/research.html assets/js/site.js assets/css/styles.css assets/css/academic-home.css)
           for attempt in $(seq 1 30); do
             current=true
             for file in "${files[@]}"; do
@@ -34,7 +41,7 @@ jobs:
             if [[ "$current" = true ]]; then exit 0; fi
             sleep 10
           done
-          echo "GitHub Pages is not yet serving the HTML and JavaScript from this commit." >&2
+          echo "GitHub Pages is not yet serving the HTML, JavaScript and CSS from this commit." >&2
           exit 1
       - name: Capture public desktop and mobile pages
         env:
