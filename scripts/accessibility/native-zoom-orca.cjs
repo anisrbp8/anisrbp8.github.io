@@ -81,41 +81,57 @@ async function checkOrca(page, temporary) {
     }
   });
   report.screenReader = run('orca', '--version');
-  orca = spawn('orca', ['--replace', '--enable=speech', '--disable=braille', '--debug', '--debug-file', log], { env: { ...process.env, PYTHONUNBUFFERED: '1' }, stdio: 'ignore' });
+  // A pseudo-terminal makes Orca's own debug transcript line-buffered, as it is
+  // in a desktop debugging session. No speech or accessibility code is replaced.
+  orca = spawn('script', ['--quiet', '--flush', '--return', '--command',
+    'exec orca --replace --enable=speech --disable=braille --debug --debug-file=/dev/tty', log],
+    { env: { ...process.env, PYTHONUNBUFFERED: '1' }, stdio: ['pipe', 'ignore', 'ignore'] });
+  const stopped = new Promise(resolve => orca.once('exit', resolve));
+  const journeys = [];
   try {
     await waitFor(() => /Using speech server factory.*speechdispatcher/i.test(readLog(log)), 'Orca did not initialise its Speech Dispatcher backend', 25000);
     for (const file of ['contact.html', 'en/contact.html']) {
-      await page.goto(`${base}/${file}`);
+      await page.goto(`${base}/${file}`, { waitUntil: 'networkidle' });
       await page.bringToFront();
       focusBrowserWindow();
       const form = page.locator('form[data-contact-form]');
       const name = form.locator('input[name="name"]');
       const email = form.locator('input[name="email"]');
-      const en = file.startsWith('en/');
+      const labelText = field => field.evaluate(el => el.labels[0].innerText.replace(/\s+/g, ' ').trim());
       try {
-        const since = offset => fs.readFileSync(log).subarray(offset).toString('utf8');
-        const start = fs.statSync(log).size;
-        await name.focus();
-        const first = await waitFor(() => speechLines(since(start)).find(line => en ? /\bname\b/i.test(utterance(line)) : /\bnom\b|prénom/i.test(utterance(line))), `${file}: no spoken name-field label`);
-        // Let Orca finish its change to forms mode before sending a physical Tab.
-        await delay(650);
-        const next = fs.statSync(log).size;
+        const nameText = await labelText(name), emailText = await labelText(email);
+        // Give the AT-SPI document-load event time to reach Orca before input.
+        await delay(700);
+        await name.click();
+        await waitFor(() => name.evaluate(el => document.activeElement === el), `${file}: name did not receive input focus`);
+        await delay(1000);
         key('Tab');
         await waitFor(() => email.evaluate(el => document.activeElement === el), `${file}: Tab did not reach the email field`);
-        const second = await waitFor(() => speechLines(since(next)).find(line => /mail|courriel|lectronique/i.test(utterance(line))), `${file}: no spoken email-field label`);
-        report.speech.push({ file, action: 'Focus on name, physical Tab to email', nameUtterance: first.trim(), emailUtterance: second.trim(), passed: true });
-      } catch (error) {
-        report.errors.push(`Orca: ${error.message}`);
-      }
+        await delay(1000);
+        journeys.push({ file, nameText, emailText });
+      } catch (error) { report.errors.push(`Orca: ${error.message}`); }
     }
     await waitFor(() => voicedSamples > 1000, 'No synthesised speech signal was recorded at the monitor');
   } finally {
-    report.audio = { source: 'isolated PulseAudio sink monitor', sampleRateHz: 16000, peak, samplesOver100: voicedSamples };
+    orca.kill('SIGTERM');
+    await Promise.race([stopped, delay(3500)]);
     const logText = readLog(log);
-    fs.writeFileSync(path.join(output, 'orca-speech.txt'), speechLines(logText).slice(-160).join('\n') + '\n');
+    const lines = speechLines(logText);
+    const norm = text => text.toLowerCase().replace(/\s+/g, ' ').trim();
+    const hasLabel = (line, label) => norm(utterance(line)).includes(norm(label));
+    for (const { file, nameText, emailText } of journeys) {
+      const first = lines.findIndex(line => hasLabel(line, nameText));
+      const second = lines.findIndex((line, i) => i > first && hasLabel(line, emailText));
+      const passed = first >= 0 && second > first;
+      report.speech.push({ file, action: 'Focus on name, physical Tab to email',
+        nameUtterance: first >= 0 ? utterance(lines[first]) : null,
+        emailUtterance: second >= 0 ? utterance(lines[second]) : null, passed });
+      if (!passed) report.errors.push(`Orca: ${file} did not speak both field labels in order`);
+    }
+    report.audio = { source: 'isolated PulseAudio sink monitor', sampleRateHz: 16000, peak, samplesOver100: voicedSamples };
+    fs.writeFileSync(path.join(output, 'orca-speech.txt'), lines.slice(-160).join('\n') + '\n');
     report.speechBackend = logText.split('\n').find(line => /Using speech server factory/i.test(line))?.trim() || null;
     recorder?.kill();
-    orca?.kill();
   }
 }
 
@@ -146,7 +162,7 @@ async function checkOrca(page, temporary) {
     fs.rmSync(temporary, { recursive: true, force: true });
     report.passed = report.zoom.length === files.length * 2 && report.speech.length === 2 && !report.errors.length;
     fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify(report, null, 2) + '\n');
-    console.log(JSON.stringify({ zoomChecks: report.zoom.filter(x => x.passed).length, orcaChecks: report.speech.length, audio: report.audio, errors: report.errors }, null, 2));
+    console.log(JSON.stringify({ zoomChecks: report.zoom.filter(x => x.passed).length, orcaChecks: report.speech.filter(x => x.passed).length, audio: report.audio, errors: report.errors }, null, 2));
     if (!report.passed) process.exitCode = 1;
   }
 })();

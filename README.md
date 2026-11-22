@@ -22,11 +22,13 @@ Les fichiers `netlify.toml`, `_headers` et `configure_site.py` issus de l’arch
 
 ## Audit d’accessibilité
 
-Voir [le rapport technique](audit/RAPPORT-ACCESSIBILITE.md), les résultats JSON et la matrice RGAA dans `audit/`. Ces documents ne constituent pas une certification. Les résultats bruts antérieurs sont conservés comme historique de leur révision ; le rapport précise leur date et leur périmètre. Le workflow axe/Playwright vérifie les pages et les interactions lors de ses exécutions. Les quatre PDF disposent de versions HTML intégrales accessibles depuis leurs liens de téléchargement.
+Voir [le rapport technique](audit/RAPPORT-ACCESSIBILITE.md), les résultats JSON et la matrice RGAA dans `audit/`. Ces documents ne constituent pas une certification. Les résultats bruts antérieurs sont conservés comme historique de leur révision ; le rapport précise leur date et leur périmètre. Le workflow axe/Playwright parcourt les 29 pages à 320, 390, 768 et 1 280 pixels CSS. Un second job vérifie les zooms natifs de Chromium à 200 % et 400 % et la lecture des champs de contact par Orca en français et en anglais. Les quatre PDF disposent de versions HTML intégrales accessibles depuis leurs liens de téléchargement.
 
 ## Figures du séminaire ICH
 
 Les figures de `recherche.html` et `en/research.html` sont des adaptations vectorielles de `ICH_Seminar_Anis8BIS.pptx`, fourni par Anis Rojbi. La correspondance précise figure/diapositive et les choix de traduction figurent dans [assets/figures/README.md](assets/figures/README.md). `python scripts/research_figures.py` régénère les dix SVG.
+
+Les figures 2 et 8 de l’article EEG disposent d’agrandissements hébergés sur le site. Les liens vers l’éditeur et les crédits accompagnent leurs descriptions.
 
 Chaque figure dispose de libellés localisés, d’une légende avec source, d’une description HTML complète et d’un lien vers le SVG à sa taille native. La figure de fatigue est une synthèse du texte de la diapositive 4, et non une figure expérimentale présente dans le diaporama. Aucun graphique EEG n’est attribué à ce document, qui n’en contient pas.
 
