@@ -91,29 +91,69 @@ async function checkOrca(page, temporary) {
   try {
     await waitFor(() => /Using speech server factory.*speechdispatcher/i.test(readLog(log)), 'Orca did not initialise its Speech Dispatcher backend', 25000);
     for (const file of ['contact.html', 'en/contact.html']) {
-      await page.goto(`${base}/${file}`, { waitUntil: 'networkidle' });
-      await page.bringToFront();
-      focusBrowserWindow();
-      const form = page.locator('form[data-contact-form]');
-      const name = form.locator('input[name="name"]');
-      const email = form.locator('input[name="email"]');
-      const labelText = field => field.evaluate(el => el.labels[0].innerText.replace(/\s+/g, ' ').trim());
+      const trace = [];
+      report.keyboard ||= {};
+      report.keyboard[file] = trace;
       try {
+        await page.bringToFront();
+        focusBrowserWindow();
+        const url = `${base}/${file}`;
+        // Use the browser's real address bar so that Orca receives the same window,
+        // document-load and focus events as a person opening the page from a URL.
+        key('ctrl+l');
+        run('xdotool', 'type', '--clearmodifiers', '--delay', '1', url);
+        key('Return');
+        await page.waitForURL(url, { timeout: 10000 });
+        await page.waitForLoadState('networkidle');
+        const form = page.locator('form[data-contact-form]');
+        const name = form.locator('input[name="name"]');
+        const email = form.locator('input[name="email"]');
+        const labelText = field => field.evaluate(el => el.labels[0].innerText.replace(/\s+/g, ' ').trim());
         const nameText = await labelText(name), emailText = await labelText(email);
-        // The click positions the browser's keyboard focus. Screen readers may
-        // choose not to speak a mouse click, especially in browse mode. Use
-        // physical key events to visit both labels, forwards and backwards.
-        await delay(1700);
-        await name.click();
-        await waitFor(() => name.evaluate(el => document.activeElement === el), `${file}: name did not receive input focus`);
-        for (const [stroke, field] of [['Tab', email], ['shift+Tab', name], ['Tab', email]]) {
-          await delay(1000);
-          key(stroke);
-          await waitFor(() => field.evaluate(el => document.activeElement === el), `${file}: ${stroke} did not reach the expected input`);
+        const entry = page.locator('main a[href="#contact-form"]');
+        const fragment = await entry.getAttribute('href');
+        let seenName = false, seenEmail = false;
+        const active = () => page.evaluate(() => ({ tag: document.activeElement?.tagName,
+          id: document.activeElement?.id || '', href: document.activeElement?.getAttribute('href'),
+          visible: document.visibilityState, focus: document.hasFocus() }));
+        for (const path of ['page', 'form link']) {
+          if (path === 'form link') {
+            // This is also the direct URL used by candidacy links on the site.
+            key('ctrl+l');
+            run('xdotool', 'type', '--clearmodifiers', '--delay', '1', url + fragment);
+            key('Return');
+            await page.waitForURL(url + fragment, { timeout: 5000 });
+          }
+          await delay(1200);
+          trace.push({ path, window: run('xdotool', 'getwindowfocus', 'getwindowname'), initial: await active() });
+          for (let i = 0; i < 4 && !(await active()).focus; i++) {
+            key('F6');
+            await delay(250);
+          }
+          for (let step = 0; step < (path === 'page' ? 44 : 10); step++) {
+            key('Tab');
+            await delay(350);
+            const focus = await active();
+            trace.push(focus);
+            if (focus.href === fragment) {
+              key('Return');
+              await delay(400);
+            }
+            if (focus.id === 'contact-name') {
+              seenName = true;
+              await delay(650);
+            }
+            if (focus.id === 'contact-email' && seenName) {
+              seenEmail = true;
+              await delay(900);
+              break;
+            }
+          }
+          if (seenName && seenEmail) break;
         }
-        await delay(1300);
+        if (!seenName || !seenEmail) throw new Error('Physical Tab did not visit both fields in order');
         journeys.push({ file, nameText, emailText });
-      } catch (error) { report.errors.push(`Orca: ${error.message}`); }
+      } catch (error) { report.errors.push(`Orca: ${file}: ${error.message}`); }
     }
     await waitFor(() => voicedSamples > 1000, 'No synthesised speech signal was recorded at the monitor');
   } finally {
@@ -121,16 +161,25 @@ async function checkOrca(page, temporary) {
     await Promise.race([stopped, delay(3500)]);
     const logText = readLog(log);
     const lines = speechLines(logText);
-    const norm = text => text.toLowerCase().replace(/\s+/g, ' ').trim();
-    const hasLabel = (line, label) => norm(utterance(line)).includes(norm(label));
+    const norm = text => text.toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N} ]/gu, ' ').replace(/\s+/g, ' ').trim();
+    function findSpokenField(label, after) {
+      const fieldName = norm(label.replace(/\s*\([^()]*\)\s*$/, ''));
+      const index = lines.findIndex((line, i) => i > after &&
+        (` ${norm(utterance(line))} `).includes(` ${fieldName} `));
+      if (index < 0) return null;
+      // Depending on the language/voice, Orca can speak the label and required
+      // state together or as separate successive utterances.
+      const part = lines.slice(index, index + 3).map(utterance);
+      return { utterance: part[0], required: part.some(text => /required|obligatoire/i.test(text)), index };
+    }
     for (const { file, nameText, emailText } of journeys) {
-      const first = lines.findIndex(line => hasLabel(line, nameText));
-      const second = lines.findIndex((line, i) => i > first && hasLabel(line, emailText));
-      const passed = first >= 0 && second > first;
-      report.speech.push({ file, action: 'Physical Tab to email, Shift+Tab to name, Tab back to email',
-        nameUtterance: first >= 0 ? utterance(lines[first]) : null,
-        emailUtterance: second >= 0 ? utterance(lines[second]) : null, passed });
-      if (!passed) report.errors.push(`Orca: ${file} did not speak both field labels in order`);
+      const name = findSpokenField(nameText, -1);
+      const email = findSpokenField(emailText, name?.index ?? -1);
+      const passed = Boolean(name?.required && email?.required);
+      report.speech.push({ file, action: 'Physical Tab through the page and its form link to name and email',
+        nameUtterance: name?.utterance || null, nameRequired: name?.required || false,
+        emailUtterance: email?.utterance || null, emailRequired: email?.required || false, passed });
+      if (!passed) report.errors.push(`Orca: ${file} did not speak the names and required states in order`);
     }
     report.audio = { source: 'isolated PulseAudio sink monitor', sampleRateHz: 16000, peak, samplesOver100: voicedSamples };
     fs.writeFileSync(path.join(output, 'orca-speech.txt'), lines.slice(-160).join('\n') + '\n');
