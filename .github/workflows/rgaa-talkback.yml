@@ -1,0 +1,31 @@
+name: RGAA Android TalkBack
+on:
+  push:
+    branches: [audit-rgaa-2026-11-22]
+    paths:
+      - '.github/workflows/rgaa-talkback.yml'
+      - 'scripts/accessibility/mobile/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android:
+    if: github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Start an official Android device with Chrome
+        shell: bash
+        run: bash scripts/accessibility/mobile/emulator.sh
+      - name: Exercise the real TalkBack service
+        run: python3 scripts/accessibility/mobile/talkback.py
+      - name: Retain test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rgaa-android-talkback
+          path: test-output/mobile-access/
+          retention-days: 14
