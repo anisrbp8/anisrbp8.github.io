@@ -1,0 +1,46 @@
+name: RGAA desktop – VoiceOver and native Safari
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '**.html'
+      - 'assets/**'
+      - 'scripts/accessibility/rgaa-voiceover.cjs'
+      - '.github/workflows/rgaa-voiceover.yml'
+permissions:
+  contents: read
+jobs:
+  safari-voiceover:
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [fr, en]
+    env:
+      RGAA_VOICEOVER_LANGUAGES: ${{ matrix.language }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare the ephemeral runner for native VoiceOver
+        run: npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 setup --ci
+      - name: Install the VoiceOver controller and verify its assets
+        working-directory: scripts/accessibility
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund @guidepup/guidepup@0.40.0
+          npx --yes --ignore-scripts=false @guidepup/setup@0.29.3 install voiceover
+      - name: Enable keyboard navigation through every web control in the temporary Safari profile
+        run: |
+          defaults write -g AppleKeyboardUIMode -int 3
+          defaults write com.apple.Safari WebKitTabToLinksPreferenceKey -bool true
+      - name: Use Apple Safari and record actual VoiceOver speech
+        timeout-minutes: 15
+        run: node scripts/accessibility/rgaa-voiceover.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rgaa-voiceover-safari-${{ matrix.language }}
+          path: test-output/rgaa-voiceover/
+          retention-days: 30
