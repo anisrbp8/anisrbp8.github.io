@@ -17,10 +17,10 @@
 1.3.6,AAA,Identify Purpose,À compléter,Régions principales et formulaires exposés. La portée du critère étendu dépasse la seule vérification des rôles principaux.,,https://www.w3.org/TR/WCAG22/#identify-purpose
 1.4.1,A,Use of Color,Vérifié HTML,Les commandes ont des libellés. Les informations des diagrammes et les chiffres sont accompagnés de texte. Les erreurs sont annoncées et expliquées.,"3.1, 10.6, 10.7, 10.9, 10.10",https://www.w3.org/TR/WCAG22/#use-of-color
 1.4.2,A,Audio Control,SO,"Aucun contenu audio, vidéo ou diffusé en direct dans les 29 pages.",4.10,https://www.w3.org/TR/WCAG22/#audio-control
-1.4.3,AA,Contrast (Minimum),À compléter,Les contrôles accomplis et les limites sont détaillés dans la grille RGAA. Une conclusion globale sur ce critère WCAG reste ouverte.,"3.2, 10.5",https://www.w3.org/TR/WCAG22/#contrast-minimum
+1.4.3,AA,Contrast (Minimum),Vérifié HTML,Contrôles français et anglais couverts par les critères RGAA indiqués et les essais du navigateur.,"3.2, 10.5",https://www.w3.org/TR/WCAG22/#contrast-minimum
 1.4.4,AA,Resize Text,Vérifié HTML,Contrôles français et anglais couverts par les critères RGAA indiqués et les essais du navigateur.,10.4,https://www.w3.org/TR/WCAG22/#resize-text
 1.4.5,AA,Images of Text,SO,Le contenu ou la fonctionnalité visés sont absents du site.,1.8,https://www.w3.org/TR/WCAG22/#images-of-text
-1.4.6,AAA,Contrast (Enhanced),Écart,Mesures de contraste des textes et des figures dans les thèmes proposés. Se référer à la synthèse de la déclaration pour le dernier rendu.,,https://www.w3.org/TR/WCAG22/#contrast-enhanced
+1.4.6,AAA,Contrast (Enhanced),Vérifié HTML,Mesures de contraste des textes et des figures dans les thèmes proposés. Se référer à la synthèse de la déclaration pour le dernier rendu.,,https://www.w3.org/TR/WCAG22/#contrast-enhanced
 1.4.7,AAA,Low or No Background Audio,SO,"Aucun contenu audio, vidéo ou diffusé en direct dans les 29 pages.",,https://www.w3.org/TR/WCAG22/#low-or-no-background-audio
 1.4.8,AAA,Visual Presentation,À compléter,Couleurs et espacements réglables. La présentation de tous les blocs de texte selon toutes les conditions du critère étendu reste à établir.,,https://www.w3.org/TR/WCAG22/#visual-presentation
 1.4.9,AAA,Images of Text (No Exception),À compléter,Les figures gardent leurs libellés et données. Le caractère indispensable de chaque texte incorporé dans les illustrations externes n’est pas établi.,,https://www.w3.org/TR/WCAG22/#images-of-text-no-exception

@@ -30,7 +30,11 @@ function instrument() {
   async function run(command) {
     const { action, selector, value } = command;
     const node = selector && query(selector);
-    if (action === 'focus') { node.focus(); return state(selector); }
+    if (action === 'focus') {
+      if (!node) throw Error(`No control matching ${selector}`);
+      node.scrollIntoView({ block: 'center' });node.focus({preventScroll:true});
+      return state(selector);
+    }
     if (action === 'state') return state(selector);
     if (action === 'select') {
       node.value = value;
@@ -125,16 +129,35 @@ async function navigate(file,narrow=false) {
   execFileSync('/usr/bin/open', ['-a','Safari', origin + (narrow ? '/__vo/narrow?vo=' : '/'+file+'?vo=')+current.id]);
   const info=await action('ready'); await delay(450); return info;
 }
-async function capture(fn) { return (await vo.capture(async()=>{await fn(); await delay(400);},{capture:true})).spokenPhrase || ''; }
-async function key(stroke) { await vo.press(stroke,{capture:true}); return await vo.lastSpokenPhrase() || ''; }
-async function speak(command) { await vo.perform(vo.keyboardCommands[command],{capture:true}); return (await vo.lastSpokenPhrase()) || ''; }
+// VoiceOver's capture waits for speech. A stuck command ends this run; do
+// not dispatch another command in parallel with the system screen reader.
+let readerTimeout=false;
+async function bounded(task,name,ms=35000) {
+  let timeout;
+  try { return await Promise.race([task,new Promise((_,reject)=>{timeout=setTimeout(()=>{readerTimeout=true;reject(Error('VoiceOver timeout: '+name));},ms);})]); }
+  finally { clearTimeout(timeout); }
+}
+async function capture(fn) { return (await bounded(vo.capture(async()=>{await fn(); await delay(400);},{capture:true}),'capture')).spokenPhrase || ''; }
+async function key(stroke) {
+  // VO-Space is the documented default action on a web control. A bare Return
+  // can be consumed by Safari rather than invoking the item at the VO cursor.
+  if(stroke==='Enter'||stroke==='Space') {
+    await bounded(vo.perform(vo.keyboardCommands.moveCursorToKeyboardFocus,{capture:false}),'synchronise keyboard focus');
+    await bounded(vo.act({capture:true}),'VO-Space');
+  } else {await bounded(vo.press(stroke,{capture:true}),stroke);}
+  return await vo.lastSpokenPhrase() || '';
+}
+async function speak(command) { await bounded(vo.perform(vo.keyboardCommands[command],{capture:true}),command); return (await vo.lastSpokenPhrase()) || ''; }
 async function focus(selector) {
-  const spoken = await capture(()=>action('focus',selector));
+  let currentState;
+  const spoken = await capture(async()=>{currentState=await action('focus',selector);});
+  if(!currentState.focused) throw Error('Safari keyboard focus did not reach '+selector);
   const currentFocus = await speak('describeItemWithKeyboardFocus');
   return [spoken,currentFocus].filter(Boolean).join(' | ');
 }
 async function state(selector) { return action('state',selector); }
 async function checkPage(file,name,run,narrow=false) {
+  if (readerTimeout) throw Error('Stopped after VoiceOver command timeout');
   const row={file,name,checks:[]}; report.scenarios.push(row);
   function check(label,speech,patterns,observed=true,evidence) {
     const matches = patterns.every(re=>re.test(normalized(speech)));
@@ -148,16 +171,17 @@ async function checkPage(file,name,run,narrow=false) {
 async function audit(en) {
   const prefix=en?'en/':''; const home=prefix+'index.html'; const pubs=prefix+'publications.html';
   await checkPage(home,'Headings and links',async check=>{
-    await action('focus','main'); await vo.nextHeading({capture:true});
+    await action('focus','main'); await bounded(vo.nextHeading({capture:true}),'next heading');
     check('First heading',await vo.lastSpokenPhrase(),[/anis rojbi/,/heading|titre/]);
-    await vo.nextLink({capture:true}); check('Next link',await vo.lastSpokenPhrase(),[/link|lien/]);
+    await bounded(vo.nextLink({capture:true}),'next link'); check('Next link',await vo.lastSpokenPhrase(),[/link|lien/]);
   });
   await checkPage(home,'Small menu and reading preferences',async check=>{
     const menu='.mobile-menu-toggle'; const reading='.reading-tools > summary';
     check('Menu name, button and collapsed state',await focus(menu),[/menu/,/button|bouton/,/collapsed|repli|ferm|reduit/],(await state(menu)).expanded==='false');
     const open=await key('Enter');
     check('Expanded menu state',[open,await speak('describeItemWithKeyboardFocus')].join(' | '),[/expanded|develop|ouvert/],(await state(menu)).expanded==='true');
-    check('First mobile navigation link',await key('Tab'),[en?/home/:/accueil/,/link|lien/],(await state('.mobile-panel a')).focused);
+    await bounded(vo.nextLink({capture:true}),'next link in expanded menu');
+    check('Read first expanded mobile navigation link',await vo.lastSpokenPhrase(),[en?/home/:/accueil/,/link|lien/],(await state('.mobile-panel a')).visible);
     const close=await key('Escape'); check('Escape restores menu focus',[close,await speak('describeItemWithKeyboardFocus')].join(' | '),[/menu/],(await state(menu)).focused&&(await state(menu)).expanded==='false');
     check('Reading preferences',await focus(reading),[en?/reading preferences/:/confort de lecture/]);
     await key('Enter'); const box='#reading-space'; check('Spacing checkbox',await focus(box),[/check|case/,/spacing|espacements|espace/]);
@@ -166,7 +190,9 @@ async function audit(en) {
   },true);
   await checkPage(home,'Granularity demonstration',async check=>{
     const summary='#granularity-demo > summary'; check('Disclosure title',await focus(summary),[/detail|granul/]);
-    await key('Enter'); await speak('moveCursorToKeyboardFocus');
+    await key('Enter');
+    if (!(await state('#granularity-demo')).open) throw Error('VoiceOver default action did not open the demonstration');
+    await speak('moveCursorToKeyboardFocus');
     const graphic=await speak('findNextGraphic'); const more=await speak('hearItemDescription');
     const desc=[graphic,more,await speak('describeItem')].join(' | ');
     check('Title of the displayed graphic',desc,[en?/synthetic house image/:/image synthetique de maison/],(await state('.granularity-image')).visible);
@@ -215,7 +241,7 @@ async function audit(en) {
       await audit(language === 'en');
     }
   } catch(error) {report.error=error.stack;} finally {
-    if(started) await vo.stop().catch(error=>report.stopError=error.message);
+    if(started) await bounded(vo.stop(),'VoiceOver shutdown',15000).catch(error=>report.stopError=error.message);
     server?.closeAllConnections();server?.close();
     const checks=report.scenarios.flatMap(s=>s.checks); report.total=checks.length;report.passed=checks.filter(c=>c.passed).length;
     report.complete=report.scenarios.length===6*languages.length&&!report.error&&report.scenarios.every(s=>!s.error);

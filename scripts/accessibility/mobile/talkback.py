@@ -1,5 +1,6 @@
 """Sample spoken output of the real Google TalkBack service on a fresh Android device."""
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -15,15 +16,26 @@ OUT.mkdir(exist_ok=True,parents=True)
 BASE = 'http://127.0.0.1:8941/'
 APP = 'com.google.android.marvin.talkback'
 CHROME = 'com.android.chrome'
-report = {'environment':{},'checks':[],'details':[],'recordings':[]}
+report = {'commit':os.environ.get('GITHUB_SHA'),'environment':{},'checks':[],'details':[],'recordings':[]}
 recording_start=None
+def save():
+    (OUT/'speech.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
 def run(*args, timeout=25, check=True):
     p=subprocess.run([str(a) for a in args],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout,check=False)
     if check and p.returncode:
         raise RuntimeError(f'{args[0]} exited {p.returncode}: {p.stdout[-400:]}')
     return p.stdout.strip()
 def adb(*args,**kwargs):
-    return run('adb',*args,**kwargs)
+    try:
+        return run('adb',*args,**kwargs)
+    except RuntimeError as error:
+        # adb reports an offline device before it forwards a command to Android.
+        if not any(e in str(error).lower() for e in ('device offline','no devices/emulators found')):
+            raise
+        run('adb','reconnect','offline',timeout=10,check=False)
+        run('adb','wait-for-device',timeout=30)
+        run('adb','reverse','tcp:8941','tcp:8941')
+        return run('adb',*args,**kwargs)
 def sh(*args,**kwargs):
     return adb('shell',*args,**kwargs)
 def compact(s):
@@ -141,6 +153,7 @@ def sample(label,action,expected,verify=None,one_of=()):
     verified=verify() if verify else None
     passed=matches(corpus) and verified is not False
     report['checks'].append({'sample':label,'passed':passed,'requiredWords':required,'oneOf':one_of,'talkback':utterances,'observation':result,'controlStateVerified':verified,'recordingOffsetSeconds':offset})
+    save()
     print(('PASS ' if passed else 'REVIEW ')+label+': '+str(utterances)[-500:],flush=True)
     return passed
 def xy(selector,adjust=0):
@@ -228,6 +241,7 @@ def attempt(group,test):
 
 try:
     environment()
+    save()
     for en in [False,True]:
         attempt('Main controls '+str(en),lambda:journey(en))
         attempt('House demonstration '+str(en),lambda:tapdemo(en))
@@ -235,7 +249,7 @@ except Exception as err:
     report['details'].append({'group':'Android setup','error':str(err),'trace':traceback.format_exc()[-1000:]})
 finally:
     report['summary']={'recorded':len(report['checks']),'passed':sum(x['passed'] for x in report['checks']),'details':len(report['details'])}
-    (OUT/'speech.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+    save()
     print(json.dumps(report['summary']),report['details'],flush=True)
 if not report['checks'] or report['summary']['passed']!=len(report['checks']) or report['details']:
     raise SystemExit(1)
