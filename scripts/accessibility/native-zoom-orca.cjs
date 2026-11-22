@@ -100,14 +100,18 @@ async function checkOrca(page, temporary) {
       const labelText = field => field.evaluate(el => el.labels[0].innerText.replace(/\s+/g, ' ').trim());
       try {
         const nameText = await labelText(name), emailText = await labelText(email);
-        // Give the AT-SPI document-load event time to reach Orca before input.
-        await delay(700);
+        // The click positions the browser's keyboard focus. Screen readers may
+        // choose not to speak a mouse click, especially in browse mode. Use
+        // physical key events to visit both labels, forwards and backwards.
+        await delay(1700);
         await name.click();
         await waitFor(() => name.evaluate(el => document.activeElement === el), `${file}: name did not receive input focus`);
-        await delay(1000);
-        key('Tab');
-        await waitFor(() => email.evaluate(el => document.activeElement === el), `${file}: Tab did not reach the email field`);
-        await delay(1000);
+        for (const [stroke, field] of [['Tab', email], ['shift+Tab', name], ['Tab', email]]) {
+          await delay(1000);
+          key(stroke);
+          await waitFor(() => field.evaluate(el => document.activeElement === el), `${file}: ${stroke} did not reach the expected input`);
+        }
+        await delay(1300);
         journeys.push({ file, nameText, emailText });
       } catch (error) { report.errors.push(`Orca: ${error.message}`); }
     }
@@ -123,7 +127,7 @@ async function checkOrca(page, temporary) {
       const first = lines.findIndex(line => hasLabel(line, nameText));
       const second = lines.findIndex((line, i) => i > first && hasLabel(line, emailText));
       const passed = first >= 0 && second > first;
-      report.speech.push({ file, action: 'Focus on name, physical Tab to email',
+      report.speech.push({ file, action: 'Physical Tab to email, Shift+Tab to name, Tab back to email',
         nameUtterance: first >= 0 ? utterance(lines[first]) : null,
         emailUtterance: second >= 0 ? utterance(lines[second]) : null, passed });
       if (!passed) report.errors.push(`Orca: ${file} did not speak both field labels in order`);
