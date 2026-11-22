@@ -14,7 +14,7 @@ INK, ACCENT, PAPER = '#172b3a', '#315b60', '#faf9f6'
 class Figure:
     def __init__(self, name, lang, title, desc, width, height):
         self.name, self.lang = name, lang
-        self.parts = [f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title description" xml:lang="{lang}" lang="{lang}">
+        self.parts = [f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title" aria-describedby="description" xml:lang="{lang}" lang="{lang}">
 <title id="title">{escape(title)}</title><desc id="description">{escape(desc)}</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="{ACCENT}"/></marker></defs>
 <rect width="100%" height="100%" fill="{PAPER}"/>
@@ -74,11 +74,11 @@ def make(lang):
     f.text(32,635,t('Les flèches en pointillés désignent les extensions du cas d’utilisation.','Dashed arrows denote use-case extensions.'),size=18,anchor='start')
     f.save()
 
-    f=Figure('granularity-mechanisms',lang,t('Mécanismes multi-granulaires','Multi-granularity mechanisms'),t('La représentation multi-granulaire permet l’optimisation du niveau, la conversion entre niveaux et la résolution conjointe mobilisant tous les niveaux.','Multi-granular representation supports level optimisation, conversion between levels and joint problem solving using every level.'),1100,620)
+    f=Figure('granularity-mechanisms',lang,t('Mécanismes multi-granulaires','Multi-granularity mechanisms'),t('Trois mécanismes du calcul granulaire sont représentés. On peut choisir un niveau de détail, en changer ou résoudre un problème en combinant tous les niveaux de représentation.','The diagram shows three granular computing mechanisms. A level of detail can be selected, changed or combined with all other levels to solve a problem.'),1100,620)
     f.text(32,38,t('03 / MÉCANISMES DE GRANULARITÉ','03 / GRANULARITY MECHANISMS'),size=18,anchor='start',weight='bold')
     f.line('M 295 305 L 337 305 L 337 147 L 380 147');f.line('M 337 305 L 380 305');f.line('M 337 305 L 337 477 L 380 477')
-    f.box(25,247,270,116,t(['Représentation','multi-granulaire'],['Multi-granular','representation']),True)
-    rows=[(93,t(['Optimisation','de la granularité'],['Granularity','optimisation']),t(['Choisir le niveau','le plus adapté'],['Choose the most','suitable level'])),(247,t(['Conversion','de granularité'],['Granularity','conversion']),t(['Passer entre niveaux voisins','ou à un niveau supérieur','ou inférieur'],['Switch between adjacent levels','or jump to a higher','or lower level'])),(421,t(['Résolution conjointe','multi-granulaire'],['Joint multi-granularity','problem solving']),t(['Mobiliser tous','les niveaux'],['Use every','level']))]
+    f.box(25,247,270,116,t(['Mécanismes du','calcul granulaire'],['Granular computing','mechanisms']),True)
+    rows=[(93,t(['Optimisation','de la granularité'],['Granularity','optimisation']),t(['Choisir le niveau','le plus adapté'],['Choose the most','suitable level'])),(247,t(['Conversion','de granularité'],['Granularity','conversion']),t(['Passer entre niveaux voisins','ou à un niveau supérieur','ou inférieur'],['Switch between adjacent levels','or jump to a higher','or lower level'])),(421,t(['Résolution conjointe','multi-granulaire'],['Joint multi-granularity','problem solving']),t(['Représenter à plusieurs','niveaux et les utiliser','ensemble'],['Represent at multiple','levels and use them','together']))]
     for y,a,b in rows:
         f.box(380,y,300,112,a);f.line(f'M 680 {y+56} L 725 {y+56}');f.box(725,y,350,112,b,size=20)
     f.save()
@@ -92,14 +92,18 @@ def make(lang):
     f.box(530,418,435,104,t(['Résolution structurée','des problèmes'],['Structured','problem solving']))
     f.save()
 
-    f=Figure('fatigue-multimodal',lang,t('Analyse multimodale de la fatigue','Multimodal fatigue analysis'),t('Les expressions faciales, mouvements oculaires et autres indices visuels sont analysés par vision par ordinateur. Les données de fréquence cardiaque, pression artérielle et saturation en oxygène apportent des indicateurs complémentaires au modèle d’apprentissage automatique pour étudier la fatigue chez les personnes âgées.','Computer vision analyses facial expressions, eye movements and other visual cues. Heart rate, blood pressure and oxygen saturation provide complementary indicators to the machine learning model for studying fatigue in older adults.'),1100,620)
+    f = Figure('fatigue-multimodal', lang,
+               t('Approche exploratoire de la fatigue', 'An exploratory approach to fatigue'),
+               t('Le modèle proposé combinerait des indices du visage et des yeux avec des mesures de fréquence cardiaque, de pression artérielle et de saturation en oxygène. Cette combinaison reste à évaluer.',
+                 'The proposed model would combine facial and eye cues with heart rate, blood pressure and oxygen saturation. This combination still needs to be evaluated.'),
+               1100, 620)
     f.text(32,38,t('05 / SOURCES COMPLÉMENTAIRES POUR L’ANALYSE','05 / COMPLEMENTARY SOURCES FOR ANALYSIS'),size=18,anchor='start',weight='bold')
     f.line('M 462 179 L 600 179 L 600 325 L 735 325');f.line('M 462 438 L 600 438 L 600 325',False);f.line('M 890 376 L 890 490')
     f.box(30,91,432,181,t(['Vision par ordinateur','Expressions faciales','Mouvements oculaires','Autres indices visuels'],['Computer vision','Facial expressions','Eye movements','Other visual cues']))
     f.box(30,345,432,184,t(['Mesures physiologiques','Fréquence cardiaque','Pression artérielle','Saturation en oxygène'],['Physiological measures','Heart rate','Blood pressure','Oxygen saturation']))
     f.box(735,264,335,112,t(['Modèle d’apprentissage','automatique'],['Machine learning','model']),True)
-    f.box(735,490,335,95,t(['Analyse de la fatigue','chez les personnes âgées'],['Fatigue analysis','in older adults']),size=21)
-    f.text(32,604,t('Synthèse du texte de la diapositive 4 ; aucun résultat expérimental n’est représenté.','Synthesis of slide 4’s text; no experimental result is depicted.'),size=17,anchor='start')
+    f.box(735,490,335,95,t(['Analyse','de la fatigue'],['Fatigue','analysis']),size=21)
+    f.text(32,604,t('Approche proposée en séminaire. La combinaison des mesures reste à évaluer.','Approach proposed in a seminar. Experimental evaluation is still needed.'),size=17,anchor='start')
     f.save()
 
 if __name__=='__main__':

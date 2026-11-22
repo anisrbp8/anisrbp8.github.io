@@ -65,6 +65,7 @@ async function checkZoom(page) {
 
 function readLog(log) { return fs.existsSync(log) ? fs.readFileSync(log, 'utf8') : ''; }
 function speechLines(text) { return text.split('\n').filter(line => line.includes('SPEECH OUTPUT:')); }
+function utterance(line) { return line.split('SPEECH OUTPUT:')[1].split(' {')[0].trim(); }
 
 async function checkOrca(page, temporary) {
   const log = path.join(temporary, 'orca.log');
@@ -91,15 +92,21 @@ async function checkOrca(page, temporary) {
       const name = form.locator('input[name="name"]');
       const email = form.locator('input[name="email"]');
       const en = file.startsWith('en/');
-      const start = fs.statSync(log).size;
-      await name.focus();
-      const since = offset => { const b = fs.readFileSync(log); return b.subarray(offset).toString('utf8'); };
-      const first = await waitFor(() => speechLines(since(start)).find(line => en ? /\bname\b/i.test(line) : /\bnom\b|prénom/i.test(line)), `${file}: no spoken name-field label`);
-      const next = fs.statSync(log).size;
-      key('Tab');
-      await waitFor(() => email.evaluate(el => document.activeElement === el), `${file}: Tab did not reach the email field`);
-      const second = await waitFor(() => speechLines(since(next)).find(line => /mail|courriel|lectronique/i.test(line)), `${file}: no spoken email-field label`);
-      report.speech.push({ file, action: 'Focus on name, physical Tab to email', nameUtterance: first.trim(), emailUtterance: second.trim(), passed: true });
+      try {
+        const since = offset => fs.readFileSync(log).subarray(offset).toString('utf8');
+        const start = fs.statSync(log).size;
+        await name.focus();
+        const first = await waitFor(() => speechLines(since(start)).find(line => en ? /\bname\b/i.test(utterance(line)) : /\bnom\b|prénom/i.test(utterance(line))), `${file}: no spoken name-field label`);
+        // Let Orca finish its change to forms mode before sending a physical Tab.
+        await delay(650);
+        const next = fs.statSync(log).size;
+        key('Tab');
+        await waitFor(() => email.evaluate(el => document.activeElement === el), `${file}: Tab did not reach the email field`);
+        const second = await waitFor(() => speechLines(since(next)).find(line => /mail|courriel|lectronique/i.test(utterance(line))), `${file}: no spoken email-field label`);
+        report.speech.push({ file, action: 'Focus on name, physical Tab to email', nameUtterance: first.trim(), emailUtterance: second.trim(), passed: true });
+      } catch (error) {
+        report.errors.push(`Orca: ${error.message}`);
+      }
     }
     await waitFor(() => voicedSamples > 1000, 'No synthesised speech signal was recorded at the monitor');
   } finally {
@@ -118,7 +125,12 @@ async function checkOrca(page, temporary) {
   try {
     if (!process.env.BASE_URL) server = spawn('python3', ['-m', 'http.server', '8884', '--bind', '127.0.0.1', '--directory', root], { stdio: 'ignore' });
     await waitFor(async () => { try { return (await fetch(`${base}/index.html`)).ok; } catch { return false; } }, 'Test site unavailable');
-    context = await chromium.launchPersistentContext(path.join(temporary, 'profile'), {
+    // A translation offer from the browser can take over Orca's presentation of a French page.
+    // Configure only this disposable test profile so it presents the original language.
+    const profile = path.join(temporary, 'profile');
+    fs.mkdirSync(path.join(profile, 'Default'), { recursive: true });
+    fs.writeFileSync(path.join(profile, 'Default', 'Preferences'), JSON.stringify({ translate: { enabled: false } }));
+    context = await chromium.launchPersistentContext(profile, {
       headless: false, viewport: null, ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
       args: ['--window-size=1280,920', '--window-position=0,0', '--force-renderer-accessibility=complete']
     });

@@ -12,7 +12,7 @@ const report={date:new Date().toISOString(),tools:{axe:require('axe-core').versi
  try {
   for(let i=0;i<30;i++){try{await fetch('http://127.0.0.1:8877/');break;}catch{await new Promise(r=>setTimeout(r,200));}}
   browser=await chromium.launch(process.env.CHROMIUM_EXECUTABLE_PATH ? {executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox']} : {});
-  for(const width of [1280,320]){
+  for(const width of [1280,768,390,320]){
    const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
    for(const file of paths){
     const errors=[];const handler=e=>errors.push(e.message);page.on('pageerror',handler);
@@ -20,6 +20,11 @@ const report={date:new Date().toISOString(),tools:{axe:require('axe-core').versi
     await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
     const axe=await page.evaluate(async()=>{const r=await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa','wcag2aaa','best-practice']},rules:{'color-contrast-enhanced':{enabled:true},'target-size':{enabled:true}}});const simplify=x=>({id:x.id,impact:x.impact,description:x.description,help:x.help,helpUrl:x.helpUrl,nodes:x.nodes.map(n=>({target:n.target,html:n.html,summary:n.failureSummary,any:n.any.map(c=>({id:c.id,data:c.data,message:c.message}))}))});return {violations:r.violations.map(simplify),incomplete:r.incomplete.map(simplify),passes:r.passes.length};});
     const overflow=await page.evaluate(()=>({page:document.documentElement.scrollWidth>innerWidth+1,elements:[...document.querySelectorAll('main *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&r.right>innerWidth+1&&!e.closest('.table-wrap')}).slice(0,8).map(e=>({tag:e.tagName,class:e.className,text:e.textContent.slice(0,80)}))}));
+    if (width === 1280 || width === 390) {
+      const directory = path.join(out, 'page-previews', String(width));
+      fs.mkdirSync(directory, {recursive: true});
+      await page.screenshot({path: path.join(directory, file.replace('/', '-').replace('.html', '.png'))});
+    }
     await page.addStyleTag({content:'* {line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important} p {margin-bottom:2em!important}'});
     const textSpacingOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1);
     const item={file,width,...axe,overflow,textSpacingOverflow,errors};report.checks.push(item);

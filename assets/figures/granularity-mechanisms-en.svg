@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620" role="img" aria-labelledby="title description" xml:lang="en" lang="en">
-<title id="title">Multi-granularity mechanisms</title><desc id="description">Multi-granular representation supports level optimisation, conversion between levels and joint problem solving using every level.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620" role="img" aria-labelledby="title" aria-describedby="description" xml:lang="en" lang="en">
+<title id="title">Multi-granularity mechanisms</title><desc id="description">The diagram shows three granular computing mechanisms. A level of detail can be selected, changed or combined with all other levels to solve a problem.</desc>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#315b60"/></marker></defs>
 <rect width="100%" height="100%" fill="#faf9f6"/>
 <g font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#172b3a">
@@ -11,8 +11,8 @@
 <path d="M 337 305 L 337 477 L 380 477" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
 <rect x="25" y="247" width="270" height="116" rx="3" fill="#172b3a" stroke="#315b60" stroke-width="2"/>
 <text x="160.0" y="297.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#ffffff">
-<tspan x="160.0" dy="0">Multi-granular</tspan>
-<tspan x="160.0" dy="29.700000000000003">representation</tspan>
+<tspan x="160.0" dy="0">Granular computing</tspan>
+<tspan x="160.0" dy="29.700000000000003">mechanisms</tspan>
 </text>
 <rect x="380" y="93" width="300" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
 <text x="530.0" y="141.63" text-anchor="middle" font-size="22" font-weight="normal" fill="#172b3a">
@@ -44,8 +44,9 @@
 </text>
 <path d="M 680 477 L 725 477" fill="none" stroke="#315b60" stroke-width="2.5" marker-end="url(#arrow)"/>
 <rect x="725" y="421" width="350" height="112" rx="3" fill="#eef2ef" stroke="#315b60" stroke-width="2"/>
-<text x="900.0" y="470.3" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
-<tspan x="900.0" dy="0">Use every</tspan>
-<tspan x="900.0" dy="27.0">level</tspan>
+<text x="900.0" y="456.8" text-anchor="middle" font-size="20" font-weight="normal" fill="#172b3a">
+<tspan x="900.0" dy="0">Represent at multiple</tspan>
+<tspan x="900.0" dy="27.0">levels and use them</tspan>
+<tspan x="900.0" dy="27.0">together</tspan>
 </text>
 </g></svg>
