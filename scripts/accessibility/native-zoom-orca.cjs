@@ -1,0 +1,140 @@
+// Run inside a private X11/D-Bus session. No form is submitted.
+const { chromium } = require('playwright');
+const { execFileSync, spawn } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const root = path.resolve(__dirname, '../..');
+const output = path.join(root, 'test-output', 'native-access');
+const base = process.env.BASE_URL || 'http://127.0.0.1:8884';
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const run = (cmd, ...args) => execFileSync(cmd, args, { encoding: 'utf8', timeout: 15000 }).trim();
+const key = sequence => run('xdotool', 'key', '--clearmodifiers', sequence);
+const files = ['', 'en/'].flatMap(dir => fs.readdirSync(path.join(root, dir)).filter(file => file.endsWith('.html')).sort().map(file => dir + file));
+const report = { date: new Date().toISOString(), zoom: [], speech: [], errors: [] };
+let context, server, orca, recorder;
+
+async function waitFor(test, description, timeout = 10000) {
+  const deadline = Date.now() + timeout;
+  do {
+    const value = await test();
+    if (value) return value;
+    await delay(100);
+  } while (Date.now() < deadline);
+  throw new Error(description);
+}
+
+function focusBrowserWindow() {
+  // A window manager is not required under Xvfb; focus the actual X11 window.
+  const ids = run('xdotool', 'search', '--onlyvisible', '--name', 'Anis Rojbi').split('\n');
+  run('xdotool', 'windowfocus', '--sync', ids.at(-1));
+}
+
+async function checkZoom(page) {
+  await page.goto(`${base}/index.html`);
+  focusBrowserWindow();
+  key('ctrl+0');
+  const baseline = await page.evaluate(() => ({ dpr: devicePixelRatio, viewport: innerWidth }));
+  report.baseline = baseline;
+  for (const factor of [2, 4]) {
+    for (let step = 0; step < 10; step++) {
+      const actual = await page.evaluate(() => devicePixelRatio);
+      if (Math.abs(actual / baseline.dpr - factor) < .015) break;
+      key('ctrl+equal');
+      await delay(220);
+    }
+    for (const file of files) {
+      await page.goto(`${base}/${file}`, { waitUntil: 'load' });
+      const measured = await page.evaluate(() => ({
+        dpr: devicePixelRatio, viewport: innerWidth, height: innerHeight,
+        documentWidth: document.documentElement.scrollWidth,
+        contentWidth: document.documentElement.clientWidth,
+        h1: document.querySelector('h1')?.innerText.trim()
+      }));
+      const nativeFactor = measured.dpr / baseline.dpr;
+      const passed = Math.abs(nativeFactor - factor) < .015 &&
+        Math.abs(measured.viewport * nativeFactor - baseline.viewport) <= 5 &&
+        measured.documentWidth <= measured.contentWidth + 1 && Boolean(measured.h1);
+      report.zoom.push({ file, factor, actual: nativeFactor, ...measured, passed });
+      if (!passed) report.errors.push(`${file}: native zoom ${factor}×, ${JSON.stringify(measured)}`);
+    }
+  }
+  key('ctrl+0');
+  await waitFor(async () => Math.abs((await page.evaluate(() => devicePixelRatio)) - baseline.dpr) < .01, 'Browser zoom was not reset');
+}
+
+function readLog(log) { return fs.existsSync(log) ? fs.readFileSync(log, 'utf8') : ''; }
+function speechLines(text) { return text.split('\n').filter(line => line.includes('SPEECH OUTPUT:')); }
+
+async function checkOrca(page, temporary) {
+  const log = path.join(temporary, 'orca.log');
+  // Retain only the actual speech utterances and the test result in the artifact.
+  // The full application debug log is transient in this isolated session.
+  let peak = 0, voicedSamples = 0;
+  recorder = spawn('parec', ['--raw', '--format=s16le', '--channels=1', '--rate=16000', '--device=review_output.monitor']);
+  recorder.stdout.on('data', bytes => {
+    for (let i = 0; i + 1 < bytes.length; i += 2) {
+      const amplitude = Math.abs(bytes.readInt16LE(i));
+      if (amplitude > 100) voicedSamples++;
+      if (amplitude > peak) peak = amplitude;
+    }
+  });
+  report.screenReader = run('orca', '--version');
+  orca = spawn('orca', ['--replace', '--enable=speech', '--disable=braille', '--debug', '--debug-file', log], { env: { ...process.env, PYTHONUNBUFFERED: '1' }, stdio: 'ignore' });
+  try {
+    await waitFor(() => /Using speech server factory.*speechdispatcher/i.test(readLog(log)), 'Orca did not initialise its Speech Dispatcher backend', 25000);
+    for (const file of ['contact.html', 'en/contact.html']) {
+      await page.goto(`${base}/${file}`);
+      await page.bringToFront();
+      focusBrowserWindow();
+      const form = page.locator('form[data-contact-form]');
+      const name = form.locator('input[name="name"]');
+      const email = form.locator('input[name="email"]');
+      const en = file.startsWith('en/');
+      const start = fs.statSync(log).size;
+      await name.focus();
+      const since = offset => { const b = fs.readFileSync(log); return b.subarray(offset).toString('utf8'); };
+      const first = await waitFor(() => speechLines(since(start)).find(line => en ? /\bname\b/i.test(line) : /\bnom\b|prénom/i.test(line)), `${file}: no spoken name-field label`);
+      const next = fs.statSync(log).size;
+      key('Tab');
+      await waitFor(() => email.evaluate(el => document.activeElement === el), `${file}: Tab did not reach the email field`);
+      const second = await waitFor(() => speechLines(since(next)).find(line => /mail|courriel|lectronique/i.test(line)), `${file}: no spoken email-field label`);
+      report.speech.push({ file, action: 'Focus on name, physical Tab to email', nameUtterance: first.trim(), emailUtterance: second.trim(), passed: true });
+    }
+    await waitFor(() => voicedSamples > 1000, 'No synthesised speech signal was recorded at the monitor');
+  } finally {
+    report.audio = { source: 'isolated PulseAudio sink monitor', sampleRateHz: 16000, peak, samplesOver100: voicedSamples };
+    const logText = readLog(log);
+    fs.writeFileSync(path.join(output, 'orca-speech.txt'), speechLines(logText).slice(-160).join('\n') + '\n');
+    report.speechBackend = logText.split('\n').find(line => /Using speech server factory/i.test(line))?.trim() || null;
+    recorder?.kill();
+    orca?.kill();
+  }
+}
+
+(async () => {
+  fs.mkdirSync(output, { recursive: true });
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'academic-native-access-'));
+  try {
+    if (!process.env.BASE_URL) server = spawn('python3', ['-m', 'http.server', '8884', '--bind', '127.0.0.1', '--directory', root], { stdio: 'ignore' });
+    await waitFor(async () => { try { return (await fetch(`${base}/index.html`)).ok; } catch { return false; } }, 'Test site unavailable');
+    context = await chromium.launchPersistentContext(path.join(temporary, 'profile'), {
+      headless: false, viewport: null, ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
+      args: ['--window-size=1280,920', '--window-position=0,0', '--force-renderer-accessibility=complete']
+    });
+    const page = context.pages()[0];
+    await page.route('https://formspree.io/**', route => route.abort());
+    report.browser = context.browser()?.version() || await page.evaluate(() => navigator.userAgent);
+    for (const [part, test] of [['zoom', () => checkZoom(page)], ['screen reader', () => checkOrca(page, temporary)]]) {
+      try { await test(); } catch (error) { report.errors.push(`${part}: ${error.message}`); }
+    }
+  } catch (error) { report.errors.push(error.stack); }
+  finally {
+    await context?.close(); server?.kill(); orca?.kill(); recorder?.kill();
+    fs.rmSync(temporary, { recursive: true, force: true });
+    report.passed = report.zoom.length === files.length * 2 && report.speech.length === 2 && !report.errors.length;
+    fs.writeFileSync(path.join(output, 'results.json'), JSON.stringify(report, null, 2) + '\n');
+    console.log(JSON.stringify({ zoomChecks: report.zoom.filter(x => x.passed).length, orcaChecks: report.speech.length, audio: report.audio, errors: report.errors }, null, 2));
+    if (!report.passed) process.exitCode = 1;
+  }
+})();
