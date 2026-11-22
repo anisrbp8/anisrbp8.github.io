@@ -82,8 +82,17 @@ async function auditLanguage(en) {
   await scenario(home, 'Reading headings and links in browse mode', async record => {
     await openPage(home);
     await nvda.nextHeading({ capture: true });
-    const title = await nvda.lastSpokenPhrase();
-    record('Read the page heading with H', title, true, text => words(text, 'Anis Rojbi') && /titre|heading/.test(normalize(text)));
+    const firstSpeech = await nvda.lastSpokenPhrase();
+    let title = firstSpeech;
+    // With an edit field on the preceding page, Firefox sometimes retains
+    // NVDA's focus mode across a navigation. A literal H is keyboard echo.
+    if (normalize(firstSpeech) === 'h') {
+      await nvda.perform(commands.toggleBetweenBrowseAndFocusMode, {capture:false});
+      await nvda.press('Control+Home', {capture:false});
+      await nvda.nextHeading({capture:true});
+      title = await nvda.lastSpokenPhrase();
+    }
+    record('Read the page heading with H', title, true, text => words(text, 'Anis Rojbi') && /titre|heading/.test(normalize(text)), { firstSpeech, switchedFromKeyboardEcho: normalize(firstSpeech)==='h' });
     await nvda.nextLink({ capture: true });
     const link = await nvda.lastSpokenPhrase();
     record('Read the next link with K', link, true, /lien|link/);

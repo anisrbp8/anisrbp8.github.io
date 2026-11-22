@@ -68,23 +68,53 @@ def ui_tap(labels,attempts=4,must=True):
         if attempts>1 and i < attempts-1:sh('input','swipe',WIDTH//2,int(.77*HEIGHT),WIDTH//2,int(.32*HEIGHT),350)
     if must:raise RuntimeError('Android preferences did not show '+repr(labels)+'. Visible: '+repr([n.get('text') for n in nodes if n.get('text')][:35]))
 def verify_chrome():
+    import urllib.request
+    labels={'use without an account','continue without an account','accept & continue','accept and continue','no thanks','no, thanks','got it','skip','continue','not now','wait'}
     report['environment']['initialChromeScreens']=[]
-    sh('am','start','-a','android.intent.action.VIEW','-d',BASE+'contact.html',CHROME);time.sleep(1.2)
-    for _ in range(4):
-        nodes=ui_nodes()
-        report['environment']['initialChromeScreens'].append([n.get('text') for n in nodes if n.get('text')][:22])
-        if any(n.get('class')=='android.webkit.WebView' and n.get('package')==CHROME for n in nodes):break
-        labels={'use without an account','continue without an account','accept & continue','accept and continue','no thanks','no, thanks','use without an account','got it','skip','continue','not now'}
-        if not ui_tap(labels,1,False):break
-        time.sleep(1.2)
+    sh('input','keyevent','KEYCODE_WAKEUP')
+    sh('wm','dismiss-keyguard')
+    # Chromium documents --disable-fre for tests on new Android profiles. This
+    # only skips Chrome's welcome/promo screen on this account-free test phone.
+    sh('am','set-debug-app','--persistent',CHROME)
+    sh("echo 'chrome --disable-fre --no-first-run --no-default-browser-check --disable-search-engine-choice-screen' > /data/local/tmp/chrome-command-line")
+    sh('am','force-stop',CHROME)
+    report['environment']['chromeLaunch']=sh('am','start','-W','-a','android.intent.action.VIEW','-d',BASE+'contact.html',CHROME,timeout=45)
     adb('forward','tcp:9223','localabstract:chrome_devtools_remote')
+    deadline=time.monotonic()+110
+    pages=[]
+    while time.monotonic()<deadline:
+        try:
+            with urllib.request.urlopen('http://127.0.0.1:9223/json/list',timeout=2) as response:
+                pages=json.load(response)
+            if any(p.get('type')=='page' for p in pages):break
+        except (OSError,ValueError):pass
+        try:
+            nodes=ui_nodes()
+            brief=[{'app':n.get('package'),'text':(n.get('text') or n.get('content-desc') or n.get('class') or '')[:100]} for n in nodes]
+            report['environment']['initialChromeScreens'].append(brief[-16:])
+            for n in nodes:
+                label=(n.get('text') or n.get('content-desc','')).strip().lower()
+                if label in labels and n.get('enabled')=='true':tap(*box(n));break
+        except (RuntimeError,ET.ParseError,subprocess.TimeoutExpired):pass
+        time.sleep(2)
+    else:
+        sockets=sh('cat','/proc/net/unix',check=False)
+        report['environment']['browserSockets']=[s.split()[-1] for s in sockets.splitlines() if 'devtools_remote' in s]
+        focus=sh('dumpsys','window',check=False)
+        report['environment']['foreground']=[l.strip() for l in focus.splitlines() if 'mCurrentFocus' in l][:3]
+        raise RuntimeError('Chrome did not expose the candidate tab within 110 seconds')
     if not read('document.querySelector("form[data-contact-form]")!==null'):
-        command('goto',BASE+'contact.html');time.sleep(1)
-    assert read('document.querySelector("form[data-contact-form]")!==null')
-    webviews=[n for n in ui_nodes() if n.get('class')=='android.webkit.WebView' and n.get('package')==CHROME]
+        command('goto',BASE+'contact.html')
+    for i in range(20):
+        if read('document.querySelector("form[data-contact-form]")!==null'):break
+        time.sleep(.4)
+    else:raise RuntimeError('Android Chrome opened but the local contact page was unavailable')
+    nodes=ui_nodes()
+    webviews=[n for n in nodes if n.get('class')=='android.webkit.WebView' and n.get('package')==CHROME]
     if webviews:
         return int(re.findall(r'\d+',webviews[0].get('bounds'))[1])
     return int(read('(screen.height - window.innerHeight)*devicePixelRatio'))
+
 def enable_logging():
     settings=sh('cmd','package','query-activities','--brief','-c','android.accessibilityservice.SERVICE_SETTINGS',APP)
     components=re.findall(r'('+re.escape(APP)+r'/[\.\w$]+PreferencesActivity)',settings)
@@ -110,9 +140,22 @@ def environment():
     report['environment']['tts']=sh('settings','get','secure','tts_default_synth')
     global WIDTH,HEIGHT,TOP
     WIDTH,HEIGHT=map(int,re.findall(r'(\d+)x(\d+)',sh('wm','size'))[-1])
-    TOP=verify_chrome()
+    try:
+        enable_logging()
+    except (RuntimeError,ET.ParseError,subprocess.TimeoutExpired) as error:
+        # The speaker recording remains available if this version has a different
+        # developer-settings layout. Never infer spoken words from the DOM.
+        report['details'].append({'group':'TalkBack debug output preferences','error':str(error)})
+    save()
+    try:
+        TOP=verify_chrome()
+    except (RuntimeError,subprocess.TimeoutExpired) as error:
+        TOP=None
+        report['details'].append({'group':'Chrome coordinate interface','error':str(error)})
     report['environment']['webViewTopInitial']=TOP
-    enable_logging()
+    if report['environment']['tts'] in ('null','') and 'com.google.android.tts' in pkgs:
+        sh('settings','put','secure','tts_default_synth','com.google.android.tts')
+        report['environment']['tts']=sh('settings','get','secure','tts_default_synth')
     service=APP+'/.TalkBackService'
     sh('settings','put','secure','enabled_accessibility_services',service)
     sh('settings','put','secure','accessibility_enabled','1');time.sleep(3.5)
@@ -156,6 +199,20 @@ def sample(label,action,expected,verify=None,one_of=()):
     save()
     print(('PASS ' if passed else 'REVIEW ')+label+': '+str(utterances)[-500:],flush=True)
     return passed
+def first_menu():
+    # The first on-site check uses actual TalkBack swipes and a double tap, even
+    # when Chrome's optional remote-inspection port is still unavailable.
+    def advance():
+        for i in range(16):
+            sh('input','swipe',WIDTH//3,HEIGHT//2,2*WIDTH//3,HEIGHT//2,160)
+            time.sleep(.55)
+            if 'ouvrir le menu' in compact(' '.join(heard())):
+                return {'forwardSwipes':i+1}
+        return {'forwardSwipes':16}
+    found=sample('Premier parcours tactile FR – commande de navigation',advance,['ouvrir le menu'])
+    if found:
+        sample('Premier parcours tactile FR – activation du menu',lambda:double(WIDTH//2,HEIGHT//2),['fermer le menu'])
+
 def xy(selector,adjust=0):
     q=json.dumps(selector)
     expression=f"""(async()=>{{const e=document.querySelector({q});if(!e)throw Error('Missing target '+{q});e.scrollIntoView({{block:'center',behavior:'instant'}});await new Promise(r=>setTimeout(r,200));const b=e.getBoundingClientRect();const y=Math.max(4,Math.min(innerHeight-4,b.y+Math.min(b.height/2,24)));return [Math.max(6,Math.min(innerWidth-6,b.x+Math.min(b.width/2,80)))*devicePixelRatio,y*devicePixelRatio,devicePixelRatio];}})()"""
@@ -242,9 +299,11 @@ def attempt(group,test):
 try:
     environment()
     save()
-    for en in [False,True]:
-        attempt('Main controls '+str(en),lambda:journey(en))
-        attempt('House demonstration '+str(en),lambda:tapdemo(en))
+    attempt('FR navigation tactile initiale',first_menu)
+    if TOP is not None:
+        for en in [False,True]:
+            attempt('House demonstration '+str(en),lambda:tapdemo(en))
+            attempt('Main controls '+str(en),lambda:journey(en))
 except Exception as err:
     report['details'].append({'group':'Android setup','error':str(err),'trace':traceback.format_exc()[-1000:]})
 finally:

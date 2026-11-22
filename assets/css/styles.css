@@ -78,3 +78,4 @@ html[data-reading-theme] .flow-node::before{color:inherit!important}
 
 /* Give standalone reading and navigation links room for a touch or stylus. */
 .breadcrumbs a,.contact-details>a,.link-list-touch a,.audit-pages a,.audit-standards a{display:inline-flex;align-items:center;min-height:44px;min-width:44px;max-width:100%}
+.audit-pages>summary{min-height:44px;padding-block:.5rem;cursor:pointer;text-decoration:underline;text-underline-offset:.2em}
