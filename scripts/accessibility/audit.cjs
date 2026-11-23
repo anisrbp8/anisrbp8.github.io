@@ -12,7 +12,7 @@ const report={date:new Date().toISOString(),tools:{axe:require('axe-core').versi
  try {
   for(let i=0;i<30;i++){try{await fetch('http://127.0.0.1:8877/');break;}catch{await new Promise(r=>setTimeout(r,200));}}
   browser=await chromium.launch(process.env.CHROMIUM_EXECUTABLE_PATH ? {executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox']} : {});
-  for(const width of [1280,768,390,320]){
+  for(const width of [1440,1280,768,390,320]){
    const page=await browser.newPage({viewport:{width,height:900},reducedMotion:'reduce'});
    for(const file of paths){
     const errors=[];const handler=e=>errors.push(e.message);page.on('pageerror',handler);
@@ -97,10 +97,10 @@ const report={date:new Date().toISOString(),tools:{axe:require('axe-core').versi
     report.keyboard.push({test:'Reading controls reset',width,passed:await modePage.evaluate(()=>!document.documentElement.hasAttribute('data-reading-theme')&&!document.documentElement.hasAttribute('data-reading-size')&&!document.documentElement.hasAttribute('data-reading-space'))});
     await modePage.close();
   }
-  report.summary={pages:paths.length,renderedChecks:report.checks.length,violations:report.checks.reduce((s,x)=>s+x.violations.length,0),reviewItems:report.checks.reduce((s,x)=>s+x.incomplete.length,0),layoutFailures:report.checks.filter(x=>x.overflow.page||x.textSpacingOverflow).length,keyboardFailures:report.keyboard.filter(x=>!x.passed).length};
+  report.summary={pages:paths.length,renderedChecks:report.checks.length,violations:report.checks.reduce((s,x)=>s+x.violations.length,0),scriptErrors:report.checks.reduce((n,check)=>n+check.errors.length,0),reviewItems:report.checks.reduce((s,x)=>s+x.incomplete.length,0),layoutFailures:report.checks.filter(x=>x.overflow.page||x.textSpacingOverflow).length,keyboardFailures:report.keyboard.filter(x=>!x.passed).length};
   console.log(JSON.stringify(report.summary));
   console.log('EXTRA_CHECKS '+JSON.stringify(report.keyboard));
-  process.exitCode=Object.entries(report.summary).some(([k,v])=>['violations','layoutFailures','keyboardFailures'].includes(k)&&v>0)?1:0;
+  process.exitCode=Object.entries(report.summary).some(([k,v])=>['violations','layoutFailures','keyboardFailures','scriptErrors'].includes(k)&&v>0)?1:0;
  }catch(e){report.error=e.stack;console.error(e);process.exitCode=1;}
  finally{fs.writeFileSync(path.join(out,'accessibility-results.json'),JSON.stringify(report,null,2));if(browser)await browser.close();server.kill();}
 })();
