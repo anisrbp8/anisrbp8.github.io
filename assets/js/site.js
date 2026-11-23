@@ -1,6 +1,19 @@
 (() => {
   'use strict';
 
+
+  // Keep the back-to-top link in the document when JS is disabled.
+  // With JS, show it as soon as the reader begins scrolling down.
+  const backToTop = document.querySelector('.back-to-top[href="#page-top"]');
+  if (backToTop) {
+    document.documentElement.classList.add('back-to-top-enhanced');
+    const updateBackToTop = () => {
+      backToTop.classList.toggle('is-visible', window.scrollY > 80);
+    };
+    window.addEventListener('scroll', updateBackToTop, {passive: true});
+    updateBackToTop();
+  }
+
   const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
   const labels = isEnglish
     ? {open: 'Open menu', close: 'Close menu'}
