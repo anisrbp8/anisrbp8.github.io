@@ -57,6 +57,11 @@ async function capture(page, dialogOpen = false) {
   });
   const toggle = page.locator('.mobile-menu-toggle');
   if (!dialogOpen && await toggle.isVisible()) await toggle.click();
+  // The floating shortcut is exposed only after scrolling a long page.
+  if (!dialogOpen) {
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  }
   const data = await page.evaluate(documentData);
   const cdp = await page.context().newCDPSession(page);
   try {

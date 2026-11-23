@@ -33,7 +33,15 @@ const record = (test, passed, detail) => checks.push({test,passed,detail});
     const top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
     return document.querySelector('.mobile-panel').hidden===true && e.matches('.utility-links a') && (top===e || e.contains(top));
    }));
-   record(file+' back-to-top link stays in the document flow',await page.locator('.back-to-top').evaluate(e=>getComputedStyle(e).position==='static'));
+   const returnLink = page.locator('.back-to-top');
+   await page.evaluate(() => window.scrollTo(0, 160));
+   await returnLink.waitFor({state:'visible'});
+   await returnLink.focus();
+   await page.keyboard.press('Enter');
+   await returnLink.waitFor({state:'hidden'});
+   record(file+' back-to-top returns keyboard focus to the header',
+     await page.evaluate(() => document.activeElement.id === 'page-top'));
+
    // A viewport switch must not strand focus in links hidden by the desktop layout.
    await menuToggle.click();
    await page.locator('.mobile-panel a').first().focus();

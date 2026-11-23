@@ -85,7 +85,7 @@
       }
     });
 
-    const desktop = window.matchMedia('(min-width: 70.01rem)');
+    const mobile = window.matchMedia('(max-width: 70rem)');
     // A browser can blur a link as its parent becomes display:none, before matchMedia fires.
     const desktopNav = document.querySelector('.desktop-nav');
     let lastNavigationFocus = null;
@@ -93,10 +93,9 @@
       lastNavigationFocus = container.contains(event.target) || desktopNav?.contains(event.target)
         ? event.target : null;
     });
-    const closeOnDesktop = (event) => {
+    const syncNavigation = (event) => {
       const previous = document.activeElement === document.body ? lastNavigationFocus : document.activeElement;
-      if (!previous) return;
-      if (!event.matches) {
+      if (event.matches) {
         if (desktopNav?.contains(previous)) button.focus();
         return;
       }
@@ -107,8 +106,8 @@
         target?.focus();
       }
     };
-    if (desktop.addEventListener) desktop.addEventListener('change', closeOnDesktop);
-    else if (desktop.addListener) desktop.addListener(closeOnDesktop);
+    if (mobile.addEventListener) mobile.addEventListener('change', syncNavigation);
+    else if (mobile.addListener) mobile.addListener(syncNavigation);
   });
 })();
 
