@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Validate the deployed site's local navigation and asset graph."""
 from pathlib import Path
+from collections import Counter
+import csv
 from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
 import json,re,xml.etree.ElementTree as ET
@@ -50,22 +52,49 @@ class Page(HTMLParser):
   if tag=='a':self.in_statement_link=False
   if tag=='footer':self.in_footer=False
 
-def published_footer_label(statement, prefix, statuses):
- text=statement.read_text()
- matches=[status for status in statuses if '<strong>'+status+' ' in text]
- return prefix+matches[0] if len(matches)==1 else None
+def audit_totals(pages):
+    with (ROOT / 'audit/rgaa-2026-11/grille.csv').open(encoding='utf-8-sig', newline='') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        criteria = reader.fieldnames[2:]
+    if len(set(criteria)) != 106:
+        raise ValueError('Expected the 106 RGAA 4.1.2 criteria in the published matrix')
+    if len(rows) != len(pages) or {row['Page'] for row in rows} != pages:
+        raise ValueError('The published audit matrix must cover every HTML page exactly once')
+    totals = Counter()
+    for criterion in criteria:
+        values = {row[criterion] for row in rows}
+        if not values <= {'C', 'NC', 'NA', 'NT'}:
+            raise ValueError(f'Unknown result for criterion {criterion}: {values}')
+        # One failed page prevents a pass. An unfinished check cannot establish a pass.
+        result = next(code for code in ('NC', 'NT', 'C', 'NA') if code in values)
+        totals[result] += 1
+    return totals
 
-footer_labels={
- 'fr':published_footer_label(ROOT/'accessibilite.html','Accessibilité · ',('non conforme','partiellement conforme','totalement conforme')),
- 'en':published_footer_label(ROOT/'en/accessibility.html','Accessibility · ',('non-compliant','partially compliant','fully compliant'))
-}
 files=sorted(p for p in ROOT.rglob('*.html') if not any(x in {'node_modules','test-output','.git'} for x in p.parts));parsed={p:Page(p.read_text()) for p in files};issues=[];checks=0
+totals = audit_totals({p.relative_to(ROOT).as_posix() for p in files})
+met = totals['C']
+applicable = met + totals['NC'] + totals['NT']
+percentage = f'{100 * met / applicable:.1f}'
+fr_percent = percentage.replace('.', ',') + ' %'
+en_percent = percentage + '%'
+footer_labels = {
+    'fr': 'Accessibilité · ' + fr_percent + (' (bilan provisoire)' if totals['NT'] else ''),
+    'en': 'Accessibility · ' + en_percent + (' (interim result)' if totals['NT'] else '')
+}
+statements = {
+    'accessibilite.html': f'{met} critères validés sur {applicable} applicables ({fr_percent})',
+    'en/accessibility.html': f'{met} of {applicable} applicable criteria met ({en_percent})'
+}
+for name, result in statements.items():
+    if f'<strong id="audit-result">{result}</strong>' not in (ROOT / name).read_text():
+        issues.append([name, 'The published result must agree with the audit matrix'])
 for p,page in parsed.items():
  rel=str(p.relative_to(ROOT));text=p.read_text()
  for issue in page.issues:issues.append([rel,issue])
  expected_footer=footer_labels.get(page.lang)
  if not expected_footer or [' '.join(label.split()) for label in page.footer_statement_labels]!=[expected_footer]:
-  issues.append([rel,'Footer link must state the accessibility status published in this language'])
+  issues.append([rel,'Footer link does not match the published audit result in this language'])
  if not page.lang:issues.append([rel,'Missing language'])
  if page.h1!=1:issues.append([rel,'Expected one h1'])
  if len(set(page.ids))!=len(page.ids):issues.append([rel,'Duplicate IDs'])

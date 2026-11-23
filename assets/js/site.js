@@ -165,7 +165,7 @@
   const expanded=document.createElement('figure');expanded.className='expanded-scientific-figure';expanded.setAttribute('role','figure');
   const caption=document.createElement('figcaption');caption.className='figure-dialog-caption';
   const description=document.createElement('div');description.className='expanded-figure-description';
-  header.append(title,close,zoom,original);expanded.append(viewport,caption);dialog.append(header,expanded,description);document.body.append(dialog);
+  header.append(title,close,zoom,original);expanded.append(caption,viewport,description);dialog.append(header,expanded);document.body.append(dialog);
   let opener=null,previousOverflow='';
   links.forEach(link=>{
     link.setAttribute('aria-haspopup','dialog');
@@ -178,9 +178,14 @@
       if (!img.parentElement) viewport.append(img);
       caption.textContent=figure.querySelector('figcaption').textContent;
       expanded.setAttribute('aria-label',caption.textContent);
-      const longText=container.querySelector('.figure-description, .figure-actions a[href*="#article-figure-"]');
+      const longText=container.querySelector('.figure-description, .figure-text-link');
       description.replaceChildren();
-      if(longText)description.append(longText.cloneNode(true));
+      if (longText) {
+        const copy = longText.cloneNode(true);
+        // Fragment links on the page must keep a single target when the dialog opens.
+        copy.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+        description.append(copy);
+      }
       viewport.classList.remove('original-size');zoom.setAttribute('aria-pressed','false');
       previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';dialog.showModal();close.focus();viewport.scrollTo(0,0);
     });

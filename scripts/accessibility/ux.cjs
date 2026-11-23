@@ -16,6 +16,23 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
    const ctx=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce',permissions:['clipboard-read','clipboard-write']});
    const page=await ctx.newPage();
    const label=`${en?'EN':'FR'} ${width}`;
+   await check(label+' keyboard link opens the EEG map description with and without JavaScript',async()=>{
+    for (const javaScriptEnabled of [true,false]) {
+     const context=await browser.newContext({viewport:{width,height:900},javaScriptEnabled});
+     try {
+      const reader=await context.newPage();
+      await reader.goto(base+'/'+prefix+'index.html');
+      const link=reader.locator('#featured-figure-home img + a.figure-text-link');
+      await link.focus();
+      await reader.keyboard.press('Enter');
+      const text=reader.locator('#article-figure-2-description');
+      await text.waitFor({state:'visible'});
+      assert.ok(reader.url().endsWith(research+'#article-figure-2-description'));
+      assert.ok(await text.evaluate(p=>p.closest('details').open&&p===document.activeElement));
+      assert.match(await text.innerText(),/HandStart/);
+     } finally { await context.close(); }
+    }
+   });
    await check(label+' researcher journey: home → theme → representative article',async()=>{
     await page.goto(base+'/'+prefix+'index.html');await page.locator('.visitor-card .card-link').nth(0).click();
     assert.ok(page.url().endsWith(research));await page.locator(`.research-nav a[href="#${axis}-3"]`).click();
@@ -84,7 +101,7 @@ async function check(name,fn){try{await fn();checks.push({name,passed:true});}ca
      const preview=figure.locator('figure > img');
      await preview.scrollIntoViewIfNeeded();
      await preview.evaluate(image=>image.decode());
-     const description=figure.locator('.figure-description');
+     const description=figure.locator('figure > img + details.figure-description');
      await description.locator('summary').focus();
      await page.keyboard.press('Enter');
      assert.ok(await description.locator('p, ul').first().isVisible());
