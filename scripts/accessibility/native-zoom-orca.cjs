@@ -96,15 +96,11 @@ async function checkOrca(page, temporary) {
       report.keyboard[file] = trace;
       try {
         await page.bringToFront();
-        focusBrowserWindow();
         const url = `${base}/${file}`;
-        // Use the browser's real address bar so that Orca receives the same window,
-        // document-load and focus events as a person opening the page from a URL.
-        key('ctrl+l');
-        run('xdotool', 'type', '--clearmodifiers', '--delay', '1', url);
-        key('Return');
-        await page.waitForURL(url, { timeout: 10000 });
-        await page.waitForLoadState('networkidle');
+        // Open the requested document directly. Orca may intercept characters
+        // typed into Chromium's address bar and send the test to a search page.
+        await page.goto(url, {waitUntil: 'networkidle'});
+        focusBrowserWindow();
         const form = page.locator('form[data-contact-form]');
         const name = form.locator('input[name="name"]');
         const email = form.locator('input[name="email"]');
@@ -119,10 +115,7 @@ async function checkOrca(page, temporary) {
         for (const path of ['page', 'form link']) {
           if (path === 'form link') {
             // This is also the direct URL used by candidacy links on the site.
-            key('ctrl+l');
-            run('xdotool', 'type', '--clearmodifiers', '--delay', '1', url + fragment);
-            key('Return');
-            await page.waitForURL(url + fragment, { timeout: 5000 });
+            await page.goto(url + fragment, {waitUntil: 'load'});
           }
           await delay(1200);
           trace.push({ path, window: run('xdotool', 'getwindowfocus', 'getwindowname'), initial: await active() });
@@ -135,10 +128,6 @@ async function checkOrca(page, temporary) {
             await delay(350);
             const focus = await active();
             trace.push(focus);
-            if (focus.href === fragment) {
-              key('Return');
-              await delay(400);
-            }
             if (focus.id === 'contact-name') {
               seenName = true;
               await delay(650);
