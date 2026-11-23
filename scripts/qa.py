@@ -72,7 +72,13 @@ def audit_totals(pages):
     return totals
 
 files=sorted(p for p in ROOT.rglob('*.html') if not any(x in {'node_modules','test-output','.git'} for x in p.parts));parsed={p:Page(p.read_text()) for p in files};issues=[];checks=0
-totals = audit_totals({p.relative_to(ROOT).as_posix() for p in files})
+# The November matrix describes the 29 pages assessed at that date.
+# New pages still receive all live checks below.
+pages_since_audit = {'mentions-legales.html', 'en/legal-notice.html'}
+current_pages = {p.relative_to(ROOT).as_posix() for p in files}
+if not pages_since_audit <= current_pages:
+    raise ValueError('Missing bilingual legal notice')
+totals = audit_totals(current_pages - pages_since_audit)
 met = totals['C']
 applicable = met + totals['NC'] + totals['NT']
 percentage = f'{100 * met / applicable:.1f}'

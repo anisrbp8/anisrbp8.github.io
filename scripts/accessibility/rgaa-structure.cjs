@@ -165,7 +165,7 @@ async function main() {
     const options = process.env.CHROMIUM_EXECUTABLE_PATH ? {executablePath:process.env.CHROMIUM_EXECUTABLE_PATH,args:['--no-sandbox']} : {};
     browser = await chromium.launch(options); report.browser = browser.version();
     const files = ['', 'en/'].flatMap(dir => fs.readdirSync(path.join(root,dir)).filter(p => p.endsWith('.html')).sort().map(p => dir + p));
-    assert.equal(files.length,29);
+    assert.equal(files.length,31);
     for (const name of files) {
       try { await inspect(browser,base,name); }
       catch (error) { report.errors.push({name, issue:error.message}); }
