@@ -22,6 +22,8 @@ Les fichiers `netlify.toml`, `_headers` et `configure_site.py` issus de l’arch
 
 ## Audit d’accessibilité
 
+Le [bilan des 29 pages du site](accessibilite.html) donne le nombre de critères RGAA validés et le périmètre des téléchargements. Les [résultats par page](audit/rgaa-2026-11/grille.csv) servent de référence au contrôle du pourcentage affiché en français et en anglais.
+
 Voir [le rapport technique](audit/RAPPORT-ACCESSIBILITE.md), les résultats JSON et la matrice RGAA dans `audit/`. Ces documents ne constituent pas une certification. Les résultats bruts antérieurs sont conservés comme historique de leur révision ; le rapport précise leur date et leur périmètre. Le workflow axe/Playwright parcourt les 29 pages à 320, 390, 768 et 1 280 pixels CSS. Un second job vérifie les zooms natifs de Chromium à 200 % et 400 % et la lecture des champs de contact par Orca en français et en anglais. Les quatre PDF disposent de versions HTML intégrales accessibles depuis leurs liens de téléchargement.
 
 ## Figures du séminaire ICH

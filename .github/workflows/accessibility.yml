@@ -17,6 +17,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify site links and the published audit calculation
+        run: python3 scripts/qa.py
       - name: Install pinned audit tools
         working-directory: scripts/accessibility
         run: npm ci --ignore-scripts --no-audit --no-fund
